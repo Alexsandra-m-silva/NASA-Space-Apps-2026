@@ -43,36 +43,37 @@
       .dates { display: flex; justify-content: space-between; font-size: 0.75rem; color: #e8a54b; }
       .shots { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 10px; }
       .shots figure { margin: 0; }
-      .shots img { width: 100%; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid #334155; }
+      .shots img { width: 100%; height: 120px; object-fit: cover; border-radius: 6px; border: 1px solid #f5e642; }
       .shots figcaption { font-size: 0.65rem; color: #9aa7bd; margin-top: 2px; }
+      .poly-label { background: #111; color: #ffe628; border: 0; font-weight: 700; }
     </style>
   </head>
   <body>
     <div id="map"></div>
     <aside class="panel">
       <h1>Climate Guardian</h1>
-      <p class="sub">Uruguay River flood, Uruguaiana, Brazil. Same NISAR orbit, 12 days apart, while Civil Defense kept the river at alert and inundation stage.</p>
+      <p class="sub">Human check box, Uruguay River bank. Yellow rings are the same polygons on both dates. Keep a number only if it sits on bright land on 30 Sep and on dark water on 12 Oct.</p>
       <div class="row">
         <div>
           <label>Before (NISAR)</label>
-          <input id="dateBefore" type="date" value="2026-10-24" />
+          <input id="dateBefore" type="date" value="2026-09-30" />
         </div>
         <div>
           <label>After (NISAR)</label>
-          <input id="dateAfter" type="date" value="2026-11-05" />
+          <input id="dateAfter" type="date" value="2026-10-12" />
         </div>
       </div>
       <label><input id="gpmToggle" type="checkbox" /> Overlay GPM IMERG rain (after date)</label>
       <button id="apply">Reload NASA scenes</button>
       <div class="shots">
-        <figure><img src="scenes/before.png" alt="NISAR 24 Oct 2026" /><figcaption>24 Oct</figcaption></figure>
-        <figure><img src="scenes/after.png" alt="NISAR 5 Nov 2026" /><figcaption>5 Nov</figcaption></figure>
-        <figure><img src="scenes/change.png" alt="Detected change" /><figcaption>Change</figcaption></figure>
+        <figure><img src="scenes/before.png?v=4" alt="NISAR 30 Sep 2026" /><figcaption>30 Sep + polygons</figcaption></figure>
+        <figure><img src="scenes/after.png?v=4" alt="NISAR 12 Oct 2026" /><figcaption>12 Oct + polygons</figcaption></figure>
+        <figure><img src="scenes/change.png?v=4" alt="Side by side" /><figcaption>Side by side</figcaption></figure>
       </div>
       <p class="legend">
-        <span class="chip" style="background:#ff3030"></span> new open water
-        <span class="chip" style="background:#30d2ff"></span> water that receded<br />
-        Dark ribbon is the Uruguay River in L-band GCOV. Red and cyan are the calculated change between the two passes.
+        <span class="chip" style="background:#ff3030"></span> polygon to check
+        <span class="chip" style="background:#f5e642"></span> outline, same on both dates<br />
+        Drag the slider. The rings stay put. Reject any number that is already dark on 30 Sep.
       </p>
       <div id="stats" class="legend"></div>
     </aside>
@@ -85,9 +86,9 @@
       const GIBS = "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best";
       const NISAR = "NISAR_L2_Geocoded_Polarimetric_Covariance";
       const GPM = "IMERG_Precipitation_Rate";
-      const uruguaiana = [-29.75, -57.05];
+      const uruguaiana = [-29.726, -57.041];
 
-      const map = L.map("map", { zoomControl: true }).setView(uruguaiana, 11);
+      const map = L.map("map", { zoomControl: true }).setView(uruguaiana, 14);
       L.tileLayer(
         "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg",
         {
@@ -104,37 +105,28 @@
         return `${GIBS}/${GPM}/default/${date}/GoogleMapsCompatible_Level6/{z}/{y}/{x}.png`;
       }
 
-      let beforeLayer, afterLayer, gpmLayer;
-      const overlay = L.layerGroup().addTo(map);
-
-      function nisarLayer(date) {
-        return L.tileLayer(nisarUrl(date), {
-          tileSize: 256,
-          maxNativeZoom: 13,
-          maxZoom: 16,
-          opacity: 0.92,
-          attribution: "NASA NISAR GCOV via GIBS",
-        });
-      }
+      let beforeLayer, afterLayer, gpmLayer, polyLayer;
 
       function clipAfter() {
-        const pane = afterLayer.getContainer();
-        if (!pane) return;
         const pct = Number(document.getElementById("slider").value);
-        pane.style.clipPath = `inset(0 0 0 ${pct}%)`;
+        if (afterLayer) afterLayer.setOpacity(pct / 100);
+      }
+
+      function showCheck(bounds) {
+        const leafletBounds = [[bounds.south, bounds.west], [bounds.north, bounds.east]];
+        if (beforeLayer) map.removeLayer(beforeLayer);
+        if (afterLayer) map.removeLayer(afterLayer);
+        beforeLayer = L.imageOverlay("scenes/before.png?v=4", leafletBounds, { opacity: 1 }).addTo(map);
+        afterLayer = L.imageOverlay("scenes/after.png?v=4", leafletBounds, { opacity: 0.5 }).addTo(map);
+        map.fitBounds(leafletBounds, { padding: [24, 24] });
+        clipAfter();
       }
 
       function refresh() {
-        const before = document.getElementById("dateBefore").value;
-        const after = document.getElementById("dateAfter").value;
-        document.getElementById("labelBefore").textContent = before;
-        document.getElementById("labelAfter").textContent = after;
-        overlay.clearLayers();
-        beforeLayer = nisarLayer(before).addTo(overlay);
-        afterLayer = nisarLayer(after).addTo(overlay);
-        afterLayer.on("load", clipAfter);
+        document.getElementById("labelBefore").textContent = "2026-09-30";
+        document.getElementById("labelAfter").textContent = "2026-10-12";
+        fetch("scenes/bounds.json").then((r) => r.json()).then(showCheck);
         syncGpm();
-        setTimeout(clipAfter, 300);
       }
 
       function syncGpm() {
@@ -156,17 +148,28 @@
       document.getElementById("slider").addEventListener("input", clipAfter);
       document.getElementById("apply").addEventListener("click", refresh);
       document.getElementById("gpmToggle").addEventListener("change", syncGpm);
+      fetch("scenes/change_polygons.geojson")
+        .then((r) => r.json())
+        .then((geo) => {
+          polyLayer = L.geoJSON(geo, {
+            style: { color: "#ffe628", weight: 2, fillColor: "#ff2a2a", fillOpacity: 0.25 },
+            onEachFeature: (feature, layer) => {
+              const p = feature.properties;
+              layer.bindTooltip(`#${p.id} · ${p.ha} ha`, { permanent: true, direction: "center", className: "poly-label" });
+            },
+          }).addTo(map);
+        });
       refresh();
 
       fetch("scenes/change_stats.json")
         .then((r) => (r.ok ? r.json() : null))
         .then((stats) => {
           if (!stats) return;
+          const lines = (stats.polygon_ha || [])
+            .map((p) => `#${p.id} ${p.ha} ha`)
+            .join(" · ");
           document.getElementById("stats").innerHTML =
-            `<strong>${stats.place}</strong><br>` +
-            `New open water: ${stats.new_inundation_ha.toFixed(0)} ha<br>` +
-            `Water receded: ${stats.receded_ha.toFixed(0)} ha<br>` +
-            `${stats.geometry}`;
+            `<strong>${stats.polygons} polygons, ${stats.new_inundation_ha} ha</strong><br>${lines}`;
         })
         .catch(() => {});
     </script>

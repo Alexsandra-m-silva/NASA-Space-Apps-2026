@@ -1,7 +1,8 @@
 """Build a before/after flood scene from public NISAR GIBS tiles.
 
-Same-orbit pair over the Uruguay River at Uruguaiana, Rio Grande do Sul:
-validated GCOV on 2026-10-24 and 2026-11-05 (track 010, frame 103, 12 days).
+Validation site, one reach of the Uruguay River at Uruguaiana.
+Same descending track 010, frame 103, one 12-day cycle:
+30 Sep 2026 (before the peak) and 12 Oct 2026 (flood week, displacements).
 
 Open water in the GIBS false-color mosaic is the dark, low-backscatter class.
 This is a browse-resolution proxy (~33 m), not a calibrated gamma0 threshold.
@@ -24,10 +25,10 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "web" / "scenes"
 STATS = ROOT / "web" / "scenes" / "change_stats.json"
 
-BEFORE = "2026-10-24"
-AFTER = "2026-11-05"
-# west, south, east, north — inside the 24 Oct / 5 Nov swath
-BBOX = (-57.20, -29.98, -56.72, -29.48)
+BEFORE = "2026-09-30"
+AFTER = "2026-10-12"
+# west, south, east, north — one river reach, about 15 km
+BBOX = (-57.12, -29.83, -56.97, -29.70)
 ZOOM = 12
 # Dark class in the public false-color GCOV mosaic.
 WATER_LUM = 40
@@ -109,21 +110,21 @@ def main() -> None:
         "place": "Uruguay River at Uruguaiana, Rio Grande do Sul, Brazil",
         "event": "Uruguay River flood, October–November 2026",
         "climate_action": (
-            "Rio Grande do Sul Civil Defense held São Borja above the inundation "
-            "stage and Itaqui and Uruguaiana at alert. Copernicus EMS reported "
-            "289 people displaced in Itaqui and 217 in Uruguaiana."
+            "This reach is the check site. 12 Oct is the flood week: Copernicus EMS "
+            "reported 289 people displaced in Itaqui and 217 in Uruguaiana. "
+            "30 Sep is the same orbit one cycle earlier, before that peak."
         ),
-        "product": "NISAR_L2_GCOV_V1",
-        "granule_before": "NISAR_L2_PR_GCOV_034_010_D_103_2005_DHDH_A_20261024T215847_20261024T215922_P05036_N_F_J_001",
-        "granule_after": "NISAR_L2_PR_GCOV_035_010_D_103_2005_DHDH_A_20261105T215848_20261105T215922_P05036_N_F_J_001",
+        "product": "NISAR_L2_GCOV_PROVISIONAL_V1",
+        "granule_before": "NISAR_L2_PR_GCOV_032_010_D_103_2005_DHDH_A_20260930T215847_20260930T215922_P05023_N_F_J_001",
+        "granule_after": "NISAR_L2_PR_GCOV_033_010_D_103_2005_DHDH_A_20261012T215847_20261012T215922_P05023_N_F_J_001",
         "geometry": "Same descending track 010, frame 103, dual-pol HH/HV, 12-day repeat",
         "before": BEFORE,
         "after": AFTER,
         "bbox": list(BBOX),
         "center": [lat, (BBOX[0] + BBOX[2]) / 2],
-        "zoom": 11,
+        "zoom": 13,
         "method": (
-            "Open-water proxy on the public GIBS false-color mosaic of validated "
+            "Open-water proxy on the public GIBS false-color mosaic of provisional "
             "GCOV: mean RGB below 40, and a jump from land brightness (>=75) so "
             "speckle is not counted. Browse pixels are about 33 m, not the native "
             "10–20 m gamma0 grid."

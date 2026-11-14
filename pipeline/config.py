@@ -12,12 +12,12 @@ DATA_PROCESSED = ROOT / "data" / "processed"
 WEB_OVERLAYS = ROOT / "web" / "overlays"
 
 # west, south, east, north — Uruguay River at Uruguaiana
-AOI_BBOX = (-57.20, -29.98, -56.72, -29.48)
+AOI_BBOX = (-57.12, -29.83, -56.97, -29.70)
 AOI_NAME = "uruguaiana-uruguay-river"
 
 # NISAR 12-day repeat. Pick two dates one cycle apart.
-DATE_BEFORE = "2026-10-24"
-DATE_AFTER = "2026-11-05"
+DATE_BEFORE = "2026-09-30"
+DATE_AFTER = "2026-10-12"
 
 # VALIDATED (from 21 Oct 2026) then PROVISIONAL fallback
 NISAR_SHORT_NAMES = (
