@@ -18,7 +18,7 @@ NASA Space Apps Challenge 2026. NISAR L-band no núcleo da detecção; GPM IMERG
 python -m http.server 8000 --directory web
 ```
 
-Abra `http://localhost:8000`. O slider compara duas datas GIBS NISAR sobre o Pantanal. Marque GPM para chuva.
+Open `http://localhost:8000`. The slider compares two NISAR passes over the Uruguay River at Uruguaiana (24 Oct and 5 Nov 2026, same track). Red and cyan on `web/scenes/change.png` are the calculated open-water change. Check GPM for rain.
 
 ## 2. Conta Earthdata (números reais)
 
