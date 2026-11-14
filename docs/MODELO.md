@@ -1,0 +1,39 @@
+# Modelo de degradação / desertificação validado pelo NISAR
+
+Branch `modelo-desertificacao`. Código em `pipeline/`, resultados resumidos em `docs/resultados/`.
+Dados brutos e processados ficam em `data/` (fora do git) e são regenerados pelos scripts.
+
+## Configuração
+
+```bash
+python -m venv .venv && .venv/Scripts/pip install -r requirements.txt
+cp .env.example .env   # EARTHDATA_USERNAME, EARTHDATA_PASSWORD (ASF DAAC autorizado), GEE_PROJECT
+.venv/Scripts/earthengine authenticate
+```
+
+## Fluxo
+
+| Etapa | Script | O que faz |
+|---|---|---|
+| Recorte | `nucleos.py`, `tese.py <area> points` | Municípios (malha IBGE) e pontos de amostra |
+| Degradação MODIS | `poligonos.py gee <area>` | RESTREND 2001–2024 (NDVI − chuva CHIRPS), classes degradado / controle / melhora, polígonos 250 m |
+| Degradação 30 m | `degradacao_30m.py download\|polygons` | Mesmo método com Landsat 5/7/8/9 (OLI harmonizado + calibração cruzada L7/L8) |
+| Evidências | `evidencias.py download\|polygons` | Convergência a 30 m: desmatamento, solo exposto, pastagem de vigor baixo, queda de NDVI, fogo (MapBiomas Col. 10) |
+| NISAR | `tese.py <area> nisar` | GCOV (HH/HV, jun–out/2026) lido direto da nuvem; features HV, HH, HV/HH, textura, variação temporal |
+| Validação NISAR | `tese.py analyze-poligonos` | XGBoost, blocos espaciais de ~11 km: AUC 0,76 (14 municípios) |
+| Clima | `clima_5.py` | Chuva, temperatura, ETP, aridez 1991–2024 (CHIRPS, ERA5-Land) |
+| Suscetibilidade | `suscetibilidade_5.py` | Índice de 5 componentes, validado pelo NISAR (ρ = 0,49) |
+| Correlações | `correlacoes_nisar.py`, `variacao_temporal.py` | NISAR × MapBiomas, MODIS, clima (estado e variação data a data) |
+| Utilidade do NISAR | `modelo_previsao.py` | Ablação: NISAR soma +0,10 de AUC na detecção de conversão da Caatinga |
+| Brasil, 12 meses | `brasil_previsao.py sample\|validate\|export\|download` | Modelo híbrido do Simemap (sinal de série temporal + gradient boosting), walk-forward, GeoTIFF nacional 1 km |
+
+## Principais resultados
+
+Ver `docs/resultados/RESULTADO_5_MUNICIPIOS.md`, `modelo_previsao.md`, `correlacoes_nisar.md` e `variacao_temporal.md`.
+
+## Limites
+
+- NISAR provisório e só estação seca de 2026 (desde jun/2026 sobre a área de estudo).
+- O gabarito é tendência de NDVI e MapBiomas, não medição de campo; degradação vegetal ≠ desertificação comprovada.
+- O mapa nacional usa MODIS, clima e MapBiomas; o NISAR é validado regionalmente na Caatinga.
+- Lista de municípios dos núcleos montada a partir da literatura (sem shapefile oficial aberto).

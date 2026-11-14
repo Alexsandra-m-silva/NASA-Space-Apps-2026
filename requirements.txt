@@ -9,3 +9,14 @@ geopandas
 pyproj
 harmony-py
 python-dotenv
+pandas
+openpyxl
+pyarrow
+earthengine-api
+h5py
+scipy
+scikit-learn
+xgboost
+requests
+tabulate
+pypdf

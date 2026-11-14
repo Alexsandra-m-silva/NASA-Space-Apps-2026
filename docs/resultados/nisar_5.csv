@@ -1,0 +1,7 @@
+municipio,pontos_degradado,pontos_controle,sensibilidade_%,especificidade_%,AUC
+Casa Nova/BA,227,203,64.3,68.5,0.744
+Currais Novos/RN,29,164,62.1,76.2,0.817
+Floresta/PE,31,62,35.5,62.9,0.506
+Parelhas/RN,0,25,,84.0,
+Petrolina/PE,199,102,78.9,53.9,0.743
+TOTAL 5,486,556,68.3,68.2,0.767
