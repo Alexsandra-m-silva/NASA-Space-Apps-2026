@@ -1,0 +1,9 @@
+.env
+.netrc
+__pycache__/
+*.pyc
+.venv/
+data/raw/
+data/processed/
+web/overlays/
+.DS_Store

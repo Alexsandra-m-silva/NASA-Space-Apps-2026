@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Climate Guardian — Dancing with the SARs</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <style>
+      :root {
+        --ink: #0b1220;
+        --paper: #f4f1ea;
+        --accent: #3dd6c6;
+        --warn: #e8a54b;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; font-family: "Segoe UI", system-ui, sans-serif; color: var(--paper); background: var(--ink); }
+      #map { position: absolute; inset: 0; }
+      .panel {
+        position: absolute; z-index: 500; top: 12px; left: 12px; width: min(380px, calc(100% - 24px));
+        background: rgba(11, 18, 32, 0.88); backdrop-filter: blur(10px);
+        border: 1px solid rgba(61, 214, 198, 0.35); border-radius: 14px; padding: 16px 16px 12px;
+      }
+      h1 { font-size: 1.05rem; margin: 0 0 4px; letter-spacing: 0.02em; }
+      .sub { color: #9aa7bd; font-size: 0.8rem; margin: 0 0 12px; }
+      label { display: block; font-size: 0.75rem; color: #9aa7bd; margin: 8px 0 4px; }
+      input[type="date"], button {
+        width: 100%; border-radius: 8px; border: 1px solid #334155; background: #111827; color: var(--paper);
+        padding: 8px 10px; font: inherit;
+      }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      button { cursor: pointer; background: #134e4a; border-color: var(--accent); margin-top: 10px; }
+      .legend { font-size: 0.72rem; color: #cbd5e1; margin-top: 10px; line-height: 1.35; }
+      .chip { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+      .compare {
+        position: absolute; z-index: 500; left: 50%; bottom: 18px; transform: translateX(-50%);
+        width: min(520px, calc(100% - 24px)); background: rgba(11, 18, 32, 0.9);
+        border: 1px solid rgba(232, 165, 75, 0.4); border-radius: 12px; padding: 10px 14px;
+      }
+      .compare input { width: 100%; }
+      .dates { display: flex; justify-content: space-between; font-size: 0.75rem; color: #e8a54b; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <aside class="panel">
+      <h1>Climate Guardian</h1>
+      <p class="sub">NISAR L-band GCOV no núcleo — inundação e áreas úmidas. GPM IMERG como contexto de chuva.</p>
+      <div class="row">
+        <div>
+          <label>Antes (NISAR)</label>
+          <input id="dateBefore" type="date" value="2026-10-24" />
+        </div>
+        <div>
+          <label>Depois (NISAR)</label>
+          <input id="dateAfter" type="date" value="2026-11-05" />
+        </div>
+      </div>
+      <label><input id="gpmToggle" type="checkbox" /> Sobrepor precipitação GPM IMERG (depois)</label>
+      <button id="apply">Atualizar cenas NASA</button>
+      <p class="legend">
+        <span class="chip" style="background:#3b82f6"></span> água calma / solo muito úmido (backscatter baixo)<br />
+        <span class="chip" style="background:#22c55e"></span> vegetação (HV alto no falso-cor GCOV)<br />
+        Imagens: GIBS <code>NISAR_L2_Geocoded_Polarimetric_Covariance</code> (mosaico diário do GCOV).
+        Neste recorte do Pantanal há passagem em 24/10, 26/10, 31/10 e 05/11/2026 — outros dias vêm vazios porque a órbita não cobre todo dia.
+        Números de área vêm do par HDF5 HH, não deste browse.
+      </p>
+      <div id="stats" class="legend"></div>
+    </aside>
+    <div class="compare">
+      <div class="dates"><span id="labelBefore">antes</span><span>arraste para comparar</span><span id="labelAfter">depois</span></div>
+      <input id="slider" type="range" min="0" max="100" value="50" />
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      const GIBS = "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best";
+      const NISAR = "NISAR_L2_Geocoded_Polarimetric_Covariance";
+      const GPM = "IMERG_Precipitation_Rate";
+      const pantanal = [-18.5, -57.0];
+
+      const map = L.map("map", { zoomControl: true }).setView(pantanal, 8);
+      L.tileLayer(
+        "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg",
+        {
+          attribution: "NASA GIBS Blue Marble · NISAR GCOV · GPM IMERG",
+          maxNativeZoom: 8,
+          maxZoom: 16,
+        }
+      ).addTo(map);
+
+      function nisarUrl(date) {
+        return `${GIBS}/${NISAR}/default/${date}/GoogleMapsCompatible_Level13/{z}/{y}/{x}.png`;
+      }
+      function gpmUrl(date) {
+        return `${GIBS}/${GPM}/default/${date}/GoogleMapsCompatible_Level6/{z}/{y}/{x}.png`;
+      }
+
+      let beforeLayer, afterLayer, gpmLayer;
+      const overlay = L.layerGroup().addTo(map);
+
+      function nisarLayer(date) {
+        return L.tileLayer(nisarUrl(date), {
+          tileSize: 256,
+          maxNativeZoom: 13,
+          maxZoom: 16,
+          opacity: 0.92,
+          attribution: "NASA NISAR GCOV via GIBS",
+        });
+      }
+
+      function clipAfter() {
+        const pane = afterLayer.getContainer();
+        if (!pane) return;
+        const pct = Number(document.getElementById("slider").value);
+        pane.style.clipPath = `inset(0 0 0 ${pct}%)`;
+      }
+
+      function refresh() {
+        const before = document.getElementById("dateBefore").value;
+        const after = document.getElementById("dateAfter").value;
+        document.getElementById("labelBefore").textContent = before;
+        document.getElementById("labelAfter").textContent = after;
+        overlay.clearLayers();
+        beforeLayer = nisarLayer(before).addTo(overlay);
+        afterLayer = nisarLayer(after).addTo(overlay);
+        afterLayer.on("load", clipAfter);
+        syncGpm();
+        setTimeout(clipAfter, 300);
+      }
+
+      function syncGpm() {
+        const after = document.getElementById("dateAfter").value;
+        if (gpmLayer) {
+          map.removeLayer(gpmLayer);
+          gpmLayer = null;
+        }
+        if (!document.getElementById("gpmToggle").checked) return;
+        gpmLayer = L.tileLayer(gpmUrl(after), {
+          opacity: 0.38,
+          maxNativeZoom: 6,
+          maxZoom: 16,
+          zIndex: 250,
+          attribution: "NASA GPM IMERG via GIBS",
+        }).addTo(map);
+      }
+
+      document.getElementById("slider").addEventListener("input", clipAfter);
+      document.getElementById("apply").addEventListener("click", refresh);
+      document.getElementById("gpmToggle").addEventListener("change", syncGpm);
+      refresh();
+
+      fetch("overlays/change_stats.json")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((stats) => {
+          if (!stats) return;
+          document.getElementById("stats").innerHTML =
+            `<strong>Detecção GCOV HH</strong><br>` +
+            `Nova inundação: ${stats.new_inundation_ha.toFixed(0)} ha<br>` +
+            `Água recuou: ${stats.receded_ha.toFixed(0)} ha<br>` +
+            `Limiar: ${stats.threshold_db} dB (incerteza documentada no pipeline)`;
+        })
+        .catch(() => {});
+    </script>
+  </body>
+</html>
