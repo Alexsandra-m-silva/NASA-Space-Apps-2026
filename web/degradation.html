@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Tendência da vegetação — Jardim do Seridó</title>
+    <title>Tendência da vegetação — Floresta</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
       html, body { height: 100%; margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #10140f; color: #f4efe6; }
@@ -43,7 +43,7 @@
     </aside>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-      const map = L.map("map", { zoomControl: false }).setView([-6.59, -36.78], 13);
+      const map = L.map("map", { zoomControl: false }).setView([-8.60, -38.52], 13);
       L.control.zoom({ position: "bottomright" }).addTo(map);
       L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
@@ -68,13 +68,13 @@
         show(trend ? state.sensor + "-trend" : state.sensor + "-" + state.step);
         const unit = state.sensor === "modis"
           ? "queda por ano · setembro 2016–2026 · alta por ano"
-          : "queda em 4 meses · jun–out 2026 · alta em 4 meses";
+          : "queda na série · jun–out 2026 · alta na série";
         document.getElementById("legend").innerHTML = trend
           ? '<div class="ramp"></div><div class="ticks"><span>' + unit.split(" · ")[0] + "</span><span>" + unit.split(" · ")[1] + "</span><span>" + unit.split(" · ")[2] + "</span></div>"
           : "";
       }
 
-      fetch("degradation/stats.json?v=5").then((response) => response.json()).then((stats) => {
+      fetch("degradation/stats.json?v=6").then((response) => response.json()).then((stats) => {
         const bounds = [[stats.south, stats.west], [stats.north, stats.east]];
         L.rectangle(bounds, { color: "#fff4d6", weight: 2, fill: false }).addTo(map);
         fetch("degradation/municipality.geojson").then((response) => response.json()).then((geo) => {
@@ -82,13 +82,13 @@
         });
         map.fitBounds(bounds, { padding: [48, 48], maxZoom: 14 });
         ["modis-trend", "nisar-trend"].forEach((name) => {
-          layers[name] = L.imageOverlay("degradation/" + name + ".png?v=5", bounds, { opacity: 0.88 });
+          layers[name] = L.imageOverlay("degradation/" + name + ".png?v=6", bounds, { opacity: 0.88 });
         });
         stats.modis_years.forEach((year) => {
-          layers["modis-" + year] = L.imageOverlay("degradation/modis-" + year + ".png?v=5", bounds, { opacity: 0.88 });
+          layers["modis-" + year] = L.imageOverlay("degradation/modis-" + year + ".png?v=6", bounds, { opacity: 0.88 });
         });
         stats.nisar_dates.forEach((day) => {
-          layers["nisar-" + day] = L.imageOverlay("degradation/nisar-" + day + ".png?v=5", bounds, { opacity: 0.88 });
+          layers["nisar-" + day] = L.imageOverlay("degradation/nisar-" + day + ".png?v=6", bounds, { opacity: 0.88 });
         });
 
         const sensors = document.getElementById("sensors");
@@ -129,10 +129,10 @@
           .map((day) => day.slice(5) + " " + stats.nisar_means[day])
           .join(" · ");
         document.getElementById("lead").textContent =
-          "Jardim do Seridó, Rio Grande do Norte. Caixa de cerca de 13 km. O MODIS é a tendência de todos os setembros, de 2016 a 2026. O NISAR não tem anos anteriores: são seis passagens da mesma órbita, de 30 jun a 28 out 2026.";
+          stats.place + ". Caixa de cerca de 13 km. O MODIS é a tendência de todos os setembros, de 2016 a 2026. O NISAR não tem anos anteriores: são seis passagens da mesma órbita e da mesma polarização, de 25 jun a 23 out 2026.";
         document.getElementById("rain").innerHTML =
           "<p><strong>Chuva, NASA POWER.</strong> Setembro no centro da caixa: " + september + ".</p>" +
-          "<p>Na janela do NISAR, soma diária: " + months + ".</p>";
+          "<p>De 25 jun a 23 out, soma diária. Junho e outubro não são o mês inteiro: " + months + ".</p>";
         document.getElementById("facts").innerHTML =
           "<li>MODIS: a inclinação média é " + stats.modis_slope_per_year +
           " por ano na escala de cor. " + stats.modis_falling_pct +

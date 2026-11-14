@@ -1,10 +1,10 @@
-"""Vegetation trend for a small box in Jardim do Seridó, Rio Grande do Norte.
+"""Vegetation trend for a small box in Floresta, Pernambuco.
 
 MODIS monthly NDVI, every September from 2016 through 2026, is the
 multi-year series. The slope of that color scale is the dry-season trend.
 
-NISAR has no earlier years. The public record on descending track 067,
-frame 092, same SHSH polarization, is six passes from 30 Jun to 28 Oct 2026.
+NISAR has no earlier years. The public record on descending track 168,
+frame 093, same SHSH polarization, is six passes from 25 Jun to 23 Oct 2026.
 That slope is a four-month browse change, not desertification.
 
 The green channel of the NISAR preview is not gamma0 in dB, and each
@@ -24,15 +24,16 @@ from urllib.request import urlopen
 
 import numpy as np
 from PIL import Image
-from shapely import contains_xy
+from shapely import contains_xy, make_valid
 from shapely.geometry import shape
+from shapely.geometry.polygon import orient
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "web" / "degradation"
 
-# About 13 km by 11 km, inside Jardim do Seridó. west, south, east, north
-BBOX = (-36.84, -6.64, -36.72, -6.54)
-RAIN_POINT = (-36.78, -6.59)
+# About 13 km by 13 km, on the town side of Floresta. west, south, east, north
+BBOX = (-38.58, -8.66, -38.46, -8.54)
+RAIN_POINT = (-38.52, -8.60)
 NISAR_ZOOM = 9
 NISAR_LAYER = "NISAR_L2_Geocoded_Polarimetric_Covariance"
 MODIS_ZOOM = 7
@@ -41,12 +42,12 @@ MODIS_YEARS = list(range(2016, 2027))
 # Same descending track and SHSH polarization. Twelve-day repeats that
 # switched to DHDH are left out so the slope is not a polarization change.
 NISAR_DATES = [
-    "2026-06-30",
-    "2026-07-24",
-    "2026-08-17",
-    "2026-09-10",
-    "2026-10-04",
-    "2026-10-28",
+    "2026-06-25",
+    "2026-07-19",
+    "2026-08-12",
+    "2026-09-05",
+    "2026-09-29",
+    "2026-10-23",
 ]
 
 
@@ -109,12 +110,12 @@ def _crop(canvas: Image.Image, origin: tuple[int, int], z: int) -> Image.Image:
 
 
 def _municipality():
-    url = "https://raw.githubusercontent.com/tbrugz/geodata-br/master/geojson/geojs-24-mun.json"
+    url = "https://raw.githubusercontent.com/tbrugz/geodata-br/master/geojson/geojs-26-mun.json"
     with urlopen(url, timeout=40) as response:
         data = json.load(response)
-    feature = next(item for item in data["features"] if item["properties"]["name"] == "Jardim do Seridó")
+    feature = next(item for item in data["features"] if item["properties"]["name"] == "Floresta")
     (OUT / "municipality.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": [feature]}))
-    return shape(feature["geometry"]).buffer(0)
+    return orient(make_valid(shape(feature["geometry"])), sign=1.0)
 
 
 def _inside(height: int, width: int, zoom: int, polygon) -> np.ndarray:
@@ -193,10 +194,12 @@ def rain_report() -> dict:
         if value is None or value < 0:
             continue
         septembers[str(year)] = round(float(value) * 30.0, 1)
-    daily = _power("daily/point", RAIN_POINT[0], RAIN_POINT[1], "20260630", "20261028")
+    start = NISAR_DATES[0].replace("-", "")
+    end = NISAR_DATES[-1].replace("-", "")
+    daily = _power("daily/point", RAIN_POINT[0], RAIN_POINT[1], start, end)
     months = {}
     for key, value in daily.items():
-        if value is None or value < 0 or not ("20260630" <= key <= "20261028"):
+        if value is None or value < 0 or not (start <= key <= end):
             continue
         months[key[:6]] = round(months.get(key[:6], 0.0) + float(value), 1)
     return {
@@ -254,14 +257,14 @@ def main() -> None:
     nisar_m = 156543.03392 * math.cos(math.radians(RAIN_POINT[1])) / 2**NISAR_ZOOM
     modis_m = 156543.03392 * math.cos(math.radians(RAIN_POINT[1])) / 2**MODIS_ZOOM
     stats = {
-        "place": "Jardim do Seridó, RN",
+        "place": "Floresta, PE",
         "west": BBOX[0],
         "south": BBOX[1],
         "east": BBOX[2],
         "north": BBOX[3],
         "modis_years": MODIS_YEARS,
         "nisar_dates": NISAR_DATES,
-        "modis_slope_per_year": round(float(np.nanmean(modis_slope)), 2),
+        "modis_slope_per_year": round(float(np.nanmean(modis_slope)), 2) if used.any() else None,
         "modis_falling_pct": round(100.0 * float(falling.sum()) / float(used.sum()), 1) if used.any() else None,
         "nisar_means": nisar_means,
         "nisar_slope_per_day": round(float(np.nanmean(nisar_slope)), 3) if nisar_used.any() else None,
