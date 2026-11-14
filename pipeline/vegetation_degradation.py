@@ -1,17 +1,14 @@
-"""Before/after vegetation view for one small box near Petrolina.
+"""Vegetation trend for a small box in Jardim do Seridó, Rio Grande do Norte.
 
-The box is the same 11 km validation window used for the NISAR products.
+MODIS monthly NDVI, every September from 2016 through 2026, is the
+multi-year series. The slope of that color scale is the dry-season trend.
 
-MODIS monthly NDVI (GIBS color scale) compares September 2016 with
-September 2025. That is the multi-year dry-season vegetation context.
+NISAR has no earlier years. The public record on descending track 067,
+frame 092, same SHSH polarization, is six passes from 30 Jun to 28 Oct 2026.
+That slope is a four-month browse change, not desertification.
 
-NISAR GCOV browse compares 5 Sep 2026 with 23 Oct 2026, same descending
-track 168, frame 093. The green channel of the public false-color image
-is the HV preview. It is not gamma0 in dB. Each GIBS tile is stretched on
-its own, so a small green drop is a hint, not a measured biomass loss.
-
-Desertification is the multi-year process. The NISAR pair is one 48-day
-step inside 2026.
+The green channel of the NISAR preview is not gamma0 in dB, and each
+GIBS tile is stretched on its own.
 """
 
 from __future__ import annotations
@@ -19,6 +16,7 @@ from __future__ import annotations
 import json
 import math
 import time
+from datetime import date
 from io import BytesIO
 from pathlib import Path
 from urllib.parse import urlencode
@@ -26,20 +24,30 @@ from urllib.request import urlopen
 
 import numpy as np
 from PIL import Image
+from shapely import contains_xy
+from shapely.geometry import shape
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "web" / "degradation"
 
-# west, south, east, north
-BBOX = (-40.55, -9.48, -40.45, -9.40)
-NISAR_ZOOM = 11
+# About 13 km by 11 km, inside Jardim do Seridó. west, south, east, north
+BBOX = (-36.84, -6.64, -36.72, -6.54)
+RAIN_POINT = (-36.78, -6.59)
+NISAR_ZOOM = 9
 NISAR_LAYER = "NISAR_L2_Geocoded_Polarimetric_Covariance"
 MODIS_ZOOM = 7
 MODIS_LAYER = "MODIS_Terra_L3_NDVI_Monthly"
-MODIS_BEFORE = "2016-09-01"
-MODIS_AFTER = "2025-09-01"
-NISAR_BEFORE = "2026-09-05"
-NISAR_AFTER = "2026-10-23"
+MODIS_YEARS = list(range(2016, 2027))
+# Same descending track and SHSH polarization. Twelve-day repeats that
+# switched to DHDH are left out so the slope is not a polarization change.
+NISAR_DATES = [
+    "2026-06-30",
+    "2026-07-24",
+    "2026-08-17",
+    "2026-09-10",
+    "2026-10-04",
+    "2026-10-28",
+]
 
 
 def _tile_frac(lon: float, lat: float, z: int) -> tuple[float, float]:
@@ -66,7 +74,7 @@ def _fetch(url: str) -> Image.Image:
     raise RuntimeError(f"{url} {last}")
 
 
-def _mosaic(layer: str, day: str, z: int, matrix: str) -> tuple[Image.Image, tuple[int, int]]:
+def _mosaic(layer: str, day: str, z: int, matrix: str, drop_grey: bool) -> tuple[Image.Image, tuple[int, int]]:
     x0, y_north = _tile_frac(BBOX[0], BBOX[3], z)
     x1, y_south = _tile_frac(BBOX[2], BBOX[1], z)
     xs = range(math.floor(x0), math.floor(x1) + 1)
@@ -78,10 +86,16 @@ def _mosaic(layer: str, day: str, z: int, matrix: str) -> tuple[Image.Image, tup
                 "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/"
                 f"{layer}/default/{day}/{matrix}/{z}/{y}/{x}.png"
             )
-            canvas.paste(_fetch(url), (ix * 256, iy * 256))
-            print(f"  {layer} {day} {z}/{y}/{x}")
-    origin = (math.floor(x0), math.floor(y_north))
-    return canvas, origin
+            tile = _fetch(url)
+            average = np.asarray(tile).reshape(-1, 3).mean(axis=0)
+            grey = abs(average[0] - average[1]) < 12 and abs(average[1] - average[2]) < 12
+            if drop_grey and grey:
+                tile = Image.new("RGB", tile.size)
+                print(f"  {day} {z}/{y}/{x} grey, dropped")
+            else:
+                print(f"  {day} {z}/{y}/{x}")
+            canvas.paste(tile, (ix * 256, iy * 256))
+    return canvas, (math.floor(x0), math.floor(y_north))
 
 
 def _crop(canvas: Image.Image, origin: tuple[int, int], z: int) -> Image.Image:
@@ -94,120 +108,166 @@ def _crop(canvas: Image.Image, origin: tuple[int, int], z: int) -> Image.Image:
     return canvas.crop((left, top, right, bottom))
 
 
-def _rain(year: int, month: int) -> float | None:
+def _municipality():
+    url = "https://raw.githubusercontent.com/tbrugz/geodata-br/master/geojson/geojs-24-mun.json"
+    with urlopen(url, timeout=40) as response:
+        data = json.load(response)
+    feature = next(item for item in data["features"] if item["properties"]["name"] == "Jardim do Seridó")
+    (OUT / "municipality.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": [feature]}))
+    return shape(feature["geometry"]).buffer(0)
+
+
+def _inside(height: int, width: int, zoom: int, polygon) -> np.ndarray:
+    x_west, y_north = _tile_frac(BBOX[0], BBOX[3], zoom)
+    x_east, y_south = _tile_frac(BBOX[2], BBOX[1], zoom)
+    cols = x_west + (np.arange(width) + 0.5) * (x_east - x_west) / width
+    rows = y_north + (np.arange(height) + 0.5) * (y_south - y_north) / height
+    lons = cols / (2**zoom) * 360.0 - 180.0
+    lats = np.degrees(np.arctan(np.sinh(np.pi * (1.0 - 2.0 * rows / (2**zoom)))))
+    lon_grid, lat_grid = np.meshgrid(lons, lats)
+    return contains_xy(polygon, lon_grid, lat_grid)
+
+
+def _colored(rgb: np.ndarray) -> np.ndarray:
+    spread = rgb.max(axis=2).astype(int) - rgb.min(axis=2).astype(int)
+    return spread > 28
+
+
+def _slope(stack: np.ndarray, when: np.ndarray, valid: np.ndarray, minimum: int) -> np.ndarray:
+    slopes = np.full(stack.shape[1:], np.nan, dtype=np.float32)
+    height, width = slopes.shape
+    for y in range(height):
+        for x in range(width):
+            keep = valid[:, y, x]
+            if int(keep.sum()) < minimum:
+                continue
+            slopes[y, x] = np.polyfit(when[keep], stack[keep, y, x], 1)[0]
+    return slopes
+
+
+def _trend_image(slope: np.ndarray, limit: float) -> Image.Image:
+    paint = np.nan_to_num(slope, nan=0.0) / limit
+    paint = np.clip(paint, -1.0, 1.0)
+    image = np.zeros(slope.shape + (4,), dtype=np.uint8)
+    negative = paint < 0
+    positive = ~negative
+    # Tan at zero, red where the series falls, green where it rises.
+    image[negative, 0] = (196 + paint[negative] * (196 - 176)).astype(np.uint8)
+    image[negative, 1] = (176 + paint[negative] * (176 - 48)).astype(np.uint8)
+    image[negative, 2] = (130 + paint[negative] * (130 - 36)).astype(np.uint8)
+    image[positive, 0] = (196 + paint[positive] * (46 - 196)).astype(np.uint8)
+    image[positive, 1] = (176 + paint[positive] * (130 - 176)).astype(np.uint8)
+    image[positive, 2] = (130 + paint[positive] * (58 - 130)).astype(np.uint8)
+    image[..., 3] = np.where(np.isfinite(slope), 220, 0)
+    return Image.fromarray(image, "RGBA")
+
+
+def _save(image: Image.Image, name: str) -> None:
+    scale = max(1, math.ceil(900 / max(image.width, image.height)))
+    image.resize((image.width * scale, image.height * scale), Image.NEAREST).save(OUT / name)
+
+
+def _power(path: str, lon: float, lat: float, start, end) -> dict:
     query = urlencode(
         {
             "parameters": "PRECTOTCORR",
             "community": "AG",
-            "longitude": -40.5,
-            "latitude": -9.44,
-            "start": year,
-            "end": year,
+            "longitude": lon,
+            "latitude": lat,
+            "start": start,
+            "end": end,
             "format": "JSON",
         }
     )
-    url = "https://power.larc.nasa.gov/api/temporal/monthly/point?" + query
-    try:
-        with urlopen(url, timeout=40) as response:
-            payload = json.load(response)
-        values = payload["properties"]["parameter"]["PRECTOTCORR"]
-        daily = values.get(f"{year}{month:02d}")
-    except Exception as exc:  # noqa: BLE001
-        print("rain", year, month, exc)
-        return None
-    if daily is None or daily < 0:
-        return None
-    return round(float(daily) * 30.0, 1)
+    url = f"https://power.larc.nasa.gov/api/temporal/{path}?" + query
+    with urlopen(url, timeout=50) as response:
+        payload = json.load(response)
+    return payload["properties"]["parameter"]["PRECTOTCORR"]
 
 
-def _hv_mask(rgb: np.ndarray) -> np.ndarray:
-    return np.abs(rgb[:, :, 1].astype(int) - rgb[:, :, 0].astype(int)) > 8
+def rain_report() -> dict:
+    monthly = _power("monthly/point", RAIN_POINT[0], RAIN_POINT[1], 2016, 2026)
+    septembers = {}
+    for year in MODIS_YEARS:
+        value = monthly.get(f"{year}09")
+        if value is None or value < 0:
+            continue
+        septembers[str(year)] = round(float(value) * 30.0, 1)
+    daily = _power("daily/point", RAIN_POINT[0], RAIN_POINT[1], "20260630", "20261028")
+    months = {}
+    for key, value in daily.items():
+        if value is None or value < 0 or not ("20260630" <= key <= "20261028"):
+            continue
+        months[key[:6]] = round(months.get(key[:6], 0.0) + float(value), 1)
+    return {
+        "source": "NASA POWER PRECTOTCORR, mm",
+        "september_center": septembers,
+        "nisar_months": months,
+    }
 
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
+    polygon = _municipality()
+
     print("MODIS")
-    modis_before_img = _crop(*_mosaic(MODIS_LAYER, MODIS_BEFORE, MODIS_ZOOM, "GoogleMapsCompatible_Level7"), MODIS_ZOOM)
-    modis_after_img = _crop(*_mosaic(MODIS_LAYER, MODIS_AFTER, MODIS_ZOOM, "GoogleMapsCompatible_Level7"), MODIS_ZOOM)
+    modis = []
+    modis_valid = []
+    for year in MODIS_YEARS:
+        day = f"{year}-09-01"
+        image = _crop(*_mosaic(MODIS_LAYER, day, MODIS_ZOOM, "GoogleMapsCompatible_Level7", False), MODIS_ZOOM)
+        rgb = np.asarray(image)
+        inside = _inside(rgb.shape[0], rgb.shape[1], MODIS_ZOOM, polygon)
+        cloud = rgb.min(axis=2) > 190
+        keep = inside & ~cloud
+        modis.append(rgb[:, :, 1].astype(np.float32))
+        modis_valid.append(keep)
+        _save(Image.fromarray(np.dstack([rgb, np.where(keep, 255, 0).astype(np.uint8)]), "RGBA"), f"modis-{year}.png")
+    modis_stack = np.stack(modis)
+    modis_ok = np.stack(modis_valid)
+    modis_slope = _slope(modis_stack, np.array(MODIS_YEARS, dtype=float), modis_ok, 8)
+    _save(_trend_image(modis_slope, 2.0), "modis-trend.png")
+
     print("NISAR")
-    nisar_before_img = _crop(
-        *_mosaic(NISAR_LAYER, NISAR_BEFORE, NISAR_ZOOM, "GoogleMapsCompatible_Level13"),
-        NISAR_ZOOM,
-    )
-    nisar_after_img = _crop(
-        *_mosaic(NISAR_LAYER, NISAR_AFTER, NISAR_ZOOM, "GoogleMapsCompatible_Level13"),
-        NISAR_ZOOM,
-    )
+    nisar = []
+    nisar_valid = []
+    nisar_means = {}
+    elapsed = np.array([(date.fromisoformat(day) - date.fromisoformat(NISAR_DATES[0])).days for day in NISAR_DATES], dtype=float)
+    for day in NISAR_DATES:
+        image = _crop(*_mosaic(NISAR_LAYER, day, NISAR_ZOOM, "GoogleMapsCompatible_Level13", True), NISAR_ZOOM)
+        rgb = np.asarray(image)
+        inside = _inside(rgb.shape[0], rgb.shape[1], NISAR_ZOOM, polygon)
+        keep = inside & _colored(rgb)
+        nisar.append(rgb[:, :, 1].astype(np.float32))
+        nisar_valid.append(keep)
+        nisar_means[day] = round(float(rgb[:, :, 1][keep].mean()), 1) if keep.any() else None
+        alpha = np.where(keep, 255, 0).astype(np.uint8)
+        _save(Image.fromarray(np.dstack([rgb, alpha]), "RGBA"), f"nisar-{day}.png")
+    nisar_stack = np.stack(nisar)
+    nisar_ok = np.stack(nisar_valid)
+    nisar_slope = _slope(nisar_stack, elapsed, nisar_ok, 4)
+    _save(_trend_image(nisar_slope, 0.4), "nisar-trend.png")
 
-    mb = np.asarray(modis_before_img)
-    ma = np.asarray(modis_after_img)
-    nb = np.asarray(nisar_before_img)
-    na = np.asarray(nisar_after_img)
-
-    cloud = (mb.min(axis=2) > 190) | (ma.min(axis=2) > 190)
-    modis_drop = (mb[:, :, 1].astype(int) - ma[:, :, 1].astype(int)) > 8
-    modis_drop &= ~cloud
-
-    both = _hv_mask(nb) & _hv_mask(na)
-    nisar_drop = both & ((nb[:, :, 1].astype(int) - na[:, :, 1].astype(int)) > 12)
-
-    # Paint the MODIS decline onto the NISAR grid. One MODIS pixel covers many NISAR pixels.
-    candidate = np.zeros(nisar_drop.shape, dtype=bool)
-    scale_y = mb.shape[0] / nb.shape[0]
-    scale_x = mb.shape[1] / nb.shape[1]
-    ys, xs = np.where(nisar_drop)
-    for y, x in zip(ys.tolist(), xs.tolist()):
-        my = min(mb.shape[0] - 1, int(y * scale_y))
-        mx = min(mb.shape[1] - 1, int(x * scale_x))
-        candidate[y, x] = bool(modis_drop[my, mx])
-    # Drop isolated pixels. A kept pixel needs five hits in its 3x3 neighborhood.
-    padded = np.pad(candidate, 1)
-    neighbors = sum(padded[dy : dy + candidate.shape[0], dx : dx + candidate.shape[1]] for dy in range(3) for dx in range(3))
-    alert = candidate & (neighbors >= 5)
-
-    def _save(image: Image.Image, name: str, scale: int) -> None:
-        image.resize((image.width * scale, image.height * scale), Image.NEAREST).save(OUT / name)
-
-    _save(modis_before_img, "modis-before.png", 24)
-    _save(modis_after_img, "modis-after.png", 24)
-    _save(nisar_before_img, "nisar-before.png", 4)
-    _save(nisar_after_img, "nisar-after.png", 4)
-
-    alert_rgba = np.zeros(nb.shape[:2] + (4,), dtype=np.uint8)
-    alert_rgba[alert] = (220, 48, 32, 210)
-    Image.fromarray(alert_rgba, "RGBA").resize(
-        (alert_rgba.shape[1] * 4, alert_rgba.shape[0] * 4), Image.NEAREST
-    ).save(OUT / "alert.png")
-
-    nisar_m = 156543.03392 * math.cos(math.radians(-9.44)) / 2**NISAR_ZOOM
-    modis_m = 156543.03392 * math.cos(math.radians(-9.44)) / 2**MODIS_ZOOM
+    used = np.isfinite(modis_slope)
+    nisar_used = np.isfinite(nisar_slope)
+    falling = used & (modis_slope < -0.3)
+    nisar_m = 156543.03392 * math.cos(math.radians(RAIN_POINT[1])) / 2**NISAR_ZOOM
+    modis_m = 156543.03392 * math.cos(math.radians(RAIN_POINT[1])) / 2**MODIS_ZOOM
     stats = {
+        "place": "Jardim do Seridó, RN",
         "west": BBOX[0],
         "south": BBOX[1],
         "east": BBOX[2],
         "north": BBOX[3],
-        "modis_before": MODIS_BEFORE,
-        "modis_after": MODIS_AFTER,
-        "nisar_before": NISAR_BEFORE,
-        "nisar_after": NISAR_AFTER,
-        "modis_green_before": round(float(mb[:, :, 1][~cloud].mean()), 1) if (~cloud).any() else None,
-        "modis_green_after": round(float(ma[:, :, 1][~cloud].mean()), 1) if (~cloud).any() else None,
-        "modis_drop_pixels": int(modis_drop.sum()),
-        "modis_pixels": int(mb.shape[0] * mb.shape[1]),
-        "nisar_hv_before": round(float(nb[:, :, 1][both].mean()), 1) if both.any() else None,
-        "nisar_hv_after": round(float(na[:, :, 1][both].mean()), 1) if both.any() else None,
-        "nisar_drop_pixels": int(nisar_drop.sum()),
-        "nisar_pixels": int(both.sum()),
-        "alert_pixels": int(alert.sum()),
-        "alert_ha": round(int(alert.sum()) * (nisar_m ** 2) / 10000.0, 1),
+        "modis_years": MODIS_YEARS,
+        "nisar_dates": NISAR_DATES,
+        "modis_slope_per_year": round(float(np.nanmean(modis_slope)), 2),
+        "modis_falling_pct": round(100.0 * float(falling.sum()) / float(used.sum()), 1) if used.any() else None,
+        "nisar_means": nisar_means,
+        "nisar_slope_per_day": round(float(np.nanmean(nisar_slope)), 3) if nisar_used.any() else None,
         "nisar_pixel_m": round(nisar_m),
         "modis_pixel_m": round(modis_m),
-        "rain_mm": {
-            "2016-09": _rain(2016, 9),
-            "2025-09": _rain(2025, 9),
-            "2026-09": _rain(2026, 9),
-            "2026-10": _rain(2026, 10),
-        },
+        "rain": rain_report(),
     }
     (OUT / "stats.json").write_text(json.dumps(stats, indent=2))
     print(json.dumps(stats, indent=2))
