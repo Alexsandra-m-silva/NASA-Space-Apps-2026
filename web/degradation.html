@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Degradação vegetal — antes e depois</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+      html, body { height: 100%; margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #10140f; color: #f4efe6; }
+      #map { position: absolute; inset: 0; }
+      .panel {
+        position: absolute; z-index: 500; top: 12px; left: 12px; width: min(380px, calc(100% - 24px));
+        background: rgba(16, 20, 15, 0.92); border: 1px solid rgba(240, 195, 106, 0.45);
+        border-radius: 14px; padding: 16px;
+      }
+      h1 { font-size: 1.05rem; margin: 0 0 6px; }
+      p, li { font-size: 0.78rem; line-height: 1.4; color: #e7d7c3; }
+      p { margin: 0 0 8px; }
+      ul { margin: 0 0 10px; padding-left: 18px; }
+      .row { display: flex; gap: 6px; margin: 0 0 8px; }
+      button, .check {
+        font: inherit; color: #f4efe6; background: transparent;
+        border: 1px solid rgba(240, 195, 106, 0.45); border-radius: 999px;
+        padding: 6px 12px; cursor: pointer;
+      }
+      button.on { background: #f0c36a; color: #1b1408; border-color: #f0c36a; }
+      .check { display: flex; gap: 8px; align-items: center; border-radius: 10px; }
+      .ramp { height: 12px; border-radius: 6px; margin-top: 4px; }
+      .modis-ramp { background: linear-gradient(to right, #8a5a32, #c4a46a, #d6d08a, #8fbe55, #2f8f3a); }
+      .swatches { display: flex; gap: 8px; margin-top: 6px; }
+      .swatch { display: flex; align-items: center; gap: 5px; font-size: 0.68rem; color: #cbbba6; }
+      .swatch i { width: 12px; height: 12px; border-radius: 3px; display: block; }
+      .ticks { display: flex; justify-content: space-between; font-size: 0.68rem; color: #cbbba6; margin-top: 3px; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <aside class="panel">
+      <h1>Degradação vegetal</h1>
+      <p id="lead">Caixa de 11 km perto de Petrolina. O MODIS compara dois setembros secos. O NISAR compara 48 dias de 2026 na mesma órbita.</p>
+      <div class="row">
+        <button id="before" class="on" type="button">Antes</button>
+        <button id="after" type="button">Depois</button>
+      </div>
+      <div class="row">
+        <button id="show-modis" type="button">MODIS</button>
+        <button id="show-nisar" class="on" type="button">NISAR</button>
+      </div>
+      <label class="check"><input id="show-alert" type="checkbox" /> Queda nos dois</label>
+      <div id="legend"></div>
+      <ul id="facts"></ul>
+    </aside>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      const map = L.map("map", { zoomControl: false }).setView([-9.44, -40.5], 13);
+      L.control.zoom({ position: "bottomright" }).addTo(map);
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        { maxZoom: 19, attribution: "Esri, Maxar · MODIS GIBS · NISAR GIBS" }
+      ).addTo(map);
+
+      const state = { when: "before", sensor: "nisar", alert: false };
+      let layers = {};
+      let alertLayer = null;
+      let bounds = null;
+
+      function apply() {
+        Object.values(layers).forEach((layer) => map.removeLayer(layer));
+        const current = layers[state.sensor + "-" + state.when];
+        if (current) current.addTo(map);
+        if (alertLayer) {
+          if (state.alert) alertLayer.addTo(map);
+          else map.removeLayer(alertLayer);
+        }
+        document.getElementById("before").classList.toggle("on", state.when === "before");
+        document.getElementById("after").classList.toggle("on", state.when === "after");
+        document.getElementById("show-modis").classList.toggle("on", state.sensor === "modis");
+        document.getElementById("show-nisar").classList.toggle("on", state.sensor === "nisar");
+        const legend = document.getElementById("legend");
+        if (state.sensor === "modis") {
+          legend.innerHTML = '<div class="ramp modis-ramp"></div><div class="ticks"><span>menos verde</span><span>escala fixa do MODIS</span><span>mais verde</span></div>';
+        } else {
+          legend.innerHTML = '<div class="swatches"><span class="swatch"><i style="background:#1d4e89"></i>retorno baixo</span><span class="swatch"><i style="background:#3f8f4a"></i>mais HV</span><span class="swatch"><i style="background:#d6de3a"></i>HH e HV altos</span></div>';
+        }
+      }
+
+      document.getElementById("before").onclick = () => { state.when = "before"; apply(); };
+      document.getElementById("after").onclick = () => { state.when = "after"; apply(); };
+      document.getElementById("show-modis").onclick = () => { state.sensor = "modis"; apply(); };
+      document.getElementById("show-nisar").onclick = () => { state.sensor = "nisar"; apply(); };
+      document.getElementById("show-alert").onchange = (event) => { state.alert = event.target.checked; apply(); };
+
+      fetch("degradation/stats.json").then((r) => r.json()).then((stats) => {
+        bounds = [[stats.south, stats.west], [stats.north, stats.east]];
+        L.rectangle(bounds, { color: "#fff4d6", weight: 2, fill: false }).addTo(map);
+        map.fitBounds(bounds, { padding: [48, 48], maxZoom: 15 });
+        ["modis-before", "modis-after", "nisar-before", "nisar-after"].forEach((name) => {
+          layers[name] = L.imageOverlay("degradation/" + name + ".png", bounds, { opacity: 0.88 });
+        });
+        alertLayer = L.imageOverlay("degradation/alert.png", bounds, { opacity: 0.9 });
+        const rain = stats.rain_mm;
+        document.getElementById("facts").innerHTML =
+          "<li>MODIS, setembro: a cor média foi de " + stats.modis_green_before + " para " + stats.modis_green_after +
+          ". A caixa, no conjunto, ficou um pouco mais verde. Chuva: " + rain["2016-09"] + " mm em 2016 e " + rain["2025-09"] + " mm em 2025. Pixel de cerca de " + stats.modis_pixel_m + " m.</li>" +
+          "<li>NISAR, órbita 168: prévia HV de " + stats.nisar_hv_before + " para " + stats.nisar_hv_after +
+          " entre 5 set e 23 out 2026. São 48 dias. Pixel de cerca de " + stats.nisar_pixel_m + " m. O verde é a imagem pública, não o γ⁰ em dB.</li>" +
+          "<li>O vermelho marca onde a cor do MODIS caiu e a prévia HV também caiu: " + stats.alert_ha + " ha. É um cruzamento das duas quedas, não um polígono de desertificação.</li>";
+        apply();
+      });
+    </script>
+  </body>
+</html>

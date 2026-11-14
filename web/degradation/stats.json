@@ -1,0 +1,28 @@
+{
+  "west": -40.55,
+  "south": -9.48,
+  "east": -40.45,
+  "north": -9.4,
+  "modis_before": "2016-09-01",
+  "modis_after": "2025-09-01",
+  "nisar_before": "2026-09-05",
+  "nisar_after": "2026-10-23",
+  "modis_green_before": 156.1,
+  "modis_green_after": 160.6,
+  "modis_drop_pixels": 22,
+  "modis_pixels": 72,
+  "nisar_hv_before": 119.5,
+  "nisar_hv_after": 115.2,
+  "nisar_drop_pixels": 3132,
+  "nisar_pixels": 12626,
+  "alert_pixels": 316,
+  "alert_ha": 179.7,
+  "nisar_pixel_m": 75,
+  "modis_pixel_m": 1206,
+  "rain_mm": {
+    "2016-09": 4.2,
+    "2025-09": 2.1,
+    "2026-09": 1.5,
+    "2026-10": null
+  }
+}
