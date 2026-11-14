@@ -31,9 +31,9 @@ OUT = ROOT / "web" / "desert"
 BEFORE = "2026-09-05"
 AFTER = "2026-10-23"
 ZOOM = 11
-# Tile with real false-color GCOV on both 5 Sep and 23 Oct.
-TILES_X = range(793, 794)
-TILES_Y = range(1078, 1079)
+# Tiles with real false-color GCOV on both 5 Sep and 23 Oct, around Petrolina.
+TILES_X = range(792, 795)
+TILES_Y = range(1075, 1079)
 LAYER = "NISAR_L2_Geocoded_Polarimetric_Covariance"
 # Green-channel drop, in browse units, that maps to a score of 1.
 LOSS_SCALE = 40
@@ -193,7 +193,7 @@ def main() -> None:
         "not": "This is not a multi-year desertification classification.",
         "before": BEFORE,
         "after": AFTER,
-        "geometry": "Same descending track 168, frame 093",
+        "geometry": "Descending track 168, tiles with color on both 5 Sep and 23 Oct 2026",
         "granule_hint": "NISAR_L2_GCOV track 168 frame 093, 5 Sep provisional and 23 Oct validated",
         "method": (
             "Score is the drop in the green (cross-pol) browse channel divided by 40, "
