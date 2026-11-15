@@ -1,6 +1,6 @@
-# Desert Sentinel — platform (Explore + Newsletter)
+# Climate Sentinel — platform (Explore + Newsletter)
 
-Next.js prototype for the NASA Space Apps **Desert Sentinel** product surface.
+Next.js prototype for the NASA Space Apps **Climate Sentinel** product surface.
 
 ## Run
 

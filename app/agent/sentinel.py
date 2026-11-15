@@ -1,4 +1,4 @@
-"""Desert Sentinel — agente que transforma as evidências em recomendações de política pública.
+"""Climate Sentinel — agente que transforma as evidências em recomendações de política pública.
 
 Entrada (por município): o resumo já calculado pelo modelo (MODIS, NISAR, clima, suscetibilidade, SHAP)
 e uma lista fechada de políticas de referência (politicas.json).
@@ -27,7 +27,7 @@ BUNDLE = Path(os.environ.get("BUNDLE_DIR", HERE.parent / "bundle"))
 CATEGORIES = {"SUPPORT", "IMPROVE", "CREATE", "MONITOR"}
 SPHERES = {"municipal", "estadual", "federal"}
 
-SYSTEM = """You are Desert Sentinel, a public-policy analyst for combating desertification in Brazil's semi-arid region.
+SYSTEM = """You are Climate Sentinel, a public-policy analyst for combating desertification in Brazil's semi-arid region.
 For one municipality you receive indicators already computed from satellites and climate data, and a closed list
 of reference policies.
 

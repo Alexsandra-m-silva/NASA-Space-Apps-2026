@@ -207,7 +207,7 @@ export function ExploreChat({
       .slice(-10)
       .map((m) => ({ role: m.role, content: m.text }));
     const screenContext = JSON.stringify({
-      view: `Desert Sentinel explore · ${LEVEL_LABELS[level]} · ${impactLabel} · ${riskLabel}`,
+      view: `Climate Sentinel explore · ${LEVEL_LABELS[level]} · ${impactLabel} · ${riskLabel}`,
       territories: items.slice(0, 25).map((t) => ({
         name: t.name, level: t.level, risk: RISK_LABELS[t.risk] ?? t.risk, trend_pct_area_declining: t.tendenciaPp,
         impacts: t.impacts, disaster_losses_2015_24_brl_mi: t.custoNaoAgirMi,
@@ -248,7 +248,7 @@ export function ExploreChat({
         {!isOverlay && (
           <>
             <p className="text-[0.65rem] uppercase tracking-[0.16em] text-signal">
-              Desert Sentinel
+              Climate Sentinel
             </p>
             <h2 className="mt-1 font-display text-base text-olive sm:text-lg">
               Ask the evidence

@@ -1,6 +1,6 @@
 # CLIMA — Terra e luz
 
-Fonte: Design System NASA Space App Challenge (CLIMA / Desert Sentinel).
+Fonte: Design System NASA Space App Challenge (CLIMA / Climate Sentinel).
 
 Arquivo de referência: [`color-palette.png`](./color-palette.png)
 

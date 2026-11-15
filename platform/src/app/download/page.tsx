@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export const metadata = {
   title: "Download",
-  description: "Download the Desert Sentinel project zip.",
+  description: "Download the Climate Sentinel project zip.",
 };
 
 export default function DownloadPage() {
@@ -16,7 +16,7 @@ export default function DownloadPage() {
         Project pack
       </p>
       <h1 className="mt-2 font-display text-3xl text-olive sm:text-4xl">
-        Download Desert Sentinel
+        Download Climate Sentinel
       </h1>
       <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
         Full prototype source for Explore and Newsletter (without{" "}

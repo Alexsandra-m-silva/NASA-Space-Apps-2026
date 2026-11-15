@@ -1,4 +1,4 @@
-# Frontend Desert Sentinel (Next.js) da pasta platform/.
+# Frontend Climate Sentinel (Next.js) da pasta platform/.
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY platform/package.json platform/package-lock.json* ./

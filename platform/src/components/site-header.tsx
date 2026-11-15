@@ -110,7 +110,7 @@ export function SiteHeader() {
         <Link
           href="/"
           className="group relative flex items-center"
-          aria-label="Desert Sentinel"
+          aria-label="Climate Sentinel"
         >
           <span className="relative block h-10 w-[112px] sm:h-11 sm:w-[122px]">
             {/* Mel wordmark — dark backgrounds */}

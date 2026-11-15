@@ -55,7 +55,7 @@ def main() -> None:
     with _connect(url) as conn, conn.cursor() as cur:
         cur.execute(SCHEMA)
         cur.execute("TRUNCATE municipios, camadas RESTART IDENTITY")
-        # As recomendações do agente (Desert Sentinel) são geradas no servidor e não estão no bundle:
+        # As recomendações do agente (Climate Sentinel) são geradas no servidor e não estão no bundle:
         # preservadas aqui, a não ser que o bundle traga uma versão nova.
         cur.execute("DELETE FROM documentos WHERE nome <> 'recomendacoes'")
 
@@ -75,7 +75,7 @@ def main() -> None:
             print(f"{camada}: {len(rows)} feições", flush=True)
 
         docs = ["meta.json", "shap_detector_global.json", "shap_validador_global.json"]
-        if (BUNDLE / "recomendacoes.json").exists():  # gerado pelo agente Desert Sentinel (app.agent.sentinel)
+        if (BUNDLE / "recomendacoes.json").exists():  # gerado pelo agente Climate Sentinel (app.agent.sentinel)
             docs.append("recomendacoes.json")
         for nome in docs:
             cur.execute("INSERT INTO documentos (nome, conteudo) VALUES (%s,%s) ON CONFLICT (nome) DO UPDATE "

@@ -41,7 +41,7 @@ EMAIL_ADMIN_TOKEN=<segredo para disparar e-mails pela API>
 Sem `FOUNDRY_*` o chat responde 503; sem `GEMINI_API_KEY` o agente não roda; sem `EMAIL_ADMIN_TOKEN` o envio de
 e-mail fica desligado. O resto do app funciona sem nenhuma chave.
 
-## 3. Gerar as recomendações (agente Desert Sentinel)
+## 3. Gerar as recomendações (agente Climate Sentinel)
 
 No console do serviço (ou localmente apontando para o banco de produção):
 

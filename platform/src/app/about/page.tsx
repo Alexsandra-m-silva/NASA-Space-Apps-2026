@@ -4,7 +4,7 @@ import { AboutLanding } from "@/components/about/about-landing";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Desert Sentinel — from NISAR SAR insights to the cost of inaction, and regeneration that earns credits.",
+    "Climate Sentinel — from NISAR SAR insights to the cost of inaction, and regeneration that earns credits.",
 };
 
 export default function AboutPage() {

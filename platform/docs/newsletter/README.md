@@ -1,6 +1,6 @@
 # Newsletter sample email
 
-Static design document for the Desert Sentinel alert email.
+Static design document for the Climate Sentinel alert email.
 
 - **File:** [`sample-email.html`](./sample-email.html)
 - **Not wired** into `/newsletter` or any app route.

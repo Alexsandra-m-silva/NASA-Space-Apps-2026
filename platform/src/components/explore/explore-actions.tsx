@@ -88,7 +88,7 @@ export function ExploreShareActions({
   }, [open]);
 
   const url = typeof window !== "undefined" ? window.location.href : "";
-  const title = "Desert Sentinel — exploration";
+  const title = "Climate Sentinel — exploration";
   const text = `View: ${LEVEL_LABELS[level]} · lens ${lens} · ${items.length} territories`;
   const encodedUrl = encodeURIComponent(url);
   const encodedText = encodeURIComponent(`${text}\n${url}`);

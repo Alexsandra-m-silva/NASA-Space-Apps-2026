@@ -23,7 +23,7 @@ Set `FOUNDRY_API_KEY`, `FOUNDRY_ENDPOINT` and `FOUNDRY_MODEL` in `.env` (never i
 docker compose up --build -d     # http://localhost:8090 — click the avatar in the bottom-right corner
 ```
 
-Deploy (Easypanel), the model pipeline and the Desert Sentinel agent are documented in `docs/DEPLOY_EASYPANEL.md`,
+Deploy (Easypanel), the model pipeline and the Climate Sentinel agent are documented in `docs/DEPLOY_EASYPANEL.md`,
 `docs/MODELO.md` and `docs/DESERT_SENTINEL.md`.
 
 ## 1. See the images now

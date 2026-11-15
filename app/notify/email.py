@@ -1,4 +1,4 @@
-"""E-mail da recomendação do Desert Sentinel, enviado pelo Brevo (SMTP), como no Clinibud.
+"""E-mail da recomendação do Climate Sentinel, enviado pelo Brevo (SMTP), como no Clinibud.
 
 Variáveis (mesmos nomes do Clinibud):
   BREVO_SMTP_LOGIN     login SMTP do Brevo
@@ -47,12 +47,12 @@ def _e(v) -> str:
 
 
 def render(rec: dict, app_url: str | None = None) -> tuple[str, str, str]:
-    """Devolve (assunto, html, texto) para uma recomendação no contrato do Desert Sentinel."""
+    """Devolve (assunto, html, texto) para uma recomendação no contrato do Climate Sentinel."""
     app_url = (app_url or os.environ.get("FRONTEND_URL") or "http://localhost:8090").rstrip("/")
     mun = rec.get("municipio", "")
     alerta_txt, alerta_cor = ALERTA.get(rec.get("nivel_alerta"), ALERTA["moderado"])
     pol = {p["id"]: p for p in rec.get("politicas_referencia") or []}
-    subject = f"Desert Sentinel · {mun}: {alerta_txt.lower()} of vegetation degradation — recommendations"
+    subject = f"Climate Sentinel · {mun}: {alerta_txt.lower()} of vegetation degradation — recommendations"
 
     cards, text_recs = [], []
     for i, r in enumerate(rec.get("recomendacoes") or [], 1):
@@ -91,7 +91,7 @@ def render(rec: dict, app_url: str | None = None) -> tuple[str, str, str]:
 <tr><td align="center">
   <table role="presentation" width="620" cellpadding="0" cellspacing="0" style="max-width:620px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;">
     <tr><td style="background:#10140f;padding:22px 24px;font-family:Arial,Helvetica,sans-serif;">
-      <div style="color:#f0c36a;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;">Desert Sentinel · NASA Space Apps 2026</div>
+      <div style="color:#f0c36a;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;">Climate Sentinel · NASA Space Apps 2026</div>
       <div style="color:#f4efe6;font-size:22px;font-weight:bold;margin-top:6px;">Vegetation degradation in {_e(mun)}</div>
       <div style="margin-top:10px;"><span style="background:{alerta_cor};color:#fff;font-size:12px;font-weight:bold;padding:4px 10px;border-radius:12px;">{alerta_txt}</span></div>
     </td></tr>
@@ -134,7 +134,7 @@ def send(to: list[str], subject: str, html_body: str, text_body: str) -> str:
     if not to or len(to) > 20:
         raise EmailError("Informe de 1 a 20 destinatários.")
     msg = EmailMessage()
-    msg["Subject"], msg["From"], msg["To"] = subject, formataddr(("Desert Sentinel", sender)), ", ".join(to)
+    msg["Subject"], msg["From"], msg["To"] = subject, formataddr(("Climate Sentinel", sender)), ", ".join(to)
     msg["Message-ID"] = make_msgid(domain=sender.split("@")[-1])
     msg.set_content(text_body)
     msg.add_alternative(html_body, subtype="html")

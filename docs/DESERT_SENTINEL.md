@@ -1,4 +1,4 @@
-# Desert Sentinel — agente de recomendações (rascunho)
+# Climate Sentinel — agente de recomendações (rascunho)
 
 Agente com a API do Google Gemini que transforma os indicadores do modelo (MODIS, NISAR, clima,
 suscetibilidade, SHAP) em recomendações de política pública por município, no formato do

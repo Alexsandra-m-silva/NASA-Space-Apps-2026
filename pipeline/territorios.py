@@ -1,4 +1,4 @@
-"""Territórios reais para o frontend Desert Sentinel (substitui o mockup de platform/).
+"""Territórios reais para o frontend Climate Sentinel (substitui o mockup de platform/).
 
 Gera, no formato `Territory` de platform/src/data/explore/types.ts, os 18 municípios analisados,
 os agregados por estado e o agregado da Caatinga (só dos municípios analisados).

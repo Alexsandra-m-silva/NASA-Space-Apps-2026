@@ -107,7 +107,7 @@ def shap(modelo: str):
 
 @app.get("/api/recomendacoes")
 def recomendacoes():
-    """Recomendações do agente Desert Sentinel para todos os municípios (geradas no servidor)."""
+    """Recomendações do agente Climate Sentinel para todos os municípios (geradas no servidor)."""
     row = _one("SELECT conteudo, publicado_em FROM documentos WHERE nome = 'recomendacoes'")
     if not row:
         raise HTTPException(404, "recomendações ainda não geradas; rode o agente (perfil 'agente' do compose)")
@@ -200,7 +200,7 @@ def chat(request: ChatRequest):
         response = client.responses.create(
             model=model,
             instructions=(
-                "You are Ask Sentinel, the guide of Desert Sentinel (desertification risk in the Brazilian "
+                "You are Ask Sentinel, the guide of Climate Sentinel (desertification risk in the Brazilian "
                 "semi-arid, from NISAR SAR radar, MODIS, climate and land use). Answer in the same language as "
                 "the user's question. Use the supplied current-screen context as evidence to explain what the "
                 "user is seeing. Be brief: at most ~150 words, a one-line answer first, then up to 5 short "
