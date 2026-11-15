@@ -1,6 +1,6 @@
 import type { CompareOutput, SpineNode } from "./types";
 
-export const productName = "Desert Sentinel";
+export const productName = "Climate Sentinel";
 export const productThesis =
   "Turn NISAR radar land-change trend into cost of inaction, recommended action, and regeneration with carbon credits.";
 
