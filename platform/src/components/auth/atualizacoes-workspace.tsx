@@ -4,6 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { EmailTriggersCard } from "@/components/auth/email-triggers-card";
 import { PreferenceForm } from "@/components/auth/preference-form";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   ROLE_LABELS,
   defaultPreferences,
@@ -54,7 +63,7 @@ export function AtualizacoesWorkspace() {
   const [org, setOrg] = useState("");
   const [role, setRole] = useState<StakeholderRole>("gestor");
   const [prefs, setPrefs] = useState<AlertPreferences>(defaultPreferences());
-  const [saved, setSaved] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
   const [seededFromExplore, setSeededFromExplore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,14 +84,11 @@ export function AtualizacoesWorkspace() {
   }, [ready, subscription, seededFromExplore]);
 
   const statusMessage = useMemo(() => {
-    if (saved) {
-      return "Subscription confirmed in this browser. The newsletter will follow the selection you set.";
-    }
     if (seededFromExplore) {
       return "Your explore selection was pre-filled. Review it and confirm to start receiving the newsletter.";
     }
     return null;
-  }, [saved, seededFromExplore]);
+  }, [seededFromExplore]);
 
   function validateContact(): boolean {
     if (!email.trim() || !email.includes("@")) {
@@ -110,9 +116,8 @@ export function AtualizacoesWorkspace() {
       preferences: normalized,
     });
     setPrefs(normalized);
-    setSaved(true);
     setSeededFromExplore(false);
-    window.setTimeout(() => setSaved(false), 2800);
+    setSuccessOpen(true);
   }
 
   return (
@@ -227,6 +232,35 @@ export function AtualizacoesWorkspace() {
           />
         </div>
       </section>
+
+      <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <p className="text-[0.7rem] uppercase tracking-[0.18em] text-signal">
+              Newsletter
+            </p>
+            <DialogTitle className="mt-2">You are subscribed</DialogTitle>
+            <DialogDescription className="mt-3">
+              Subscription confirmed for{" "}
+              <span className="font-medium text-foreground">
+                {email.trim() || "your email"}
+              </span>
+              . You will get updates when trend, risk, or impact changes in the
+              territory you selected. This prototype stores the preference in
+              this browser only.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="accent"
+              onClick={() => setSuccessOpen(false)}
+            >
+              Continue
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
