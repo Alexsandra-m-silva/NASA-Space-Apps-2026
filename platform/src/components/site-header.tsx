@@ -148,7 +148,7 @@ export function SiteHeader() {
           )}
         >
           <a
-            href="https://github.com/Alexsandra-m-silva/NASA-Space-Apps-2026/pulse"
+            href="https://github.com/Alexsandra-m-silva/NASA-Space-Apps-2026"
             target="_blank"
             rel="noopener noreferrer"
           >
