@@ -29,11 +29,30 @@ export const IBGE_ESTADOS: GeoOption[] = estados.map((e) => ({
 
 let municipiosCache: GeoOption[] | null = null;
 
-/** IBGE municipalities (on-demand load — full list). */
+const MUNICIPIO_PARTS = [
+  () => import("@/data/geo/municipios/part-00.json"),
+  () => import("@/data/geo/municipios/part-01.json"),
+  () => import("@/data/geo/municipios/part-02.json"),
+  () => import("@/data/geo/municipios/part-03.json"),
+  () => import("@/data/geo/municipios/part-04.json"),
+  () => import("@/data/geo/municipios/part-05.json"),
+  () => import("@/data/geo/municipios/part-06.json"),
+  () => import("@/data/geo/municipios/part-07.json"),
+  () => import("@/data/geo/municipios/part-08.json"),
+  () => import("@/data/geo/municipios/part-09.json"),
+  () => import("@/data/geo/municipios/part-10.json"),
+  () => import("@/data/geo/municipios/part-11.json"),
+  () => import("@/data/geo/municipios/part-12.json"),
+  () => import("@/data/geo/municipios/part-13.json"),
+] as const;
+
+/** IBGE municipalities (on-demand load — full list, split parts). */
 export async function loadIbgeMunicipios(): Promise<GeoOption[]> {
   if (municipiosCache) return municipiosCache;
-  const mod = await import("@/data/geo/municipios.json");
-  const rows = mod.default as { id: string; name: string; ufId: string }[];
+  const mods = await Promise.all(MUNICIPIO_PARTS.map((load) => load()));
+  const rows = mods.flatMap(
+    (mod) => mod.default as { id: string; name: string; ufId: string }[],
+  );
   const ufById = new Map(estados.map((e) => [e.id, e.uf]));
   municipiosCache = rows.map((m) => ({
     id: m.id,
