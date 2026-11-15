@@ -230,57 +230,141 @@ def _briefing(prefs: dict) -> tuple[str, str]:
 
 def render_welcome(email: str, role: str, org: str | None, prefs: dict,
                    app_url: str | None = None) -> tuple[str, str, str]:
-    """Primeira edição da newsletter, enviada na inscrição (inglês, cores da marca)."""
+    """Primeira edição da newsletter, enviada na inscrição.
+
+    Layout do modelo da Gabi (platform/public/newsletter/sample-email.html): cabeçalho
+    escuro em degradê, bloco "Your selection" com borda mel e cartões numerados por
+    território. Estilos inline e tabelas, porque clientes de e-mail ignoram <style>,
+    variáveis CSS, grid e color-mix. Dados reais do bundle (territorios.json).
+    """
+    from datetime import datetime, timezone
+
     app_url = (app_url or os.environ.get("FRONTEND_URL") or "http://localhost:8090").rstrip("/")
-    brief_html, brief_text = _briefing(prefs)
+    C = {"cafe": "#220F08", "barro": "#642F07", "sol": "#FFEA7F", "ocre": "#A2510F", "mel": "#DAA849",
+         "ambar": "#B67523", "canvas": "#FBF7EF", "surface": "#FFFDF8", "subtle": "#F3EBD9",
+         "border": "#DDD5BA", "muted": "#6B5545", "error": "#963B2F"}
+    accent = {"critico": C["error"], "alto": C["barro"], "moderado": C["ambar"]}
+
     level = prefs.get("level", "estado")
     key = {"bioma": "biomas", "regiao": "regioes", "estado": "estados", "municipio": "municipios"}.get(level, "estados")
-    territories = prefs.get(key) or []
-    impacts = [_IMPACT_EN.get(i, i) for i in (prefs.get("impacts") or [])]
-    risks = [_RISK_EN.get(r, r) for r in (prefs.get("risks") or [])]
-    rows = [
-        ("Role", _ROLE_EN.get(role, role)),
-        ("Organization", org or "—"),
-        ("Territory level", _LEVEL_EN.get(level, level)),
-        ("Territories", f"{len(territories)} selected" if territories else "All in the level"),
-        ("Impacts", ", ".join(impacts) if impacts else "All"),
-        ("Risk levels", ", ".join(risks) if risks else "All"),
-        ("Monthly digest", "Yes" if prefs.get("emailMonthly", True) else "No"),
-    ]
-    subject = "Climate Sentinel · Your first briefing"
-    trs = "".join(
-        f'<tr><td style="padding:6px 0;color:#7a6250;font-size:13px;">{_e(k)}</td>'
-        f'<td style="padding:6px 0;color:#220F08;font-size:13px;text-align:right;">{_e(v)}</td></tr>'
-        for k, v in rows)
-    body = f"""<!doctype html><html><body style="margin:0;background:#FBF7EF;font-family:Arial,Helvetica,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FBF7EF;padding:24px 0;">
-<tr><td align="center"><table role="presentation" width="560" cellpadding="0" cellspacing="0"
- style="max-width:560px;background:#fffdf8;border:1px solid #E5D4A8;border-radius:8px;">
-<tr><td style="background:#220F08;padding:20px 28px;border-radius:8px 8px 0 0;">
- <p style="margin:0;color:#DAA849;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;">Climate Sentinel · Newsletter</p>
- <h1 style="margin:8px 0 0;color:#FBF7EF;font-family:Georgia,serif;font-size:24px;font-weight:normal;">You are subscribed</h1>
+    chosen = prefs.get(key) or []
+    impacts_sel = [_IMPACT_EN.get(i, i) for i in (prefs.get("impacts") or [])]
+    risks_sel = [_RISK_EN.get(r, r) for r in (prefs.get("risks") or [])]
+    items, matched = select_territories(prefs)
+    top = items[:6]
+    n_crit = sum(1 for t in items if t.get("risk") == "critico")
+    losses = sum(t.get("custoNaoAgirMi") or 0 for t in items)
+    today = datetime.now(timezone.utc).strftime("%d %b %Y")
+
+    selection_line = (
+        f"Level: {_LEVEL_EN.get(level, level)} · Geography: "
+        f"{(str(len(chosen)) + ' selected') if chosen else 'all in the level'} · Impacts: "
+        f"{', '.join(impacts_sel) if impacts_sel and len(impacts_sel) < len(_IMPACT_EN) else 'all'} · Risks: "
+        f"{', '.join(risks_sel) if risks_sel and len(risks_sel) < len(_RISK_EN) else 'all'} · Monthly digest: "
+        f"{'on' if prefs.get('emailMonthly', True) else 'off'}")
+    if matched:
+        lede = (f"{len(items)} {'territory matches' if len(items) == 1 else 'territories match'} your selection, "
+                f"{n_crit} at critical risk. Recorded drought and flood losses 2015–24: "
+                f"R$ {losses:,.0f} million (inflation-adjusted).")
+        sub = "Where your selection stands today, from the most to the least urgent."
+    else:
+        lede = ("Nothing in your selection matches your filters today: either it is outside the 18 municipalities "
+                "we analyse, or no territory there is at the risk level or impact you chose.")
+        sub = "Meanwhile, the overview of the Brazilian semi-arid we monitor."
+
+    def stat(label: str, value: str) -> str:
+        return (f'<td width="25%" valign="top" style="padding:8px 8px 8px 0;">'
+                f'<div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:{C["muted"]};">{_e(label)}</div>'
+                f'<div style="font-size:15px;color:{C["cafe"]};font-weight:bold;margin-top:2px;">{_e(value)}</div></td>')
+
+    def card(i: int, t: dict) -> str:
+        d = t.get("dados") or {}
+        risk = t.get("risk")
+        a = accent.get(risk, C["mel"])
+        nisar = (d.get("nisar") or {}).get("auc")
+        warm = d.get("aquecimento_c_decada")
+        region = " · ".join(x for x in [_LEVEL_EN.get(t.get("level"), ""), d.get("area_estudo") or ""] if x)
+        imp = ", ".join(_IMPACT_EN.get(x, x).lower() for x in (t.get("impacts") or [])[:3])
+        story = (f"{(t.get('tendenciaPp') or 0):.1f}% of the area shows declining vegetation once rainfall is removed "
+                 f"(MODIS 2001–2024)."
+                 + (f" NISAR L-band SAR separates degraded from stable areas with AUC {nisar:.2f}." if isinstance(nisar, (int, float)) else "")
+                 + (f" Main impacts: {imp}." if imp else ""))
+        why = ("Critical risk: 8% or more of the area is degrading." if risk == "critico" else
+               "High risk: 3–8% of the area is degrading." if risk == "alto" else
+               "Moderate risk: under 3% of the area is degrading.")
+        name = t.get("name", "")
+        if d.get("uf") and t.get("level") == "municipio":
+            name = f"{name} ({d['uf']})"
+        return f"""
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;border:1px solid {C['border']};background:{C['canvas']};">
+<tr><td width="5" style="background:{a};font-size:0;">&nbsp;</td><td>
+ <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{C['surface']};border-bottom:1px solid {C['border']};">
+ <tr>
+  <td width="44" valign="top" style="padding:16px 0 12px 14px;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1;color:{a};">{i:02d}</td>
+  <td valign="top" style="padding:16px 8px 12px 8px;">
+   <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:{a};font-weight:bold;">{_e(_RISK_EN.get(risk, risk))} risk</div>
+   <div style="font-family:Georgia,'Times New Roman',serif;font-size:20px;line-height:1.2;color:{C['cafe']};margin-top:4px;">{_e(name)}</div>
+   <div style="font-size:12px;color:{C['muted']};margin-top:4px;">{_e(region)}</div>
+  </td>
+  <td valign="top" align="right" style="padding:16px 14px 12px 0;">
+   <span style="display:inline-block;padding:5px 9px;border:1px solid {a};color:{a};font-size:11px;letter-spacing:.5px;text-transform:uppercase;font-weight:bold;white-space:nowrap;">{(t.get('tendenciaPp') or 0):.1f}% degrading</span>
+  </td>
+ </tr></table>
+ <div style="padding:14px 16px 16px 16px;">
+  <p style="margin:0 0 12px;color:{C['cafe']};font-size:14px;line-height:1.55;">{_e(story)}</p>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid {C['border']};border-bottom:1px solid {C['border']};"><tr>
+   {stat("Population", f"{(t.get('populacaoEstimada') or 0):,}")}
+   {stat("Losses 2015–24", f"R$ {(t.get('custoNaoAgirMi') or 0):,.0f} mi")}
+   {stat("NISAR AUC", f"{nisar:.2f}" if isinstance(nisar, (int, float)) else "—")}
+   {stat("Warming", f"{warm:+.2f} °C/dec" if isinstance(warm, (int, float)) else "—")}
+  </tr></table>
+  <p style="margin:10px 0 0;font-size:12px;color:{C['muted']};"><strong style="color:{C['cafe']};">Why it's here:</strong> {_e(why)}</p>
+ </div>
+</td></tr></table>"""
+
+    cards = "".join(card(i + 1, t) for i, t in enumerate(top))
+    more = (f'<p style="margin:0 0 18px;font-size:13px;color:{C["muted"]};">+ {len(items) - len(top)} more in '
+            f'your selection on the Explore page.</p>') if len(items) > len(top) else ""
+    greeting = f"Hello{(' ' + _e(org)) if org else ''}."
+    subject = (f"Climate Sentinel · {len(items)} {'territory' if len(items) == 1 else 'territories'} in your selection"
+               if matched else "Climate Sentinel · Your first briefing")
+
+    body = f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{_e(subject)}</title></head>
+<body style="margin:0;padding:0;background:#E8E0D0;font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;color:{C['cafe']};">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#E8E0D0;padding:28px 12px 48px;"><tr><td align="center">
+<table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:{C['surface']};border:1px solid {C['border']};">
+<tr><td style="background-color:{C['cafe']};background-image:linear-gradient(158deg,#220F08 0%,#341C10 40%,#642F07 100%);padding:28px 24px 24px;">
+ <p style="margin:0;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:{C['mel']};">Climate Sentinel · newsletter</p>
+ <h1 style="margin:8px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:normal;line-height:1.15;color:#FBF7EF;">Your first briefing</h1>
+ <p style="margin:12px 0 0;color:#F3EBD9;font-size:14px;line-height:1.55;">{_e(lede)}</p>
+ <span style="display:inline-block;margin-top:16px;border:1px solid rgba(251,247,239,.35);padding:6px 10px;font-size:12px;color:#F3EBD9;">{today} · NISAR SAR 2026 · MODIS 2001–2024</span>
 </td></tr>
-<tr><td style="padding:24px 28px;">
- <p style="margin:0 0 14px;color:#220F08;font-size:15px;line-height:1.5;">
-  Thanks for following desertification risk in the Brazilian semi-arid. We will email
-  <b>{_e(email)}</b> when the evidence changes in your selection: a trend shift, a new risk
-  category, a new impact type, or a territory entering your risk filter.</p>
- {brief_html}
- <h2 style="margin:22px 0 6px;color:#642F07;font-family:Georgia,serif;font-size:17px;font-weight:normal;">Your subscription</h2>
- <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-  style="border-top:1px solid #E5D4A8;border-bottom:1px solid #E5D4A8;margin:8px 0 18px;">{trs}</table>
- <p style="margin:0 0 20px;"><a href="{_e(app_url)}/explore"
-  style="display:inline-block;background:#FFEA7F;color:#220F08;text-decoration:none;padding:10px 18px;border-radius:6px;font-size:14px;font-weight:bold;">Explore the evidence</a></p>
- <p style="margin:0;color:#7a6250;font-size:12px;line-height:1.5;">
-  Evidence from NISAR SAR radar (2026), MODIS 2001–2024, CHIRPS, ERA5-Land and MapBiomas.
-  Satellite-based degradation is not proof of desertification. To change or cancel,
-  open <a href="{_e(app_url)}/newsletter" style="color:#642F07;">{_e(app_url)}/newsletter</a>.</p>
+<tr><td style="padding:24px;">
+ <p style="margin:0 0 20px;font-size:15px;line-height:1.55;">{greeting} You are subscribed with <b>{_e(email)}</b>
+  ({_e(_ROLE_EN.get(role, role))}). From now on we email you only when the evidence moves in your selection:
+  a trend shift, a new risk category, a new impact type, or a territory entering your risk filter.</p>
+ <div style="margin:0 0 26px;padding:12px 14px;background:{C['subtle']};border-left:3px solid {C['mel']};font-size:13px;color:{C['muted']};">
+  <strong style="color:{C['cafe']};">Your selection</strong> · {_e(selection_line)}</div>
+ <h2 style="margin:8px 0 6px;font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:normal;color:{C['cafe']};">Territories in your selection</h2>
+ <p style="margin:0 0 18px;font-size:13px;color:{C['muted']};">{_e(sub)}</p>
+ {cards}{more}
+ <p style="margin:8px 0 22px;"><a href="{_e(app_url)}/explore" style="display:inline-block;background:{C['sol']};color:{C['cafe']};text-decoration:none;padding:11px 20px;font-size:14px;font-weight:bold;">Explore the evidence</a></p>
+ <p style="margin:0;font-size:11px;line-height:1.6;color:{C['muted']};">Degrading: share of the area with declining vegetation, MODIS NDVI 2001–2024 with rainfall removed
+  (RESTREND, Mann-Kendall p&lt;0.05). Losses: Atlas Digital de Desastres (S2iD), drought and floods, inflation-adjusted.
+  NISAR AUC: how well the 2026 L-band SAR radar separates degraded from stable areas. Warming: ERA5-Land 1991–2024.
+  Satellite-based degradation is not proof of desertification.</p>
+</td></tr>
+<tr><td style="background:{C['canvas']};border-top:1px solid {C['border']};padding:16px 24px;font-size:12px;color:{C['muted']};">
+ Climate Sentinel · NASA Space Apps Challenge 2026 · To change or cancel, open
+ <a href="{_e(app_url)}/newsletter" style="color:{C['barro']};">{_e(app_url)}/newsletter</a>.
 </td></tr></table>
-<p style="color:#7a6250;font-size:11px;">Climate Sentinel · NASA Space Apps Challenge 2026</p>
 </td></tr></table></body></html>"""
-    text = (f"Climate Sentinel - you are subscribed\n\nWe will email {email} when the evidence changes in "
-            "your selection.\n" + brief_text + "\nYour subscription\n" + "\n".join(f"{k}: {v}" for k, v in rows) +
-            f"\n\nExplore the evidence: {app_url}/explore\nChange or cancel: {app_url}/newsletter\n")
+
+    text = (f"Climate Sentinel - your first briefing ({today})\n\n{lede}\n\nYour selection: {selection_line}\n\n"
+            + "\n".join(f"{i + 1:02d}. {t.get('name')} - {_RISK_EN.get(t.get('risk'), t.get('risk'))} risk, "
+                        f"{(t.get('tendenciaPp') or 0):.1f}% area degrading, R$ {(t.get('custoNaoAgirMi') or 0):,.0f} mi losses 2015-24"
+                        for i, t in enumerate(top))
+            + f"\n\nExplore the evidence: {app_url}/explore\nChange or cancel: {app_url}/newsletter\n")
     return subject, body, text
 
 
