@@ -7,7 +7,7 @@ export function BrandLogo({
   variant,
   className,
 }: {
-  /** onDark = mel wordmark; onLight = barro wordmark */
+  /** onDark = cream wordmark; onLight = barro wordmark */
   variant: "onDark" | "onLight";
   className?: string;
   /** Kept for call-site compatibility with the header. */
@@ -19,9 +19,9 @@ export function BrandLogo({
     <img
       src={src}
       alt={brand.name}
-      width={203}
-      height={73}
-      className={cn("h-10 w-auto sm:h-11", className)}
+      width={940}
+      height={238}
+      className={cn("h-7 w-auto sm:h-8", className)}
       draggable={false}
     />
   );
