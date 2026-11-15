@@ -71,7 +71,10 @@ def main() -> None:
                             "VALUES (%s,%s,%s, ST_SetSRID(ST_GeomFromGeoJSON(%s),4326))", rows)
             print(f"{camada}: {len(rows)} feições", flush=True)
 
-        for nome in ("meta.json", "shap_detector_global.json", "shap_validador_global.json"):
+        docs = ["meta.json", "shap_detector_global.json", "shap_validador_global.json"]
+        if (BUNDLE / "recomendacoes.json").exists():  # gerado pelo agente Desert Sentinel (app.agent.sentinel)
+            docs.append("recomendacoes.json")
+        for nome in docs:
             cur.execute("INSERT INTO documentos (nome, conteudo) VALUES (%s,%s)",
                         (nome.removesuffix(".json"), json.dumps(_load(nome), ensure_ascii=False)))
         conn.commit()

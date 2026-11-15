@@ -84,6 +84,21 @@ services:
       retries: 10
       start_period: 20s
 
+  # Agente Desert Sentinel (Gemini): gera as recomendações no servidor e grava no banco e no bundle.
+  #   docker compose --profile agente run --rm dg-sentinel
+  dg-sentinel:
+    profiles: ["agente"]
+    build: { context: ., dockerfile: docker/app.Dockerfile }
+    command: ["python", "-m", "app.agent.sentinel"]
+    environment:
+      <<: *db-env
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.8-flash}
+    volumes:
+      - ./app/bundle:/srv/app/bundle
+    depends_on:
+      dg-db: { condition: service_healthy }
+
   # Reprocessamento sob demanda (não sobe por padrão).
   dg-pipeline:
     profiles: ["pipeline"]

@@ -85,6 +85,23 @@ def shap(modelo: str):
     return row["conteudo"]
 
 
+@app.get("/api/recomendacoes")
+def recomendacoes():
+    """Recomendações do agente Desert Sentinel para todos os municípios (geradas no servidor)."""
+    row = _one("SELECT conteudo, publicado_em FROM documentos WHERE nome = 'recomendacoes'")
+    if not row:
+        raise HTTPException(404, "recomendações ainda não geradas; rode o agente (perfil 'agente' do compose)")
+    return {"publicado_em": row["publicado_em"].isoformat(), "municipios": row["conteudo"]}
+
+
+@app.get("/api/recomendacoes/{chave:path}")
+def recomendacao(chave: str):
+    row = _one("SELECT conteudo -> %s AS r FROM documentos WHERE nome = 'recomendacoes'", (chave,))
+    if not row or row["r"] is None:
+        raise HTTPException(404, "sem recomendação para este município")
+    return row["r"]
+
+
 @app.get("/api/figuras/{nome}")
 def figura(nome: str):
     if nome not in FIGURAS:

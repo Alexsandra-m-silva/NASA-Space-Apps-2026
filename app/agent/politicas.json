@@ -1,0 +1,19 @@
+{
+  "aviso": "Lista de referência para o agente. Itens com verificar=true precisam ser confirmados na fonte oficial antes de publicar.",
+  "politicas": [
+    {"id": "lei_13153_2015", "nome": "Lei 13.153/2015 — Política Nacional de Combate à Desertificação e Mitigação dos Efeitos da Seca",
+     "esfera": "federal", "orgao": "Ministério do Meio Ambiente e Mudança do Clima (MMA)", "verificar": false},
+    {"id": "pab_brasil_2024", "nome": "PAB-Brasil 2024 — Plano de Ação Brasileiro de Combate à Desertificação e Mitigação dos Efeitos da Seca",
+     "esfera": "federal", "orgao": "MMA", "verificar": false},
+    {"id": "codigo_florestal", "nome": "Lei 12.651/2012 — Código Florestal (APP, Reserva Legal, CAR)",
+     "esfera": "federal", "orgao": "MMA / Serviço Florestal Brasileiro; órgãos estaduais de meio ambiente", "verificar": false},
+    {"id": "garantia_safra", "nome": "Garantia-Safra (Lei 10.420/2002) — apoio a agricultores do semiárido em perda de safra por seca",
+     "esfera": "federal", "orgao": "Ministério do Desenvolvimento Agrário e Agricultura Familiar", "verificar": true},
+    {"id": "pae_rn", "nome": "PAE-RN — Programa de Ação Estadual de Combate à Desertificação do Rio Grande do Norte (2010)",
+     "esfera": "estadual", "uf": "RN", "orgao": "Governo do RN", "verificar": true},
+    {"id": "pae_ba", "nome": "PAE-BA — Programa de Ação Estadual de Combate à Desertificação da Bahia (2014, em atualização)",
+     "esfera": "estadual", "uf": "BA", "orgao": "Secretaria do Meio Ambiente da Bahia", "verificar": true},
+    {"id": "pae_pe", "nome": "PAE-PE — Programa de Ação Estadual de Combate à Desertificação de Pernambuco",
+     "esfera": "estadual", "uf": "PE", "orgao": "Governo de Pernambuco", "verificar": true}
+  ]
+}
