@@ -1,7 +1,7 @@
 """Climate Guardian — AOI and NASA collections.
 
-Default demo: northern Pantanal (wetland + floodable plains).
-L-band GCOV is the analysis-ready NISAR product for inundation.
+Demo: Uruguay River flood at Uruguaiana, Rio Grande do Sul.
+Same descending track, one 12-day NISAR cycle apart.
 """
 
 from pathlib import Path
@@ -11,13 +11,13 @@ DATA_RAW = ROOT / "data" / "raw"
 DATA_PROCESSED = ROOT / "data" / "processed"
 WEB_OVERLAYS = ROOT / "web" / "overlays"
 
-# west, south, east, north
-AOI_BBOX = (-57.9, -19.4, -56.1, -17.6)
-AOI_NAME = "pantanal-norte"
+# west, south, east, north — Uruguay River at Uruguaiana
+AOI_BBOX = (-57.12, -29.83, -56.97, -29.70)
+AOI_NAME = "uruguaiana-uruguay-river"
 
 # NISAR 12-day repeat. Pick two dates one cycle apart.
-DATE_BEFORE = "2026-10-24"
-DATE_AFTER = "2026-11-05"
+DATE_BEFORE = "2026-09-30"
+DATE_AFTER = "2026-10-12"
 
 # VALIDATED (from 21 Oct 2026) then PROVISIONAL fallback
 NISAR_SHORT_NAMES = (
