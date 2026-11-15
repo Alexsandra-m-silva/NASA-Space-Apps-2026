@@ -168,7 +168,7 @@ export function SiteHeader() {
           </a>
         </Button>
 
-        <nav className="flex items-center justify-self-end gap-3 text-sm sm:gap-4">
+        <nav className="flex items-center justify-self-end gap-2 text-sm sm:gap-4">
           <Link
             href="/about"
             className={cn(
@@ -181,10 +181,23 @@ export function SiteHeader() {
             About
           </Link>
           <Link
+            href="/team"
+            className={cn(
+              "rounded-md px-2 py-1.5 transition-colors",
+              linkTone,
+              pathname === "/team" &&
+                (onDark ? "text-brand-areia" : "text-foreground")
+            )}
+          >
+            The Team
+          </Link>
+          <Link
             href="/explore"
             className={cn(
               "rounded-md px-2 py-1.5 transition-colors",
-              linkTone
+              linkTone,
+              pathname === "/explore" &&
+                (onDark ? "text-brand-areia" : "text-foreground")
             )}
           >
             Explore
