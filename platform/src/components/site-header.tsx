@@ -183,13 +183,13 @@ export function SiteHeader() {
           <Link
             href="/team"
             className={cn(
-              "rounded-md px-2 py-1.5 transition-colors",
+              "whitespace-nowrap rounded-md px-2 py-1.5 transition-colors",
               linkTone,
               pathname === "/team" &&
                 (onDark ? "text-brand-areia" : "text-foreground")
             )}
           >
-            The Team
+            The&nbsp;Team
           </Link>
           <Link
             href="/explore"
