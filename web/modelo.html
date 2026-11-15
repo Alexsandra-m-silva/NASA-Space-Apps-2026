@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Suscetibilidade à desertificação</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23f0c36a'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+      :root { --bg: #10140f; --panel: rgba(16, 20, 15, 0.94); --line: rgba(240, 195, 106, 0.45);
+              --gold: #f0c36a; --text: #f4efe6; --muted: #cbbba6; --soft: #e7d7c3;
+              --low: #6f9b6a; --mid: #d9b45a; --high: #d9772f; --vhigh: #b0301f; }
+      html, body { height: 100%; margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); }
+      #map { position: absolute; inset: 0; }
+      .panel { position: absolute; z-index: 500; top: 12px; left: 12px; width: min(420px, calc(100% - 24px));
+        background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px;
+        max-height: calc(100% - 24px); overflow: auto; box-sizing: border-box; }
+      h1 { font-size: 1.08rem; margin: 0 0 4px; }
+      h2 { font-size: 0.86rem; margin: 14px 0 6px; color: var(--gold); font-weight: 600; }
+      p, li, td, th { font-size: 0.78rem; line-height: 1.4; color: var(--soft); }
+      p { margin: 0 0 8px; }
+      .row { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
+      button { font: inherit; font-size: 0.76rem; color: var(--text); background: transparent; border: 1px solid var(--line);
+        border-radius: 999px; padding: 6px 10px; cursor: pointer; }
+      button.on { background: var(--gold); color: #1b1408; border-color: var(--gold); }
+      .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 6px 0 4px; }
+      .kpi { border: 1px solid var(--line); border-radius: 10px; padding: 7px; }
+      .kpi b { display: block; font-size: 1.05rem; color: var(--text); }
+      .kpi span { font-size: 0.66rem; color: var(--muted); }
+      .bar { display: grid; grid-template-columns: 150px 1fr 44px; align-items: center; gap: 6px; margin: 3px 0; font-size: 0.72rem; color: var(--soft); }
+      .bar i { display: block; height: 9px; border-radius: 5px; background: var(--gold); }
+      .bar i.neg { background: var(--low); }
+      table { border-collapse: collapse; width: 100%; margin: 4px 0 8px; }
+      td, th { padding: 3px 4px; border-bottom: 1px solid rgba(240,195,106,.18); text-align: left; }
+      th { color: var(--muted); font-weight: 500; }
+      .legend { display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.7rem; color: var(--muted); margin: 4px 0 6px; }
+      .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; background: var(--c); }
+      .note { font-size: 0.68rem; color: var(--muted); }
+      img.fig { width: 100%; border-radius: 8px; background: #fff; margin: 4px 0; }
+      .hint { font-size: 0.72rem; color: var(--muted); font-style: italic; }
+      @media (max-width: 640px) { .panel { top: auto; bottom: 0; left: 0; width: 100%; max-height: 55%; border-radius: 14px 14px 0 0; } }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <aside class="panel">
+      <h1>Suscetibilidade à desertificação sob estresse climático</h1>
+      <p>Degradação histórica (MODIS 2001–2024), clima (CHIRPS, ERA5-Land), uso do solo (MapBiomas) e o radar NISAR
+        (jun–out/2026) que confirma a degradação no presente. Resultados pré-calculados no servidor.</p>
+      <div class="kpis" id="kpis"></div>
+      <div class="row" id="toggles"></div>
+      <div class="legend" id="legend"></div>
+      <div id="detail"><p class="hint">Clique em um município para ver o diagnóstico e o que explica o risco.</p></div>
+      <h2>O que o modelo usa para decidir (SHAP)</h2>
+      <div id="shap"></div>
+      <p class="note" id="foot"></p>
+    </aside>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      const API = "/api";
+      const map = L.map("map", { zoomControl: false }).setView([-8.2, -38.6], 7);
+      L.control.zoom({ position: "bottomright" }).addTo(map);
+      L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        { maxZoom: 18, attribution: "Esri, Maxar · MODIS · NISAR · MapBiomas · CHIRPS · ERA5-Land" }).addTo(map);
+
+      const fmt = (v, d = 1) => (v === null || v === undefined || Number.isNaN(v)) ? "—" : Number(v).toLocaleString("pt-BR", { maximumFractionDigits: d, minimumFractionDigits: d });
+      const el = (id) => document.getElementById(id);
+      const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+      const COLORS = { baixa: "var(--low)", media: "var(--mid)", alta: "#d9772f", muito_alta: "#b0301f" };
+      const HEX = { alta: "#d9772f", muito_alta: "#b0301f", degradado: "#b0301f", melhora: "#6f9b6a", controle_estavel: "#d9b45a" };
+
+      async function get(path) {
+        const r = await fetch(API + path);
+        if (!r.ok) throw new Error(`${path}: ${r.status}`);
+        return r.json();
+      }
+
+      const layers = {};
+      const LAYER_DEF = {
+        suscetibilidade: { label: "Suscetibilidade alta / muito alta", on: true,
+          style: (f) => ({ color: HEX[f.properties.suscetibilidade], weight: 0.5, fillOpacity: 0.55 }) },
+        degradacao_modis: { label: "Degradação MODIS 2001–2024", on: false,
+          style: (f) => ({ color: HEX[f.properties.classe] || "#999", weight: 0.4, fillOpacity: 0.45 }) },
+        pontos_nisar: { label: "Probabilidade NISAR", on: false, point: true },
+      };
+
+      function nisarColor(p) { return p >= 0.6 ? "#b0301f" : p >= 0.4 ? "#d9772f" : p >= 0.25 ? "#d9b45a" : "#6f9b6a"; }
+
+      async function loadLayer(name) {
+        if (layers[name]) return layers[name];
+        const def = LAYER_DEF[name];
+        const gj = await get(`/camadas/${name}`);
+        layers[name] = def.point
+          ? L.geoJSON(gj, { pointToLayer: (f, ll) => L.circleMarker(ll, { radius: 3, weight: 0, fillOpacity: 0.85,
+              fillColor: nisarColor(f.properties.prob_degradacao_nisar) })
+              .bindTooltip(`NISAR: ${fmt(100 * f.properties.prob_degradacao_nisar, 0)}% de prob. de degradação`) })
+          : L.geoJSON(gj, { style: def.style, onEachFeature: (f, l) => l.bindTooltip(
+              `${esc(f.properties.suscetibilidade || f.properties.classe)} · ${fmt(f.properties.area_ha, 0)} ha`) });
+        return layers[name];
+      }
+
+      function renderToggles() {
+        el("toggles").innerHTML = "";
+        for (const [name, def] of Object.entries(LAYER_DEF)) {
+          const b = document.createElement("button");
+          b.textContent = def.label;
+          b.className = def.on ? "on" : "";
+          b.onclick = async () => {
+            def.on = !def.on; b.className = def.on ? "on" : "";
+            const lyr = await loadLayer(name);
+            def.on ? lyr.addTo(map) : map.removeLayer(lyr);
+            renderLegend();
+          };
+          el("toggles").appendChild(b);
+        }
+      }
+
+      function renderLegend() {
+        const items = [["Município: índice baixo", "var(--low)"], ["médio", "var(--mid)"], ["alto", "#d9772f"], ["muito alto", "#b0301f"]];
+        el("legend").innerHTML = items.map(([t, c]) => `<span style="--c:${c}">${t}</span>`).join("");
+      }
+
+      function bars(items, max) {
+        return items.map(([label, v]) => {
+          const w = Math.min(100, Math.abs(v) / max * 100);
+          return `<div class="bar"><span>${esc(label)}</span><i class="${v < 0 ? "neg" : ""}" style="width:${w}%"></i><span>${fmt(v, 2)}</span></div>`;
+        }).join("");
+      }
+
+      function showDetail(r) {
+        const m = r.modis || {}, n = r.nisar || {}, c = r.clima || {}, s = r.suscetibilidade || {};
+        const contrib = r.contribuicoes_suscetibilidade || {};
+        const sh = (r.shap_detector && r.shap_detector.principais) || [];
+        const nomeContrib = { aquecimento: "Aquecimento 1991–2024", aridez: "Aridez", vegetacao: "Perda de vegetação (MODIS)",
+                              pressao_uso: "Pressão de uso (MapBiomas)", solo_arenoso: "Solo arenoso" };
+        el("detail").innerHTML = `
+          <h2>${esc(r.municipio)} / ${esc(r.uf)}</h2>
+          <div class="kpis">
+            <div class="kpi"><b>${fmt(s.indice_medio, 2)}</b><span>índice de suscetibilidade (0–1)</span></div>
+            <div class="kpi"><b>${fmt((s.pct_alta || 0) + (s.pct_muito_alta || 0))}%</b><span>área alta + muito alta</span></div>
+            <div class="kpi"><b>${n.AUC ? fmt(n.AUC, 2) : "—"}</b><span>AUC NISAR × MODIS</span></div>
+          </div>
+          <table>
+            <tr><th>Indicador</th><th>Valor</th></tr>
+            <tr><td>Área com vegetação degradando (MODIS 2001–2024)</td><td>${fmt(m.pct_degradado)}%</td></tr>
+            <tr><td>Área com vegetação melhorando</td><td>${fmt(m.pct_melhora)}%</td></tr>
+            <tr><td>NISAR acusa degradados (sensibilidade)</td><td>${fmt(n["sensibilidade_%"])}%</td></tr>
+            <tr><td>NISAR poupa controles (especificidade)</td><td>${fmt(n["especificidade_%"])}%</td></tr>
+            <tr><td>Aquecimento (°C/década, 1991–2024)</td><td>${fmt(c.temp_c_tend_decada, 2)}${c.temp_c_p < 0.05 ? " ✱" : ""}</td></tr>
+            <tr><td>Chuva 1991–2007 → 2008–2024 (mm/ano)</td><td>${fmt(c.chuva_media_1991_2007, 0)} → ${fmt(c.chuva_media_2008_2024, 0)}</td></tr>
+          </table>
+          <p class="note">✱ tendência estatisticamente significativa (p &lt; 0,05).</p>
+          <h2>De onde vem o índice</h2>
+          ${bars(Object.entries(contrib).map(([k, v]) => [nomeContrib[k] || k, v]), 0.2)}
+          <h2>Por que o detector aponta (ou não) degradação aqui</h2>
+          ${sh.length ? bars(sh.map((p) => [p.rotulo, p.efeito]), Math.max(...sh.map((p) => Math.abs(p.efeito)), 0.1))
+            + `<p class="note">Barras douradas aumentam o risco; verdes reduzem (SHAP em log-odds).</p>` : "<p class='note'>Sem pontos do detector neste município.</p>"}`;
+      }
+
+      async function init() {
+        const [meta, muns, shapDet] = await Promise.all([get("/meta"), get("/municipios"), get("/shap/detector")]);
+        const k = meta.metricas;
+        el("kpis").innerHTML = `
+          <div class="kpi"><b>${fmt(k.validacao_poligonos_auc_5mun, 2)}</b><span>AUC NISAR confirma MODIS</span></div>
+          <div class="kpi"><b>${fmt(k.detector_auc_sem_nisar, 2)} → ${fmt(k.detector_auc_com_nisar, 2)}</b><span>detector sem → com NISAR</span></div>
+          <div class="kpi"><b>${fmt(shapDet.participacao_nisar_pct, 0)}%</b><span>da explicação vem do NISAR</span></div>`;
+        const munLayer = L.geoJSON(muns, {
+          style: (f) => { const v = f.properties.suscetibilidade?.indice_medio ?? 0;
+            const c = v >= 0.65 ? "#b0301f" : v >= 0.5 ? "#d9772f" : v >= 0.35 ? "#d9b45a" : "#6f9b6a";
+            return { color: c, weight: 2.5, fillOpacity: 0.08 }; },
+          onEachFeature: (f, l) => { l.bindTooltip(`${f.properties.municipio}/${f.properties.uf}`); l.on("click", () => showDetail(f.properties)); },
+        }).addTo(map);
+        const panelW = window.innerWidth > 640 ? document.querySelector(".panel").offsetWidth + 24 : 20;
+        map.fitBounds(munLayer.getBounds(), { paddingTopLeft: [panelW, 20], paddingBottomRight: [20, 20] });
+        for (const [name, def] of Object.entries(LAYER_DEF)) if (def.on) (await loadLayer(name)).addTo(map);
+        munLayer.bringToFront();
+        renderToggles(); renderLegend();
+        // jsonb do PostgreSQL não preserva a ordem das chaves: ordena pelo valor
+        const fam = Object.entries(shapDet.importancia_familia).sort((a, b) => b[1] - a[1]);
+        el("shap").innerHTML = `
+          ${bars(fam, Math.max(...fam.map(([, v]) => v)))}
+          <p class="note">Detector de Caatinga degradada/convertida (histórico até 2014 + clima + NISAR 2026). Importância média |SHAP| por família.</p>
+          <img class="fig" src="${API}/figuras/shap_detector_beeswarm.png" alt="Gráfico SHAP do detector: cada ponto é uma área; cor indica o valor da variável" loading="lazy" />`;
+        el("foot").textContent = `Fontes: ${meta.fontes.join(" · ")}. Publicado em ${new Date(meta.publicado_em).toLocaleString("pt-BR")}. `
+          + "NISAR provisório, apenas estação seca de 2026. Degradação vegetal não equivale a desertificação comprovada em campo.";
+      }
+      init().catch((e) => { el("detail").innerHTML = `<p>Não foi possível carregar os resultados (${esc(e.message)}). A API está no ar?</p>`; });
+    </script>
+  </body>
+</html>

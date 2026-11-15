@@ -37,3 +37,29 @@ Ver `docs/resultados/RESULTADO_5_MUNICIPIOS.md`, `modelo_previsao.md`, `correlac
 - O gabarito é tendência de NDVI e MapBiomas, não medição de campo; degradação vegetal ≠ desertificação comprovada.
 - O mapa nacional usa MODIS, clima e MapBiomas; o NISAR é validado regionalmente na Caatinga.
 - Lista de municípios dos núcleos montada a partir da literatura (sem shapefile oficial aberto).
+
+## Aplicação (docker compose)
+
+```bash
+docker compose up --build -d     # http://localhost:8090  (WEB_PORT muda a porta)
+```
+
+Os modelos já rodaram: o `dg-worker` publica `app/bundle/` (resultados versionados, ~4 MB) no PostGIS e termina;
+a `dg-api` (FastAPI) só lê; o `dg-web` (nginx) serve `web/modelo.html` e as páginas da equipe e encaminha `/api`.
+Nada é calculado no navegador e não é preciso credencial para subir.
+
+| Endpoint | Conteúdo |
+|---|---|
+| `/api/health`, `/api/meta` | estado e métricas principais |
+| `/api/municipios`, `/api/municipios/{nome}/{uf}` | resumo por município (MODIS, NISAR, clima, suscetibilidade, SHAP) |
+| `/api/camadas/{suscetibilidade,degradacao_modis,pontos_nisar}?municipio=` | GeoJSON |
+| `/api/shap/{detector,validador}`, `/api/figuras/{nome}.png` | explicação global e gráficos SHAP |
+| `/docs` | Swagger (documentação interativa da API) |
+
+Reprocessar (exige `.env` com Earthdata e GEE):
+
+```bash
+docker compose --profile pipeline run --rm dg-pipeline python -m pipeline.shap_modelos
+docker compose --profile pipeline run --rm dg-pipeline python -m pipeline.bundle
+docker compose up -d --force-recreate dg-worker
+```

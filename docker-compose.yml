@@ -1,0 +1,83 @@
+# Climate Guardian — desertificação
+#
+#   docker compose up --build -d        ->  http://localhost:8090
+#
+# Os modelos já rodaram: o worker só publica os resultados (app/bundle) no PostGIS e termina.
+# O navegador apenas exibe o que a API devolve.
+# Para reprocessar (exige .env com Earthdata e GEE):
+#   docker compose --profile pipeline run --rm dg-pipeline python -m pipeline.<etapa>
+#   docker compose --profile pipeline run --rm dg-pipeline python -m pipeline.bundle
+#   docker compose up -d --force-recreate dg-worker
+#
+# Prefixo dg- evita colisão de nomes com outras stacks na mesma rede Docker.
+
+x-db-env: &db-env
+  DATABASE_URL: postgresql://${POSTGRES_USER:-guardian}:${POSTGRES_PASSWORD:-guardian-dev}@dg-db:5432/${POSTGRES_DB:-guardian}
+
+services:
+  dg-db:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-guardian}
+      POSTGRES_USER: ${POSTGRES_USER:-guardian}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-guardian-dev}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-guardian} -d ${POSTGRES_DB:-guardian}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Publica os resultados pré-calculados e termina.
+  dg-worker:
+    build: { context: ., dockerfile: docker/app.Dockerfile }
+    command: ["python", "-m", "app.worker.publish"]
+    environment: *db-env
+    volumes:
+      - ./app/bundle:/srv/app/bundle:ro
+    depends_on:
+      dg-db: { condition: service_healthy }
+    restart: "no"
+
+  dg-api:
+    build: { context: ., dockerfile: docker/app.Dockerfile }
+    restart: unless-stopped
+    environment: *db-env
+    volumes:
+      - ./app/bundle:/srv/app/bundle:ro
+    depends_on:
+      dg-db: { condition: service_healthy }
+      dg-worker: { condition: service_completed_successfully }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  dg-web:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8090}:80"
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      dg-api: { condition: service_healthy }
+
+  # Reprocessamento sob demanda (não sobe por padrão).
+  dg-pipeline:
+    profiles: ["pipeline"]
+    build: { context: ., dockerfile: docker/pipeline.Dockerfile }
+    env_file: .env
+    volumes:
+      - ./data:/srv/data
+      - ./app/bundle:/srv/app/bundle
+      - ./pipeline:/srv/pipeline
+      - ${HOME:-~}/.config/earthengine:/root/.config/earthengine:ro
+
+volumes:
+  pg_data:

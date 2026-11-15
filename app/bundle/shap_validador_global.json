@@ -1,0 +1,67 @@
+{
+  "modelo": "validador",
+  "alvo": "degradado",
+  "n": 1931,
+  "positivos": 0.40704298291040913,
+  "valor_base_logodds": -0.37680119276046753,
+  "importancia": [
+    {
+      "variavel": "nisar_hv_tex",
+      "rotulo": "NISAR textura HV",
+      "familia": "NISAR (radar 2026)",
+      "media_abs_shap": 0.5996
+    },
+    {
+      "variavel": "nisar_hv_slope",
+      "rotulo": "NISAR tendência sazonal HV",
+      "familia": "NISAR (radar 2026)",
+      "media_abs_shap": 0.3224
+    },
+    {
+      "variavel": "nisar_hh_slope",
+      "rotulo": "NISAR tendência sazonal HH",
+      "familia": "NISAR (radar 2026)",
+      "media_abs_shap": 0.2581
+    },
+    {
+      "variavel": "nisar_hvhh_db",
+      "rotulo": "NISAR razão HV/HH",
+      "familia": "NISAR (radar 2026)",
+      "media_abs_shap": 0.2528
+    },
+    {
+      "variavel": "nisar_hv_db",
+      "rotulo": "NISAR HV (dB)",
+      "familia": "NISAR (radar 2026)",
+      "media_abs_shap": 0.2134
+    },
+    {
+      "variavel": "nisar_hh_std_t",
+      "rotulo": "NISAR variação temporal HH",
+      "familia": "NISAR (radar 2026)",
+      "media_abs_shap": 0.211
+    },
+    {
+      "variavel": "nisar_hh_db",
+      "rotulo": "NISAR HH (dB)",
+      "familia": "NISAR (radar 2026)",
+      "media_abs_shap": 0.1967
+    },
+    {
+      "variavel": "nisar_hv_std_t",
+      "rotulo": "NISAR variação temporal HV",
+      "familia": "NISAR (radar 2026)",
+      "media_abs_shap": 0.1864
+    },
+    {
+      "variavel": "nisar_hh_tex",
+      "rotulo": "NISAR textura HH",
+      "familia": "NISAR (radar 2026)",
+      "media_abs_shap": 0.1588
+    }
+  ],
+  "importancia_familia": {
+    "NISAR (radar 2026)": 2.3994
+  },
+  "participacao_nisar_pct": 100.0
+}
