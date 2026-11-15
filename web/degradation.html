@@ -25,9 +25,11 @@
       }
       button.on { background: #f0c36a; color: #1b1408; border-color: #f0c36a; }
       .ramp { height: 12px; border-radius: 6px; margin-top: 4px;
-        background: linear-gradient(to right, rgb(176, 48, 36), rgb(196, 176, 130), rgb(46, 130, 58)); }
+        background: linear-gradient(to right, rgb(196, 176, 130), rgb(176, 48, 36)); }
       .ticks { display: flex; justify-content: space-between; font-size: 0.68rem; color: #cbbba6; margin-top: 3px; }
       #rain strong { color: #f4efe6; font-weight: 600; }
+      #climate { width: 100%; height: 118px; display: block; margin: 4px 0 8px; }
+      .axis { font-size: 9px; fill: #cbbba6; }
     </style>
   </head>
   <body>
@@ -39,6 +41,7 @@
       <div class="row" id="steps"></div>
       <div id="legend"></div>
       <div id="rain"></div>
+      <svg id="climate" viewBox="0 0 360 118" role="img" aria-label="Chuva e temperatura de 2001 a 2025"></svg>
       <ul id="facts"></ul>
     </aside>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -67,14 +70,14 @@
         const trend = state.step === "trend";
         show(trend ? state.sensor + "-trend" : state.sensor + "-" + state.step);
         const unit = state.sensor === "modis"
-          ? "queda por ano · setembro 2016–2026 · alta por ano"
-          : "queda na série · jun–out 2026 · alta na série";
+          ? "queda fraca · só pixels em queda · queda forte"
+          : "queda fraca · só pixels em queda · queda forte";
         document.getElementById("legend").innerHTML = trend
           ? '<div class="ramp"></div><div class="ticks"><span>' + unit.split(" · ")[0] + "</span><span>" + unit.split(" · ")[1] + "</span><span>" + unit.split(" · ")[2] + "</span></div>"
           : "";
       }
 
-      fetch("degradation/stats.json?v=6").then((response) => response.json()).then((stats) => {
+        fetch("degradation/stats.json?v=8").then((response) => response.json()).then((stats) => {
         const bounds = [[stats.south, stats.west], [stats.north, stats.east]];
         L.rectangle(bounds, { color: "#fff4d6", weight: 2, fill: false }).addTo(map);
         fetch("degradation/municipality.geojson").then((response) => response.json()).then((geo) => {
@@ -82,13 +85,13 @@
         });
         map.fitBounds(bounds, { padding: [48, 48], maxZoom: 14 });
         ["modis-trend", "nisar-trend"].forEach((name) => {
-          layers[name] = L.imageOverlay("degradation/" + name + ".png?v=6", bounds, { opacity: 0.88 });
+          layers[name] = L.imageOverlay("degradation/" + name + ".png?v=8", bounds, { opacity: 0.88 });
         });
         stats.modis_years.forEach((year) => {
-          layers["modis-" + year] = L.imageOverlay("degradation/modis-" + year + ".png?v=6", bounds, { opacity: 0.88 });
+          layers["modis-" + year] = L.imageOverlay("degradation/modis-" + year + ".png?v=8", bounds, { opacity: 0.88 });
         });
         stats.nisar_dates.forEach((day) => {
-          layers["nisar-" + day] = L.imageOverlay("degradation/nisar-" + day + ".png?v=6", bounds, { opacity: 0.88 });
+          layers["nisar-" + day] = L.imageOverlay("degradation/nisar-" + day + ".png?v=8", bounds, { opacity: 0.88 });
         });
 
         const sensors = document.getElementById("sensors");
@@ -119,30 +122,61 @@
         }
 
         const rain = stats.rain;
-        const september = Object.keys(rain.september_center)
-          .map((year) => year + " " + String(rain.september_center[year]).replace(".", ",") + " mm")
-          .join(" · ");
-        const months = Object.keys(rain.nisar_months)
-          .map((key) => key.slice(4) + "/" + key.slice(0, 4) + " " + String(rain.nisar_months[key]).replace(".", ",") + " mm")
-          .join(" · ");
+        const slopes = rain.slopes;
         const means = stats.nisar_dates
           .map((day) => day.slice(5) + " " + stats.nisar_means[day])
           .join(" · ");
+        const comma = (value, digits) => Number(value).toFixed(digits).replace(".", ",");
         document.getElementById("lead").textContent =
           stats.place + ". Caixa de cerca de 13 km. O MODIS é a tendência de todos os setembros, de 2016 a 2026. O NISAR não tem anos anteriores: são seis passagens da mesma órbita e da mesma polarização, de 25 jun a 23 out 2026.";
         document.getElementById("rain").innerHTML =
-          "<p><strong>Chuva, NASA POWER.</strong> Setembro no centro da caixa: " + september + ".</p>" +
-          "<p>De 25 jun a 23 out, soma diária. Junho e outubro não são o mês inteiro: " + months + ".</p>";
+          "<p><strong>Clima, NASA POWER, 2001–2025.</strong> Barras são a chuva anual. A linha é a temperatura. Chuva " + comma(slopes.annual_precip_mm_per_year, 1) +
+          " mm por ano. Temperatura " + comma(slopes.annual_temp_c_per_year, 2) +
+          " °C por ano. No período do MODIS a temperatura de setembro segue em alta (" + comma(slopes.modis_years_september_temp_c_per_year, 2) +
+          " °C por ano), mas a chuva anual não cai (" + comma(slopes.modis_years_annual_precip_mm_per_year, 1) + " mm por ano).</p>";
+        drawClimate(rain.annual);
         document.getElementById("facts").innerHTML =
-          "<li>MODIS: a inclinação média é " + stats.modis_slope_per_year +
-          " por ano na escala de cor. " + stats.modis_falling_pct +
-          "% dos pixels caem mais de 0,3 por ano. Pixel de cerca de " + stats.modis_pixel_m + " m.</li>" +
+          "<li>MODIS: o mapa esconde o que está estável ou em alta. Ficam " + stats.modis_falling_pct +
+          "% dos pixels. Nesses pixels a inclinação média é " + stats.modis_slope_per_year +
+          " por ano na escala de cor. Pixel de cerca de " + stats.modis_pixel_m + " m.</li>" +
           "<li>NISAR, prévia HV: " + means +
           ". Inclinação média " + stats.nisar_slope_per_day +
           " por dia. São quatro meses, e cada imagem tem a própria escala. Pixel de cerca de " + stats.nisar_pixel_m + " m.</li>";
         buildSteps();
         apply(stats);
       });
+
+      function drawClimate(annual) {
+        const svg = document.getElementById("climate");
+        const width = 360;
+        const height = 118;
+        const left = 28;
+        const right = 332;
+        const top = 16;
+        const bottom = 100;
+        const rains = annual.map((row) => row.precip_mm);
+        const temps = annual.map((row) => row.temp_c);
+        const rainMax = Math.max(...rains);
+        const tempMin = Math.min(...temps) - 0.2;
+        const tempMax = Math.max(...temps) + 0.2;
+        const x = (index) => left + (index / (annual.length - 1)) * (right - left);
+        const yRain = (value) => bottom - (value / rainMax) * (bottom - top);
+        const yTemp = (value) => bottom - ((value - tempMin) / (tempMax - tempMin)) * (bottom - top);
+        const bars = annual.map((row, index) => {
+          const barWidth = (right - left) / annual.length - 2;
+          return '<rect x="' + (x(index) - barWidth / 2) + '" y="' + yRain(row.precip_mm) +
+            '" width="' + barWidth + '" height="' + (bottom - yRain(row.precip_mm)) + '" fill="#7eb6d6" opacity="0.85"><title>' +
+            row.year + ": " + row.precip_mm + " mm, " + row.temp_c + " °C</title></rect>";
+        }).join("");
+        const line = annual.map((row, index) => (index === 0 ? "M" : "L") + x(index) + " " + yTemp(row.temp_c)).join(" ");
+        svg.innerHTML =
+          bars +
+          '<path d="' + line + '" fill="none" stroke="#f0c36a" stroke-width="2"/>' +
+          '<text class="axis" x="4" y="14">chuva</text>' +
+          '<text class="axis" x="300" y="14">°C</text>' +
+          '<text class="axis" x="' + left + '" y="114">' + annual[0].year + "</text>" +
+          '<text class="axis" x="' + (right - 28) + '" y="114">' + annual[annual.length - 1].year + "</text>";
+      }
     </script>
   </body>
 </html>

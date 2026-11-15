@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Produto GeoTIFF — tendência</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+      html, body { height: 100%; margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #10140f; color: #f4efe6; }
+      #map { position: absolute; inset: 0; }
+      .leaflet-image-layer { image-rendering: pixelated; }
+      .panel {
+        position: absolute; z-index: 500; top: 12px; left: 12px; width: min(420px, calc(100% - 24px));
+        background: rgba(16, 20, 15, 0.92); border: 1px solid rgba(240, 195, 106, 0.45);
+        border-radius: 14px; padding: 16px; max-height: calc(100% - 24px); overflow: auto;
+      }
+      h1 { font-size: 1.05rem; margin: 0 0 6px; }
+      p, li { font-size: 0.78rem; line-height: 1.4; color: #e7d7c3; }
+      p { margin: 0 0 8px; }
+      ul { margin: 0; padding-left: 18px; }
+      .row { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
+      button {
+        font: inherit; font-size: 0.78rem; color: #f4efe6; background: transparent;
+        border: 1px solid rgba(240, 195, 106, 0.45); border-radius: 999px;
+        padding: 6px 10px; cursor: pointer;
+      }
+      button.on { background: #f0c36a; color: #1b1408; border-color: #f0c36a; }
+      .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+      .ramp { height: 12px; border-radius: 6px; margin-top: 4px;
+        background: linear-gradient(to right, rgb(196, 176, 130), rgb(176, 48, 36)); }
+      .ticks { display: flex; justify-content: space-between; font-size: 0.68rem; color: #cbbba6; margin-top: 3px; }
+      #rain strong { color: #f4efe6; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <aside class="panel">
+      <h1>Tendência no produto</h1>
+      <p id="lead">Lendo os GeoTIFF…</p>
+      <div class="row" id="places"></div>
+      <div class="row" id="layers"></div>
+      <div id="legend"></div>
+      <p id="where"></p>
+      <div id="rain"></div>
+      <ul id="facts"></ul>
+    </aside>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/geotiff@2.1.3/dist-browser/geotiff.js"></script>
+    <script>
+      const map = L.map("map", { zoomControl: false }).setView([-8.2, -39.2], 7);
+      L.control.zoom({ position: "bottomright" }).addTo(map);
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        { maxZoom: 19, attribution: "Esri, Maxar · produto GeoTIFF" }
+      ).addTo(map);
+
+      const state = { slug: null, layer: "classe" };
+      const places = {};
+      const overlays = {};
+      const NODATA = -9999;
+
+      function comma(value, digits) {
+        return Number(value).toFixed(digits).replace(".", ",");
+      }
+
+      function missing(value) {
+        return !Number.isFinite(value) || value <= NODATA + 1;
+      }
+
+      function sample(band) {
+        for (let i = 0; i < band.length; i += 1) {
+          if (!missing(band[i])) return band[i];
+        }
+        return null;
+      }
+
+      function paint(place) {
+        const canvas = document.createElement("canvas");
+        canvas.width = place.width;
+        canvas.height = place.height;
+        const ctx = canvas.getContext("2d");
+        const image = ctx.createImageData(place.width, place.height);
+        const data = image.data;
+        const write = (index, red, green, blue) => {
+          const offset = index * 4;
+          data[offset] = red;
+          data[offset + 1] = green;
+          data[offset + 2] = blue;
+          data[offset + 3] = 215;
+        };
+        if (state.layer === "classe") {
+          const klass = place.bands[2];
+          for (let i = 0; i < klass.length; i += 1) {
+            const value = klass[i];
+            if (missing(value) || value < 0.5) continue;
+            if (value < 1.5) write(i, 196, 92, 38);
+            else if (value < 2.5) write(i, 212, 168, 48);
+            else write(i, 176, 48, 36);
+          }
+        } else {
+          const band = state.layer === "modis" ? place.bands[0] : place.bands[1];
+          const limit = state.layer === "modis" ? 2 : 0.4;
+          for (let i = 0; i < band.length; i += 1) {
+            const value = band[i];
+            if (missing(value) || value >= 0) continue;
+            const scaled = Math.max(-1, value / limit);
+            write(i, 196 + scaled * 20, 176 + scaled * 128, 130 + scaled * 94);
+          }
+        }
+        ctx.putImageData(image, 0, 0);
+        return canvas.toDataURL();
+      }
+
+      function draw() {
+        Object.values(places).forEach((place) => {
+          if (overlays[place.slug]) map.removeLayer(overlays[place.slug]);
+          overlays[place.slug] = L.imageOverlay(paint(place), place.leafletBounds, { opacity: 0.9, interactive: false }).addTo(map);
+        });
+        document.querySelectorAll("#layers button").forEach((button) => {
+          button.classList.toggle("on", button.dataset.id === state.layer);
+        });
+        const legend = document.getElementById("legend");
+        legend.innerHTML = state.layer === "classe"
+          ? '<p><span class="swatch" style="background:#c45c26"></span>só MODIS · <span class="swatch" style="background:#d4a830"></span>só NISAR · <span class="swatch" style="background:#b03024"></span>os dois</p>'
+          : '<div class="ramp"></div><div class="ticks"><span>queda fraca</span><span>só pixels em queda</span><span>queda forte</span></div>';
+      }
+
+      function select(slug, zoom) {
+        state.slug = slug;
+        const place = places[slug];
+        document.querySelectorAll("#places button").forEach((button) => {
+          button.classList.toggle("on", button.dataset.id === slug);
+        });
+        const counts = place.counts;
+        document.getElementById("where").textContent =
+          place.meta.place + ". Órbita " + place.meta.orbit + ". Grade de 0,01° lida de products/" + place.meta.file + ".";
+        document.getElementById("rain").innerHTML =
+          "<p><strong>Clima no ponto interno do raster.</strong> Não é um mapa. 2001–2025: chuva " +
+          comma(place.climate.longRain, 1) + " mm por ano, temperatura " + comma(place.climate.longTemp, 2) +
+          " °C por ano. Janela do MODIS: chuva " + comma(place.climate.windowRain, 1) +
+          " mm por ano, temperatura de setembro " + comma(place.climate.windowTemp, 2) + " °C por ano.</p>";
+        document.getElementById("facts").innerHTML =
+          "<li>Classe, contada no GeoTIFF: " + counts.modis + " pixels só MODIS, " + counts.nisar +
+          " só NISAR, " + counts.both + " nos dois. " + counts.steady + " foram observados e não caem.</li>" +
+          "<li>MODIS: " + place.coverage.modis + " pixels com inclinação. NISAR: " + place.coverage.nisar +
+          " pixels. Onde a prévia não existe, a banda fica vazia.</li>";
+        if (zoom) map.fitBounds(place.leafletBounds, { paddingTopLeft: [460, 24], paddingBottomRight: [24, 24], maxZoom: 12 });
+      }
+
+      function summarize(bands) {
+        const klass = bands[2];
+        const counts = { modis: 0, nisar: 0, both: 0, steady: 0 };
+        let modis = 0;
+        let nisar = 0;
+        for (let i = 0; i < bands[0].length; i += 1) {
+          if (!missing(bands[0][i])) modis += 1;
+          if (!missing(bands[1][i])) nisar += 1;
+          const value = klass[i];
+          if (missing(value)) continue;
+          if (value < 0.5) counts.steady += 1;
+          else if (value < 1.5) counts.modis += 1;
+          else if (value < 2.5) counts.nisar += 1;
+          else counts.both += 1;
+        }
+        return {
+          counts,
+          coverage: { modis, nisar },
+          climate: {
+            longRain: sample(bands[3]),
+            longTemp: sample(bands[4]),
+            windowRain: sample(bands[5]),
+            windowTemp: sample(bands[6]),
+          },
+        };
+      }
+
+      fetch("products/manifest.json").then((response) => response.json()).then(async (manifest) => {
+        document.getElementById("lead").textContent = manifest.note;
+        const loaded = await Promise.all(manifest.places.map(async (meta) => {
+          const buffer = await fetch("products/" + meta.file).then((response) => response.arrayBuffer());
+          const tiff = await GeoTIFF.fromArrayBuffer(buffer);
+          const image = await tiff.getImage();
+          const rasters = await image.readRasters();
+          const [west, south, east, north] = image.getBoundingBox();
+          const stats = summarize(rasters);
+          return {
+            meta,
+            slug: meta.slug,
+            width: image.getWidth(),
+            height: image.getHeight(),
+            bands: rasters,
+            leafletBounds: [[south, west], [north, east]],
+            ...stats,
+          };
+        }));
+        const placeBox = document.getElementById("places");
+        loaded.forEach((place) => {
+          places[place.slug] = place;
+          const button = document.createElement("button");
+          button.textContent = place.meta.place.split(",")[0];
+          button.dataset.id = place.slug;
+          button.onclick = () => select(place.slug, true);
+          placeBox.appendChild(button);
+          fetch("municipios/" + place.slug + "/municipality.geojson")
+            .then((response) => response.json())
+            .then((geo) => {
+              const outline = L.geoJSON(geo, { style: { color: "#fff4d6", weight: 1.4, fill: false } }).addTo(map);
+              outline.on("click", () => select(place.slug, true));
+            });
+        });
+        [["classe", "Classe"], ["modis", "MODIS"], ["nisar", "NISAR"]].forEach(([id, label]) => {
+          const button = document.createElement("button");
+          button.textContent = label;
+          button.dataset.id = id;
+          button.onclick = () => { state.layer = id; draw(); if (state.slug) select(state.slug, false); };
+          document.getElementById("layers").appendChild(button);
+        });
+        draw();
+        const group = L.featureGroup(loaded.map((place) => L.rectangle(place.leafletBounds)));
+        map.fitBounds(group.getBounds(), { paddingTopLeft: [460, 24], paddingBottomRight: [24, 24] });
+        select(loaded[0].slug, false);
+      }).catch((error) => {
+        document.getElementById("lead").textContent = "Não foi possível ler o GeoTIFF. " + error;
+      });
+    </script>
+  </body>
+</html>

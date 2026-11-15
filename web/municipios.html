@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Queda da vegetação — cinco municípios</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+      html, body { height: 100%; margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #10140f; color: #f4efe6; }
+      #map { position: absolute; inset: 0; }
+      .panel {
+        position: absolute; z-index: 500; top: 12px; left: 12px; width: min(420px, calc(100% - 24px));
+        background: rgba(16, 20, 15, 0.92); border: 1px solid rgba(240, 195, 106, 0.45);
+        border-radius: 14px; padding: 16px; max-height: calc(100% - 24px); overflow: auto;
+      }
+      h1 { font-size: 1.05rem; margin: 0 0 6px; }
+      p, li { font-size: 0.78rem; line-height: 1.4; color: #e7d7c3; }
+      p { margin: 0 0 8px; }
+      ul { margin: 0; padding-left: 18px; }
+      .row { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
+      button {
+        font: inherit; font-size: 0.78rem; color: #f4efe6; background: transparent;
+        border: 1px solid rgba(240, 195, 106, 0.45); border-radius: 999px;
+        padding: 6px 10px; cursor: pointer;
+      }
+      button.on { background: #f0c36a; color: #1b1408; border-color: #f0c36a; }
+      .ramp { height: 12px; border-radius: 6px; margin-top: 4px;
+        background: linear-gradient(to right, rgb(196, 176, 130), rgb(176, 48, 36)); }
+      .ticks { display: flex; justify-content: space-between; font-size: 0.68rem; color: #cbbba6; margin-top: 3px; }
+      #rain strong { color: #f4efe6; font-weight: 600; }
+      #climate { width: 100%; height: 118px; display: block; margin: 4px 0 8px; }
+      .axis { font-size: 9px; fill: #cbbba6; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <aside class="panel">
+      <h1>Queda da vegetação</h1>
+      <p>Cinco municípios inteiros do semiárido. O mapa mostra só o pixel cuja série está em queda. Setembro do MODIS, de 2016 a 2026, cobre o território. O NISAR não tem anos anteriores: são seis passagens da mesma órbita e da mesma polarização, em 2026. Onde essa prévia não existe, o chão fica visível.</p>
+      <div class="row" id="places"></div>
+      <p id="lead"></p>
+      <div class="row" id="sensors"></div>
+      <div class="row" id="steps"></div>
+      <div id="legend"></div>
+      <div id="rain"></div>
+      <svg id="climate" viewBox="0 0 360 118" role="img" aria-label="Chuva e temperatura de 2001 a 2025"></svg>
+      <ul id="facts"></ul>
+    </aside>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      const map = L.map("map", { zoomControl: false }).setView([-8.2, -39.2], 7);
+      L.control.zoom({ position: "bottomright" }).addTo(map);
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        { maxZoom: 19, attribution: "Esri, Maxar · MODIS GIBS · NISAR GIBS" }
+      ).addTo(map);
+
+      const state = { slug: "floresta", sensor: "modis", step: "trend" };
+      const layers = {};
+      const outlines = {};
+      const boxes = {};
+      let current = null;
+      let statsBySlug = {};
+
+      function comma(value, digits) {
+        return Number(value).toFixed(digits).replace(".", ",");
+      }
+
+      function show(name) {
+        if (current) map.removeLayer(current);
+        current = layers[name] || null;
+        if (current) current.addTo(map);
+      }
+
+      function stylePlaces() {
+        Object.entries(outlines).forEach(([slug, layer]) => {
+          layer.setStyle({ color: slug === state.slug ? "#ffffff" : "#f0c36a", weight: slug === state.slug ? 2 : 1, fill: false, opacity: slug === state.slug ? 1 : 0.7 });
+        });
+        Object.entries(boxes).forEach(([slug, layer]) => {
+          layer.setStyle({ color: slug === state.slug ? "#fff4d6" : "#f0c36a", weight: slug === state.slug ? 2 : 1, fill: false, opacity: slug === state.slug ? 1 : 0.55 });
+        });
+        document.querySelectorAll("#places button").forEach((button) => {
+          button.classList.toggle("on", button.dataset.id === state.slug);
+        });
+      }
+
+      function apply() {
+        const stats = statsBySlug[state.slug];
+        document.querySelectorAll("#sensors button, #steps button").forEach((button) => {
+          button.classList.toggle("on", button.dataset.id === state.sensor || button.dataset.id === state.step);
+        });
+        const trend = state.step === "trend";
+        show(state.slug + "-" + (trend ? state.sensor + "-trend" : state.sensor + "-" + state.step));
+        document.getElementById("legend").innerHTML = trend
+          ? '<div class="ramp"></div><div class="ticks"><span>queda fraca</span><span>só pixels em queda</span><span>queda forte</span></div>'
+          : "";
+      }
+
+      function drawClimate(annual) {
+        const svg = document.getElementById("climate");
+        if (!annual || !annual.length) {
+          svg.innerHTML = "";
+          return;
+        }
+        const width = 360;
+        const left = 28;
+        const right = 332;
+        const top = 16;
+        const bottom = 100;
+        const rains = annual.map((row) => row.precip_mm);
+        const temps = annual.map((row) => row.temp_c);
+        const rainMax = Math.max(...rains);
+        const tempMin = Math.min(...temps) - 0.2;
+        const tempMax = Math.max(...temps) + 0.2;
+        const x = (index) => left + (index / (annual.length - 1)) * (right - left);
+        const yRain = (value) => bottom - (value / rainMax) * (bottom - top);
+        const yTemp = (value) => bottom - ((value - tempMin) / (tempMax - tempMin)) * (bottom - top);
+        const bars = annual.map((row, index) => {
+          const barWidth = (right - left) / annual.length - 2;
+          return '<rect x="' + (x(index) - barWidth / 2) + '" y="' + yRain(row.precip_mm) +
+            '" width="' + barWidth + '" height="' + (bottom - yRain(row.precip_mm)) + '" fill="#7eb6d6" opacity="0.85"><title>' +
+            row.year + ": " + row.precip_mm + " mm, " + row.temp_c + " °C</title></rect>";
+        }).join("");
+        const line = annual.map((row, index) => (index === 0 ? "M" : "L") + x(index) + " " + yTemp(row.temp_c)).join(" ");
+        svg.innerHTML =
+          bars +
+          '<path d="' + line + '" fill="none" stroke="#f0c36a" stroke-width="2"/>' +
+          '<text class="axis" x="4" y="14">chuva</text>' +
+          '<text class="axis" x="300" y="14">°C</text>' +
+          '<text class="axis" x="' + left + '" y="114">' + annual[0].year + "</text>" +
+          '<text class="axis" x="' + (right - 28) + '" y="114">' + annual[annual.length - 1].year + "</text>";
+      }
+
+      function buildSteps() {
+        const stats = statsBySlug[state.slug];
+        const box = document.getElementById("steps");
+        box.innerHTML = "";
+        const trend = document.createElement("button");
+        trend.textContent = "Tendência";
+        trend.dataset.id = "trend";
+        trend.onclick = () => { state.step = "trend"; apply(); };
+        box.appendChild(trend);
+        const items = state.sensor === "modis" ? stats.modis_years : stats.nisar_dates;
+        items.forEach((item) => {
+          const button = document.createElement("button");
+          button.textContent = state.sensor === "modis" ? item : String(item).slice(5);
+          button.dataset.id = String(item);
+          button.onclick = () => { state.step = String(item); apply(); };
+          box.appendChild(button);
+        });
+      }
+
+      function select(slug, zoom) {
+        state.slug = slug;
+        state.step = "trend";
+        const stats = statsBySlug[slug];
+        const slopes = stats.rain.slopes;
+        const means = stats.nisar_dates.map((day) => day.slice(5) + " " + stats.nisar_means[day]).join(" · ");
+        document.getElementById("lead").textContent = stats.place + ". " + stats.note + " NISAR: órbita " + stats.orbit + ".";
+        document.getElementById("rain").innerHTML =
+          "<p><strong>Clima, NASA POWER, 2001–2025.</strong> Barras são a chuva anual. A linha é a temperatura. Chuva " +
+          comma(slopes.annual_precip_mm_per_year, 1) + " mm por ano. Temperatura " + comma(slopes.annual_temp_c_per_year, 2) +
+          " °C por ano. No período do MODIS a chuva anual vai a " + comma(slopes.modis_years_annual_precip_mm_per_year, 1) +
+          " mm por ano e a temperatura de setembro a " + comma(slopes.modis_years_september_temp_c_per_year, 2) + " °C por ano.</p>";
+        drawClimate(stats.rain.annual);
+        document.getElementById("facts").innerHTML =
+          "<li>MODIS: ficam " + stats.modis_falling_pct + "% dos pixels. Nesses pixels a inclinação média é " +
+          stats.modis_slope_per_year + " por ano na escala de cor. Pixel de cerca de " + stats.modis_pixel_m + " m.</li>" +
+          "<li>NISAR, prévia HV: " + means + ". Ficam " + stats.nisar_falling_pct +
+          "% dos pixels, com inclinação média " + stats.nisar_slope_per_day +
+          " por dia. São cerca de quatro meses, e cada imagem tem a própria escala. Pixel de cerca de " + stats.nisar_pixel_m + " m.</li>";
+        stylePlaces();
+        buildSteps();
+        apply();
+        if (zoom) map.fitBounds(boxes[slug].getBounds(), { padding: [48, 48], maxZoom: 14 });
+      }
+
+      fetch("municipios/index.json?v=1").then((response) => response.json()).then((index) => {
+        return Promise.all(index.places.map((item) =>
+          fetch("municipios/" + item.slug + "/stats.json?v=1").then((response) => response.json())
+        ));
+      }).then((all) => {
+        const placeBox = document.getElementById("places");
+        const sensors = document.getElementById("sensors");
+        all.forEach((stats) => {
+          statsBySlug[stats.slug] = stats;
+          const bounds = [[stats.south, stats.west], [stats.north, stats.east]];
+          boxes[stats.slug] = L.rectangle(bounds, { color: "#f0c36a", weight: 1, fill: false }).addTo(map);
+          boxes[stats.slug].on("click", () => select(stats.slug, true));
+          ["modis-trend", "nisar-trend"].forEach((name) => {
+            layers[stats.slug + "-" + name] = L.imageOverlay("municipios/" + stats.slug + "/" + name + ".png?v=1", bounds, { opacity: 0.88 });
+          });
+          stats.modis_years.forEach((year) => {
+            layers[stats.slug + "-modis-" + year] = L.imageOverlay("municipios/" + stats.slug + "/modis-" + year + ".png?v=1", bounds, { opacity: 0.88 });
+          });
+          stats.nisar_dates.forEach((day) => {
+            layers[stats.slug + "-nisar-" + day] = L.imageOverlay("municipios/" + stats.slug + "/nisar-" + day + ".png?v=1", bounds, { opacity: 0.88 });
+          });
+          fetch("municipios/" + stats.slug + "/municipality.geojson").then((response) => response.json()).then((geo) => {
+            outlines[stats.slug] = L.geoJSON(geo, { style: { color: "#f0c36a", weight: 1, fill: false } }).addTo(map);
+            outlines[stats.slug].on("click", () => select(stats.slug, true));
+            stylePlaces();
+          });
+          const button = document.createElement("button");
+          button.textContent = stats.name;
+          button.dataset.id = stats.slug;
+          button.onclick = () => select(stats.slug, true);
+          placeBox.appendChild(button);
+        });
+        [["modis", "MODIS"], ["nisar", "NISAR"]].forEach(([id, label]) => {
+          const button = document.createElement("button");
+          button.textContent = label;
+          button.dataset.id = id;
+          button.onclick = () => { state.sensor = id; state.step = "trend"; buildSteps(); apply(); };
+          sensors.appendChild(button);
+        });
+        const group = L.featureGroup(Object.values(boxes));
+        map.fitBounds(group.getBounds(), { padding: [40, 40] });
+        select(all[0].slug, false);
+      });
+    </script>
+  </body>
+</html>

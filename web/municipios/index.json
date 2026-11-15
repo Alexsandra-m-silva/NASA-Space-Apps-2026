@@ -1,0 +1,54 @@
+{
+  "places": [
+    {
+      "slug": "floresta",
+      "place": "Floresta, PE",
+      "west": -38.58,
+      "south": -8.66,
+      "east": -38.46,
+      "north": -8.54,
+      "modis_falling_pct": 65.3,
+      "nisar_falling_pct": 77.8
+    },
+    {
+      "slug": "currais-novos",
+      "place": "Currais Novos, RN",
+      "west": -36.58,
+      "south": -6.32,
+      "east": -36.46,
+      "north": -6.2,
+      "modis_falling_pct": 12.6,
+      "nisar_falling_pct": 81.5
+    },
+    {
+      "slug": "parelhas",
+      "place": "Parelhas, RN",
+      "west": -36.72,
+      "south": -6.75,
+      "east": -36.6,
+      "north": -6.63,
+      "modis_falling_pct": 36.0,
+      "nisar_falling_pct": 75.2
+    },
+    {
+      "slug": "petrolina",
+      "place": "Petrolina, PE",
+      "west": -40.56,
+      "south": -9.45,
+      "east": -40.44,
+      "north": -9.33,
+      "modis_falling_pct": 70.6,
+      "nisar_falling_pct": 56.0
+    },
+    {
+      "slug": "casa-nova",
+      "place": "Casa Nova, BA",
+      "west": -41.56,
+      "south": -9.06,
+      "east": -41.44,
+      "north": -8.94,
+      "modis_falling_pct": 19.3,
+      "nisar_falling_pct": 69.4
+    }
+  ]
+}

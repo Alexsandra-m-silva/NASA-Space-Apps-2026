@@ -1,0 +1,324 @@
+{
+  "slug": "casa-nova",
+  "place": "Casa Nova, BA",
+  "name": "Casa Nova",
+  "uf": "BA",
+  "note": "A sede n\u00e3o tem pr\u00e9via colorida do NISAR. A caixa de cerca de 13 km fica no norte do munic\u00edpio, onde essa \u00f3rbita cobre o ch\u00e3o.",
+  "orbit": "descendente 096, quadro 093, SHSH",
+  "west": -41.56,
+  "south": -9.06,
+  "east": -41.44,
+  "north": -8.94,
+  "modis_years": [
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "nisar_dates": [
+    "2026-07-02",
+    "2026-07-26",
+    "2026-08-19",
+    "2026-09-12",
+    "2026-10-06",
+    "2026-10-30"
+  ],
+  "modis_slope_per_year": -1.63,
+  "modis_falling_pct": 19.3,
+  "nisar_means": {
+    "2026-07-02": 123.5,
+    "2026-07-26": 176.2,
+    "2026-08-19": 173.7,
+    "2026-09-12": 170.4,
+    "2026-10-06": 170.9,
+    "2026-10-30": 119.5
+  },
+  "nisar_slope_per_day": -0.047,
+  "nisar_falling_pct": 69.4,
+  "nisar_pixel_m": 302,
+  "modis_pixel_m": 1208,
+  "rain": {
+    "source": "NASA POWER PRECTOTCORR e T2M",
+    "annual": [
+      {
+        "year": 2001,
+        "precip_mm": 491.3,
+        "temp_c": 26.68
+      },
+      {
+        "year": 2002,
+        "precip_mm": 591.5,
+        "temp_c": 26.48
+      },
+      {
+        "year": 2003,
+        "precip_mm": 483.9,
+        "temp_c": 26.91
+      },
+      {
+        "year": 2004,
+        "precip_mm": 770.4,
+        "temp_c": 26.11
+      },
+      {
+        "year": 2005,
+        "precip_mm": 584.5,
+        "temp_c": 26.59
+      },
+      {
+        "year": 2006,
+        "precip_mm": 584.4,
+        "temp_c": 26.28
+      },
+      {
+        "year": 2007,
+        "precip_mm": 425.8,
+        "temp_c": 26.46
+      },
+      {
+        "year": 2008,
+        "precip_mm": 687.0,
+        "temp_c": 26.08
+      },
+      {
+        "year": 2009,
+        "precip_mm": 822.2,
+        "temp_c": 26.15
+      },
+      {
+        "year": 2010,
+        "precip_mm": 549.3,
+        "temp_c": 26.78
+      },
+      {
+        "year": 2011,
+        "precip_mm": 546.0,
+        "temp_c": 26.19
+      },
+      {
+        "year": 2012,
+        "precip_mm": 190.5,
+        "temp_c": 27.25
+      },
+      {
+        "year": 2013,
+        "precip_mm": 399.2,
+        "temp_c": 27.2
+      },
+      {
+        "year": 2014,
+        "precip_mm": 385.8,
+        "temp_c": 26.65
+      },
+      {
+        "year": 2015,
+        "precip_mm": 199.6,
+        "temp_c": 27.64
+      },
+      {
+        "year": 2016,
+        "precip_mm": 419.3,
+        "temp_c": 27.32
+      },
+      {
+        "year": 2017,
+        "precip_mm": 242.4,
+        "temp_c": 27.15
+      },
+      {
+        "year": 2018,
+        "precip_mm": 538.7,
+        "temp_c": 26.65
+      },
+      {
+        "year": 2019,
+        "precip_mm": 344.0,
+        "temp_c": 27.45
+      },
+      {
+        "year": 2020,
+        "precip_mm": 544.7,
+        "temp_c": 26.83
+      },
+      {
+        "year": 2021,
+        "precip_mm": 373.0,
+        "temp_c": 27.3
+      },
+      {
+        "year": 2022,
+        "precip_mm": 506.3,
+        "temp_c": 26.41
+      },
+      {
+        "year": 2023,
+        "precip_mm": 391.0,
+        "temp_c": 27.63
+      },
+      {
+        "year": 2024,
+        "precip_mm": 510.4,
+        "temp_c": 27.48
+      },
+      {
+        "year": 2025,
+        "precip_mm": 470.2,
+        "temp_c": 27.36
+      }
+    ],
+    "september": [
+      {
+        "year": 2001,
+        "precip_mm": 21.3,
+        "temp_c": 26.86
+      },
+      {
+        "year": 2002,
+        "precip_mm": 6.9,
+        "temp_c": 27.55
+      },
+      {
+        "year": 2003,
+        "precip_mm": 0.9,
+        "temp_c": 27.14
+      },
+      {
+        "year": 2004,
+        "precip_mm": 0.3,
+        "temp_c": 26.6
+      },
+      {
+        "year": 2005,
+        "precip_mm": 0.3,
+        "temp_c": 27.41
+      },
+      {
+        "year": 2006,
+        "precip_mm": 61.2,
+        "temp_c": 25.28
+      },
+      {
+        "year": 2007,
+        "precip_mm": 0.3,
+        "temp_c": 25.9
+      },
+      {
+        "year": 2008,
+        "precip_mm": 0.3,
+        "temp_c": 27.32
+      },
+      {
+        "year": 2009,
+        "precip_mm": 0.0,
+        "temp_c": 28.25
+      },
+      {
+        "year": 2010,
+        "precip_mm": 0.6,
+        "temp_c": 26.22
+      },
+      {
+        "year": 2011,
+        "precip_mm": 0.9,
+        "temp_c": 26.15
+      },
+      {
+        "year": 2012,
+        "precip_mm": 0.0,
+        "temp_c": 26.52
+      },
+      {
+        "year": 2013,
+        "precip_mm": 0.0,
+        "temp_c": 27.15
+      },
+      {
+        "year": 2014,
+        "precip_mm": 2.1,
+        "temp_c": 27.2
+      },
+      {
+        "year": 2015,
+        "precip_mm": 0.0,
+        "temp_c": 27.52
+      },
+      {
+        "year": 2016,
+        "precip_mm": 5.4,
+        "temp_c": 27.65
+      },
+      {
+        "year": 2017,
+        "precip_mm": 2.1,
+        "temp_c": 25.34
+      },
+      {
+        "year": 2018,
+        "precip_mm": 0.3,
+        "temp_c": 27.65
+      },
+      {
+        "year": 2019,
+        "precip_mm": 0.6,
+        "temp_c": 27.46
+      },
+      {
+        "year": 2020,
+        "precip_mm": 0.0,
+        "temp_c": 27.16
+      },
+      {
+        "year": 2021,
+        "precip_mm": 0.0,
+        "temp_c": 28.09
+      },
+      {
+        "year": 2022,
+        "precip_mm": 14.4,
+        "temp_c": 26.79
+      },
+      {
+        "year": 2023,
+        "precip_mm": 0.3,
+        "temp_c": 28.12
+      },
+      {
+        "year": 2024,
+        "precip_mm": 0.3,
+        "temp_c": 27.06
+      },
+      {
+        "year": 2025,
+        "precip_mm": 0.6,
+        "temp_c": 26.93
+      },
+      {
+        "year": 2026,
+        "precip_mm": 0.3,
+        "temp_c": 28.61
+      }
+    ],
+    "nisar_months": {
+      "202607": 2.7,
+      "202608": 0.1,
+      "202609": 0.3,
+      "202610": 8.9
+    },
+    "slopes": {
+      "annual_precip_mm_per_year": -8.354,
+      "annual_temp_c_per_year": 0.043,
+      "september_precip_mm_per_year": -0.453,
+      "september_temp_c_per_year": 0.036,
+      "modis_years_annual_precip_mm_per_year": 11.581,
+      "modis_years_september_precip_mm_per_year": -0.161,
+      "modis_years_september_temp_c_per_year": 0.094
+    }
+  }
+}
