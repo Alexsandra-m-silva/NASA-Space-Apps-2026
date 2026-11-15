@@ -8,9 +8,9 @@ export const brand = {
   thesis:
     "Showing the map is not enough. We show the price of waiting, the action available, and the incentive for those who restore.",
   logo: {
-    /** Official Sand (Areia) wordmark — dark backgrounds */
-    onDark: "/brand/logo-horizontal-sand.svg",
-    /** Official Horizontal wordmark — light backgrounds */
-    onLight: "/brand/logo-horizontal.svg",
+    /** Mel wordmark — dark backgrounds (Terra e luz) */
+    onDark: "/brand/logo-on-dark.png",
+    /** Barro wordmark — light backgrounds (Terra e luz) */
+    onLight: "/brand/logo-on-light.png",
   },
 } as const;

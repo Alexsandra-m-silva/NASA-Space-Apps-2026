@@ -7,7 +7,7 @@ export function BrandLogo({
   variant,
   className,
 }: {
-  /** onDark = official Sand SVG; onLight = official Horizontal SVG */
+  /** onDark = mel wordmark; onLight = barro wordmark */
   variant: "onDark" | "onLight";
   className?: string;
   /** Kept for call-site compatibility with the header. */
@@ -15,14 +15,13 @@ export function BrandLogo({
 }) {
   const src = brand.logo[variant];
   return (
-    // Official SVGs from the NASA Space App Challenge Design System zip.
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
       alt={brand.name}
-      width={318}
-      height={48}
-      className={cn("h-8 w-auto sm:h-9", className)}
+      width={203}
+      height={73}
+      className={cn("h-10 w-auto sm:h-11", className)}
       draggable={false}
     />
   );
