@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AboutTeam } from "@/components/about/about-team";
 import { PartnerCta } from "@/components/about/partner-cta";
 import { Button } from "@/components/ui/button";
 import { brand } from "@/data/brand";
@@ -230,6 +231,8 @@ export function AboutLanding() {
           </div>
         </div>
       </section>
+
+      <AboutTeam />
 
       {/* Partners — companies only; soft Mel wash for quiet highlight */}
       <section
