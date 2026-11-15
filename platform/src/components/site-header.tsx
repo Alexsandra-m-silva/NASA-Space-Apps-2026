@@ -110,9 +110,9 @@ export function SiteHeader() {
         <Link
           href="/"
           className="group relative flex items-center"
-          aria-label="Desert Sentinel"
+          aria-label="Climate Sentinel"
         >
-          <span className="relative block h-10 w-[112px] sm:h-11 sm:w-[122px]">
+          <span className="relative block h-7 w-[114px] sm:h-8 sm:w-[126px]">
             {/* Mel wordmark — dark backgrounds */}
             <BrandLogo
               variant="onDark"
@@ -134,7 +134,7 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-1 text-sm sm:gap-2">
+        <nav className="flex items-center gap-3 text-sm sm:gap-4">
           <Link
             href="/about"
             className={cn(
