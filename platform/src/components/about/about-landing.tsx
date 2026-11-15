@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeroVideo } from "@/components/about/hero-video";
 import { PartnerCta } from "@/components/about/partner-cta";
 import { Button } from "@/components/ui/button";
 import { brand } from "@/data/brand";
@@ -46,16 +47,7 @@ export function AboutLanding() {
         className="relative -mt-[3.75rem] min-h-[88vh] overflow-hidden border-b border-border bg-[#220F08] pt-[3.75rem]"
       >
         <div aria-hidden className="absolute inset-0">
-          <video
-            className="h-full w-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-          >
-            <source src="/hero/about-hero.mp4" type="video/mp4" />
-          </video>
+          <HeroVideo src="/hero/about-hero.mp4" className="h-full w-full object-cover" />
           {/* Gradient mask (benchmark: Hefesto hero): darker at the top for the header and at the bottom for the copy */}
           <div
             className="pointer-events-none absolute inset-0"
