@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { EmailTriggersCard } from "@/components/auth/email-triggers-card";
 import { PreferenceForm } from "@/components/auth/preference-form";
@@ -66,6 +66,9 @@ export function AtualizacoesWorkspace() {
   const [successOpen, setSuccessOpen] = useState(false);
   const [seededFromExplore, setSeededFromExplore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [savedRemotely, setSavedRemotely] = useState(false);
+  const emailRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const seed = fromExplore ? consumeExploreSeed() : null;
@@ -91,8 +94,11 @@ export function AtualizacoesWorkspace() {
   }, [seededFromExplore]);
 
   function validateContact(): boolean {
-    if (!email.trim() || !email.includes("@")) {
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) {
       setError("Enter a valid institutional or professional email.");
+      // The email field is far above the submit button: bring it into view
+      emailRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      emailRef.current?.focus({ preventScroll: true });
       return false;
     }
     if (!role) {
@@ -103,18 +109,44 @@ export function AtualizacoesWorkspace() {
     return true;
   }
 
-  function handleSubscribe(nextPrefs: AlertPreferences) {
-    if (!validateContact()) return;
+  async function handleSubscribe(nextPrefs: AlertPreferences) {
+    if (saving || !validateContact()) return;
     const normalized = normalizePreferences({
       ...nextPrefs,
       alertsEnabled: true,
     });
+    setSaving(true);
+    let remote = false;
+    try {
+      const r = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim(),
+          role,
+          org: org.trim() || null,
+          preferences: normalized,
+        }),
+      });
+      if (r.status === 422) {
+        setError("Enter a valid institutional or professional email.");
+        emailRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        setSaving(false);
+        return;
+      }
+      remote = r.ok;
+    } catch {
+      remote = false;
+    }
+    // Keep the local copy too (pre-fills the form on the next visit)
     subscribe({
       email,
       role,
       org,
       preferences: normalized,
     });
+    setSavedRemotely(remote);
+    setSaving(false);
     setPrefs(normalized);
     setSeededFromExplore(false);
     setSuccessOpen(true);
@@ -167,6 +199,7 @@ export function AtualizacoesWorkspace() {
               Professional email
             </span>
             <input
+              ref={emailRef}
               type="email"
               className="h-10 w-full max-w-md rounded-md border border-input bg-background px-3"
               value={email}
@@ -230,6 +263,11 @@ export function AtualizacoesWorkspace() {
             cancelLabel="Cancel newsletter updates"
             onSubmit={handleSubscribe}
           />
+          {/* Feedback next to the submit button (the contact fields are far above) */}
+          <div aria-live="polite" className="mt-3 text-right text-sm">
+            {saving && <p className="text-muted-foreground">Saving your subscription…</p>}
+            {!saving && error && <p className="text-destructive">{error}</p>}
+          </div>
         </div>
       </section>
 
@@ -246,8 +284,10 @@ export function AtualizacoesWorkspace() {
                 {email.trim() || "your email"}
               </span>
               . You will get updates when trend, risk, or impact changes in the
-              territory you selected. This prototype stores the preference in
-              this browser only.
+              territory you selected.
+              {savedRemotely
+                ? " Your selection was saved on the Climate Sentinel server."
+                : " We could not reach the server, so the selection was saved in this browser only — please try again later."}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

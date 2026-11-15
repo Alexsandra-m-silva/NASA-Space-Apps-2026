@@ -155,6 +155,69 @@ def email_send(chave: str, corpo: EnvioEmail, x_admin_token: str | None = Header
     return {"enviado": True, "para": para, "assunto": subject, "message_id": msg_id}
 
 
+# ---------------------------------------------------------------------------
+# Newsletter: inscrições da plataforma (/newsletter). Ficam no PostGIS para a
+# equipe enviar pelo Brevo; o worker não toca nesta tabela nos redeploys.
+# ---------------------------------------------------------------------------
+_NEWSLETTER_DDL = """
+CREATE TABLE IF NOT EXISTS inscricoes_newsletter (
+    email        text PRIMARY KEY,
+    papel        text NOT NULL,
+    organizacao  text,
+    preferencias jsonb NOT NULL,
+    criado_em    timestamptz NOT NULL DEFAULT now(),
+    atualizado_em timestamptz NOT NULL DEFAULT now()
+)"""
+
+
+class InscricaoNewsletter(BaseModel):
+    email: str = Field(max_length=254)
+    role: str = Field(max_length=40)
+    org: str | None = Field(default=None, max_length=200)
+    preferences: dict
+
+
+@app.post("/api/newsletter/subscribe")
+def newsletter_subscribe(corpo: InscricaoNewsletter):
+    """Grava (ou atualiza) a inscrição na newsletter. Não envia e-mail."""
+    import json
+
+    email = corpo.email.strip().lower()
+    if not EMAIL_RE.match(email):
+        raise HTTPException(422, "Enter a valid email address.")
+    prefs = json.dumps(corpo.preferences)
+    if len(prefs) > 20000:
+        raise HTTPException(413, "Preferences too large.")
+    with pool.connection() as conn:
+        conn.execute(_NEWSLETTER_DDL)
+        conn.execute(
+            """INSERT INTO inscricoes_newsletter (email, papel, organizacao, preferencias)
+               VALUES (%s, %s, %s, %s::jsonb)
+               ON CONFLICT (email) DO UPDATE SET papel = EXCLUDED.papel,
+                 organizacao = EXCLUDED.organizacao, preferencias = EXCLUDED.preferencias,
+                 atualizado_em = now()""",
+            (email, corpo.role.strip(), (corpo.org or "").strip() or None, prefs),
+        )
+    return {"subscribed": True, "email": email}
+
+
+@app.get("/api/newsletter/subscribers")
+def newsletter_subscribers(x_admin_token: str | None = Header(default=None)):
+    """Lista as inscrições (exportar para o Brevo). Exige X-Admin-Token = EMAIL_ADMIN_TOKEN."""
+    token = os.environ.get("EMAIL_ADMIN_TOKEN", "")
+    if not token:
+        raise HTTPException(503, "EMAIL_ADMIN_TOKEN não configurado")
+    if not x_admin_token or not hmac.compare_digest(x_admin_token, token):
+        raise HTTPException(401, "token inválido")
+    with pool.connection() as conn:
+        conn.execute(_NEWSLETTER_DDL)
+        rows = conn.execute(
+            "SELECT email, papel, organizacao, preferencias, criado_em, atualizado_em "
+            "FROM inscricoes_newsletter ORDER BY criado_em"
+        ).fetchall()
+    return {"total": len(rows), "inscricoes": rows}
+
+
 @app.get("/api/recomendacoes/{chave:path}")
 def recomendacao(chave: str):
     return _rec(chave)
