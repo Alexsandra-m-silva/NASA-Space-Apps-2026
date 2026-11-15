@@ -68,9 +68,9 @@ def load():
     image = np.zeros((height, width, 4), dtype=np.uint8)
     modis_down = np.isfinite(modis_slope) & (modis_slope < 0)
     nisar_down = np.isfinite(nisar_slope) & (nisar_slope < 0)
+    both = modis_down & nisar_down
     image[modis_down & ~nisar_down] = (196, 92, 38, 210)
-    image[~modis_down & nisar_down] = (212, 168, 48, 210)
-    image[modis_down & nisar_down] = (176, 48, 36, 210)
+    image[both] = (176, 48, 36, 210)
     overlay = ROOT / "products" / "floresta_compare_overlay.png"
     Image.fromarray(image, "RGBA").save(overlay)
     return {
@@ -84,6 +84,7 @@ def load():
         "north": float(cube["north"]),
         "resolution": float(cube["resolution"]),
         "overlay": str(overlay),
+        "both": both,
         "meta": meta,
     }
 
@@ -103,8 +104,10 @@ def _slices(box, data):
     return slice(row0, row1), slice(col0, col1)
 
 
-def _means(stack: np.ndarray, rows, cols) -> list[float]:
+def _means(stack: np.ndarray, rows, cols, keep: np.ndarray | None = None) -> list[float]:
     window = stack[:, rows, cols]
+    if keep is not None:
+        window = window[:, keep]
     means = []
     for layer in window:
         valid = layer[np.isfinite(layer)]
@@ -138,13 +141,13 @@ def _default_box(data) -> tuple[float, float, float, float]:
 def _reading(modis_slope, nisar_slope, slopes) -> str:
     parts = []
     if nisar_slope is None:
-        parts.append("This rectangle does not have enough radar preview. The comparison uses MODIS only.")
+        parts.append("These red pixels do not have enough radar preview. The comparison uses MODIS only.")
     elif modis_slope is not None and modis_slope < 0 and nisar_slope < 0:
-        parts.append("Inside the rectangle, September MODIS and the radar preview both fall. The two vegetation signals converge.")
+        parts.append("Among the red pixels, September MODIS and the radar preview both fall. The two vegetation signals converge.")
     elif modis_slope is not None and modis_slope > 0 and nisar_slope > 0:
-        parts.append("Inside the rectangle, September MODIS and the radar preview both rise. They converge on an increase, not a decline.")
+        parts.append("Among the red pixels, September MODIS and the radar preview both rise. They converge on an increase, not a decline.")
     elif modis_slope is not None:
-        parts.append("Inside the rectangle, September MODIS and the radar preview point in opposite directions. They diverge: one covers many years, the other about four months of 2026.")
+        parts.append("Among the red pixels, September MODIS and the radar preview point in opposite directions. They diverge: one covers many years, the other about four months of 2026.")
     rain_long = slopes["annual_precip_mm_per_year"]
     rain_window = slopes["modis_years_annual_precip_mm_per_year"]
     if modis_slope is not None and modis_slope < 0 and rain_long < 0 and rain_window > 0:
@@ -152,7 +155,7 @@ def _reading(modis_slope, nisar_slope, slopes) -> str:
     elif modis_slope is not None and modis_slope < 0 and rain_long < 0:
         parts.append("The vegetation decline and the long-record rainfall decline have the same sign.")
     elif modis_slope is not None and modis_slope < 0 and rain_window > 0:
-        parts.append("Vegetation falls inside the rectangle, while annual rainfall in the MODIS window does not. Those signals diverge.")
+        parts.append("Vegetation falls on the red pixels, while annual rainfall in the MODIS window does not. Those signals diverge.")
     parts.append("Temperature and rainfall are one point for the municipality, repeated for every rectangle. None of this is treated as a cause.")
     return " ".join(parts)
 
@@ -160,7 +163,7 @@ def _reading(modis_slope, nisar_slope, slopes) -> str:
 def _chart(frame: pd.DataFrame, x: str, y: str, color: str):
     kept = frame.dropna(subset=[y]).copy()
     if kept.empty:
-        st.caption("No values in this rectangle.")
+        st.caption("No red pixels in this rectangle.")
         return
     if pd.api.types.is_datetime64_any_dtype(kept[x]):
         x_number = kept[x].astype("int64").to_numpy() / 1e9
@@ -194,6 +197,26 @@ def _chart(frame: pd.DataFrame, x: str, y: str, color: str):
     st.vega_lite_chart(kept, spec, width="stretch")
 
 
+def _map_legend(fmap) -> None:
+    from branca.element import MacroElement
+    from branca.element import Template
+
+    legend = MacroElement()
+    legend._template = Template(
+        """
+        {% macro html(this, kwargs) %}
+        <div style="position:absolute; bottom:28px; left:12px; z-index:9999;
+          background:rgba(16,20,15,0.92); color:#f7f4ea; padding:8px 10px;
+          border-radius:6px; font:12px/1.45 sans-serif;">
+          <div><span style="display:inline-block; width:11px; height:11px; background:#b03024; margin-right:6px; vertical-align:-1px;"></span>Red: decline in MODIS and in the radar preview</div>
+          <div><span style="display:inline-block; width:11px; height:11px; background:#c45c26; margin-right:6px; vertical-align:-1px;"></span>Orange: decline in MODIS only</div>
+        </div>
+        {% endmacro %}
+        """
+    )
+    fmap.get_root().add_child(legend)
+
+
 def main() -> None:
     st.set_page_config(page_title="Compare signals — Floresta", layout="wide")
     if not CUBE.exists():
@@ -206,7 +229,7 @@ def main() -> None:
 
     map_column, side = st.columns([1.35, 1], gap="medium")
     with map_column:
-        st.markdown("**Floresta, PE.** Draw a rectangle. Orange is a decline in MODIS only, yellow in the radar preview only, red in both.")
+        st.markdown("**Floresta, PE.** Draw a rectangle. The charts use only the red pixels inside it.")
         west, south, east, north = st.session_state.box
         fmap = folium.Map(location=[(south + north) / 2, (west + east) / 2], zoom_start=10, tiles=None)
         folium.TileLayer(
@@ -238,6 +261,7 @@ def main() -> None:
             },
         ).add_to(fmap)
         fmap.fit_bounds([[data["south"], data["west"]], [data["north"], data["east"]]])
+        _map_legend(fmap)
         drawn = st_folium(fmap, height=560, use_container_width=True, returned_objects=["last_active_drawing"], key="floresta")
         chosen = _box_from_drawing((drawn or {}).get("last_active_drawing"))
         if chosen:
@@ -245,20 +269,20 @@ def main() -> None:
             west, south, east, north = chosen
 
     rows, cols = _slices((west, south, east, north), data)
-    modis_frame = pd.DataFrame({"year": data["years"], "green": _means(data["modis"], rows, cols)})
+    red = data["both"][rows, cols]
+    red_pixels = int(red.sum())
+    modis_frame = pd.DataFrame({"year": data["years"], "green": _means(data["modis"], rows, cols, red)})
     day_index = np.arange(len(data["dates"]), dtype=float)
     nisar_frame = pd.DataFrame(
-        {"day": day_index, "date": pd.to_datetime(data["dates"]), "green": _means(data["nisar"], rows, cols)}
+        {"day": day_index, "date": pd.to_datetime(data["dates"]), "green": _means(data["nisar"], rows, cols, red)}
     )
     annual = pd.DataFrame(data["meta"]["annual"])
     modis_slope = _line_slope(modis_frame, "year", "green")
     nisar_slope = _line_slope(nisar_frame.rename(columns={"day": "year"}), "year", "green")
-    nisar_pixels = int(np.isfinite(data["nisar"][:, rows, cols]).any(axis=0).sum())
-    modis_pixels = int(np.isfinite(data["modis"][:, rows, cols]).any(axis=0).sum())
 
     with side:
         st.markdown("**Compare the signals**")
-        st.caption("Signals for the same rectangle. The dashed line is the linear tendency. Agreement is not a cause.")
+        st.caption("Red pixels only. The dashed line is the linear tendency. Agreement is not a cause.")
         left, right = st.columns(2)
         with left:
             st.caption("Vegetation — MODIS, September, color scale")
@@ -273,10 +297,13 @@ def main() -> None:
         with right:
             st.caption("Annual temperature at the point, °C")
             _chart(annual, "year", "temp_c", "#f0c36a")
-        st.info(_reading(modis_slope, nisar_slope, slopes))
+        if red_pixels == 0:
+            st.info("This rectangle has no red pixels. Draw over the red area to compare the signals.")
+        else:
+            st.info(_reading(modis_slope, nisar_slope, slopes))
         orbit = data["meta"]["orbit"].replace("descendente", "descending").replace("quadro", "frame")
         st.caption(
-            f"Rectangle: {modis_pixels} MODIS pixels, {nisar_pixels} with some NISAR preview. "
+            f"Rectangle: {red_pixels} red pixels used in the charts. "
             f"Orbit {orbit}."
         )
 
