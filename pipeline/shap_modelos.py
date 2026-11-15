@@ -31,25 +31,25 @@ OUT = DATA_PROCESSED / "app"
 SEED = 42
 
 LABELS = {
-    "nisar_hv_db": "NISAR HV (dB)", "nisar_hh_db": "NISAR HH (dB)", "nisar_hvhh_db": "NISAR razão HV/HH",
-    "nisar_hv_std_t": "NISAR variação temporal HV", "nisar_hh_std_t": "NISAR variação temporal HH",
-    "nisar_hv_slope": "NISAR tendência sazonal HV", "nisar_hh_slope": "NISAR tendência sazonal HH",
-    "nisar_hv_tex": "NISAR textura HV", "nisar_hh_tex": "NISAR textura HH",
-    "nisar_sens_ndvi": "NISAR sensibilidade ao NDVI", "nisar_sens_umidade": "NISAR sensibilidade à umidade",
-    "hist_ndvi_media": "NDVI médio 2001–2014", "hist_ndvi_min": "NDVI mínimo 2001–2014",
-    "hist_ndvi_cv": "Variabilidade NDVI 2001–2014", "hist_ndvi_tend": "Tendência NDVI 2001–2014",
-    "hist_restrend": "Tendência NDVI sem chuva 2001–2014", "hist_queda_seca_2012": "Queda na seca de 2012",
-    "hist_lc_2001_nativa": "Vegetação nativa 2001", "hist_lc_2014_nativa": "Vegetação nativa 2014",
-    "hist_lc_2014_pastagem": "Pastagem/mosaico 2014", "hist_desmat_ate_2014": "Desmatado até 2014",
-    "hist_vigor_2014": "Vigor de pastagem 2014", "clima_temp_tend": "Aquecimento (°C/década)",
-    "clima_chuva_rec_vs_hist": "Chuva 2015–24 vs 2001–14", "clima_aridez_rec": "Aridez 2015–2024",
-    "clima_chuva_media": "Chuva média", "modis26_ndvi": "NDVI MODIS 2026",
+    "nisar_hv_db": "NISAR HV (dB)", "nisar_hh_db": "NISAR HH (dB)", "nisar_hvhh_db": "NISAR HV/HH ratio",
+    "nisar_hv_std_t": "NISAR HV temporal variation", "nisar_hh_std_t": "NISAR HH temporal variation",
+    "nisar_hv_slope": "NISAR HV seasonal trend", "nisar_hh_slope": "NISAR HH seasonal trend",
+    "nisar_hv_tex": "NISAR HV texture", "nisar_hh_tex": "NISAR HH texture",
+    "nisar_sens_ndvi": "NISAR sensitivity to NDVI", "nisar_sens_umidade": "NISAR sensitivity to soil moisture",
+    "hist_ndvi_media": "Mean NDVI 2001–2014", "hist_ndvi_min": "Minimum NDVI 2001–2014",
+    "hist_ndvi_cv": "NDVI variability 2001–2014", "hist_ndvi_tend": "NDVI trend 2001–2014",
+    "hist_restrend": "Rain-adjusted NDVI trend 2001–2014", "hist_queda_seca_2012": "NDVI drop in the 2012 drought",
+    "hist_lc_2001_nativa": "Native vegetation 2001", "hist_lc_2014_nativa": "Native vegetation 2014",
+    "hist_lc_2014_pastagem": "Pasture/mosaic 2014", "hist_desmat_ate_2014": "Deforested by 2014",
+    "hist_vigor_2014": "Pasture vigor 2014", "clima_temp_tend": "Warming (°C/decade)",
+    "clima_chuva_rec_vs_hist": "Rain 2015–24 vs 2001–14", "clima_aridez_rec": "Aridity 2015–2024",
+    "clima_chuva_media": "Mean rainfall", "modis26_ndvi": "MODIS NDVI 2026",
 }
 
 
 def family(c: str) -> str:
-    return {"nisar": "NISAR (radar 2026)", "hist": "Histórico 2001–2014 (MODIS/MapBiomas)",
-            "clima": "Clima (CHIRPS/ERA5)", "modis26": "MODIS 2026"}[c.split("_")[0]]
+    return {"nisar": "NISAR (radar 2026)", "hist": "History 2001–2014 (MODIS/MapBiomas)",
+            "clima": "Climate (CHIRPS/ERA5)", "modis26": "MODIS 2026"}[c.split("_")[0]]
 
 
 def explain(name: str, df: pd.DataFrame, feats: list[str], target: str, group_col: str = "municipio") -> dict:
@@ -88,11 +88,11 @@ def explain(name: str, df: pd.DataFrame, feats: list[str], target: str, group_co
         locais[str(g)] = {"pontos": int(len(sub)), "prob_media": round(float(sub.prob.mean()), 3),
                           "principais": [{"rotulo": LABELS.get(k[5:], k[5:]), "familia": family(k[5:]),
                                           "efeito": round(float(v), 3),
-                                          "direcao": "aumenta risco" if v > 0 else "reduz risco"} for k, v in top.items()]}
+                                          "direcao": "increases risk" if v > 0 else "reduces risk"} for k, v in top.items()]}
     (OUT / f"shap_{name}_municipios.json").write_text(json.dumps(locais, ensure_ascii=False, indent=2), encoding="utf-8")
 
     shap.summary_plot(sv, X.rename(columns=LABELS), max_display=12, show=False, plot_size=(9, 6))
-    plt.title(f"SHAP — {name}")
+    plt.title({"detector": "SHAP — degradation detector (history + climate + NISAR)", "validador": "SHAP — NISAR-only validator"}.get(name, f"SHAP — {name}"))
     plt.tight_layout()
     plt.savefig(OUT / f"shap_{name}_beeswarm.png", dpi=150)
     plt.close()

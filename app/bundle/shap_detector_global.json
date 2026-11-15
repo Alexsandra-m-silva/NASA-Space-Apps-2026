@@ -13,20 +13,20 @@
     },
     {
       "variavel": "clima_chuva_media",
-      "rotulo": "Chuva média",
-      "familia": "Clima (CHIRPS/ERA5)",
+      "rotulo": "Mean rainfall",
+      "familia": "Climate (CHIRPS/ERA5)",
       "media_abs_shap": 0.3393
     },
     {
       "variavel": "hist_vigor_2014",
-      "rotulo": "Vigor de pastagem 2014",
-      "familia": "Histórico 2001–2014 (MODIS/MapBiomas)",
+      "rotulo": "Pasture vigor 2014",
+      "familia": "History 2001–2014 (MODIS/MapBiomas)",
       "media_abs_shap": 0.2513
     },
     {
       "variavel": "clima_temp_tend",
-      "rotulo": "Aquecimento (°C/década)",
-      "familia": "Clima (CHIRPS/ERA5)",
+      "rotulo": "Warming (°C/decade)",
+      "familia": "Climate (CHIRPS/ERA5)",
       "media_abs_shap": 0.216
     },
     {
@@ -37,135 +37,135 @@
     },
     {
       "variavel": "nisar_hvhh_db",
-      "rotulo": "NISAR razão HV/HH",
+      "rotulo": "NISAR HV/HH ratio",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.1865
     },
     {
       "variavel": "clima_chuva_rec_vs_hist",
-      "rotulo": "Chuva 2015–24 vs 2001–14",
-      "familia": "Clima (CHIRPS/ERA5)",
+      "rotulo": "Rain 2015–24 vs 2001–14",
+      "familia": "Climate (CHIRPS/ERA5)",
       "media_abs_shap": 0.1833
     },
     {
       "variavel": "hist_ndvi_media",
-      "rotulo": "NDVI médio 2001–2014",
-      "familia": "Histórico 2001–2014 (MODIS/MapBiomas)",
+      "rotulo": "Mean NDVI 2001–2014",
+      "familia": "History 2001–2014 (MODIS/MapBiomas)",
       "media_abs_shap": 0.1751
     },
     {
       "variavel": "hist_lc_2001_nativa",
-      "rotulo": "Vegetação nativa 2001",
-      "familia": "Histórico 2001–2014 (MODIS/MapBiomas)",
+      "rotulo": "Native vegetation 2001",
+      "familia": "History 2001–2014 (MODIS/MapBiomas)",
       "media_abs_shap": 0.157
     },
     {
       "variavel": "nisar_hv_tex",
-      "rotulo": "NISAR textura HV",
+      "rotulo": "NISAR HV texture",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.136
     },
     {
       "variavel": "nisar_hh_std_t",
-      "rotulo": "NISAR variação temporal HH",
+      "rotulo": "NISAR HH temporal variation",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.1347
     },
     {
       "variavel": "nisar_sens_umidade",
-      "rotulo": "NISAR sensibilidade à umidade",
+      "rotulo": "NISAR sensitivity to soil moisture",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.1211
     },
     {
       "variavel": "nisar_hh_slope",
-      "rotulo": "NISAR tendência sazonal HH",
+      "rotulo": "NISAR HH seasonal trend",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.1155
     },
     {
       "variavel": "nisar_hh_tex",
-      "rotulo": "NISAR textura HH",
+      "rotulo": "NISAR HH texture",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.1112
     },
     {
       "variavel": "hist_ndvi_tend",
-      "rotulo": "Tendência NDVI 2001–2014",
-      "familia": "Histórico 2001–2014 (MODIS/MapBiomas)",
+      "rotulo": "NDVI trend 2001–2014",
+      "familia": "History 2001–2014 (MODIS/MapBiomas)",
       "media_abs_shap": 0.1093
     },
     {
       "variavel": "nisar_sens_ndvi",
-      "rotulo": "NISAR sensibilidade ao NDVI",
+      "rotulo": "NISAR sensitivity to NDVI",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.1024
     },
     {
       "variavel": "hist_restrend",
-      "rotulo": "Tendência NDVI sem chuva 2001–2014",
-      "familia": "Histórico 2001–2014 (MODIS/MapBiomas)",
+      "rotulo": "Rain-adjusted NDVI trend 2001–2014",
+      "familia": "History 2001–2014 (MODIS/MapBiomas)",
       "media_abs_shap": 0.0887
     },
     {
       "variavel": "hist_ndvi_min",
-      "rotulo": "NDVI mínimo 2001–2014",
-      "familia": "Histórico 2001–2014 (MODIS/MapBiomas)",
+      "rotulo": "Minimum NDVI 2001–2014",
+      "familia": "History 2001–2014 (MODIS/MapBiomas)",
       "media_abs_shap": 0.0886
     },
     {
       "variavel": "clima_aridez_rec",
-      "rotulo": "Aridez 2015–2024",
-      "familia": "Clima (CHIRPS/ERA5)",
+      "rotulo": "Aridity 2015–2024",
+      "familia": "Climate (CHIRPS/ERA5)",
       "media_abs_shap": 0.0742
     },
     {
       "variavel": "nisar_hv_slope",
-      "rotulo": "NISAR tendência sazonal HV",
+      "rotulo": "NISAR HV seasonal trend",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.0724
     },
     {
       "variavel": "hist_queda_seca_2012",
-      "rotulo": "Queda na seca de 2012",
-      "familia": "Histórico 2001–2014 (MODIS/MapBiomas)",
+      "rotulo": "NDVI drop in the 2012 drought",
+      "familia": "History 2001–2014 (MODIS/MapBiomas)",
       "media_abs_shap": 0.0698
     },
     {
       "variavel": "hist_ndvi_cv",
-      "rotulo": "Variabilidade NDVI 2001–2014",
-      "familia": "Histórico 2001–2014 (MODIS/MapBiomas)",
+      "rotulo": "NDVI variability 2001–2014",
+      "familia": "History 2001–2014 (MODIS/MapBiomas)",
       "media_abs_shap": 0.041
     },
     {
       "variavel": "nisar_hv_std_t",
-      "rotulo": "NISAR variação temporal HV",
+      "rotulo": "NISAR HV temporal variation",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.039
     },
     {
       "variavel": "hist_desmat_ate_2014",
-      "rotulo": "Desmatado até 2014",
-      "familia": "Histórico 2001–2014 (MODIS/MapBiomas)",
+      "rotulo": "Deforested by 2014",
+      "familia": "History 2001–2014 (MODIS/MapBiomas)",
       "media_abs_shap": 0.0
     },
     {
       "variavel": "hist_lc_2014_nativa",
-      "rotulo": "Vegetação nativa 2014",
-      "familia": "Histórico 2001–2014 (MODIS/MapBiomas)",
+      "rotulo": "Native vegetation 2014",
+      "familia": "History 2001–2014 (MODIS/MapBiomas)",
       "media_abs_shap": 0.0
     },
     {
       "variavel": "hist_lc_2014_pastagem",
-      "rotulo": "Pastagem/mosaico 2014",
-      "familia": "Histórico 2001–2014 (MODIS/MapBiomas)",
+      "rotulo": "Pasture/mosaic 2014",
+      "familia": "History 2001–2014 (MODIS/MapBiomas)",
       "media_abs_shap": 0.0
     }
   ],
   "importancia_familia": {
     "NISAR (radar 2026)": 2.1828,
-    "Histórico 2001–2014 (MODIS/MapBiomas)": 0.9809,
-    "Clima (CHIRPS/ERA5)": 0.8128
+    "History 2001–2014 (MODIS/MapBiomas)": 0.9809,
+    "Climate (CHIRPS/ERA5)": 0.8128
   },
   "participacao_nisar_pct": 54.9
 }

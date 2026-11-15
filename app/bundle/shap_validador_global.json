@@ -7,25 +7,25 @@
   "importancia": [
     {
       "variavel": "nisar_hv_tex",
-      "rotulo": "NISAR textura HV",
+      "rotulo": "NISAR HV texture",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.5996
     },
     {
       "variavel": "nisar_hv_slope",
-      "rotulo": "NISAR tendência sazonal HV",
+      "rotulo": "NISAR HV seasonal trend",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.3224
     },
     {
       "variavel": "nisar_hh_slope",
-      "rotulo": "NISAR tendência sazonal HH",
+      "rotulo": "NISAR HH seasonal trend",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.2581
     },
     {
       "variavel": "nisar_hvhh_db",
-      "rotulo": "NISAR razão HV/HH",
+      "rotulo": "NISAR HV/HH ratio",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.2528
     },
@@ -37,7 +37,7 @@
     },
     {
       "variavel": "nisar_hh_std_t",
-      "rotulo": "NISAR variação temporal HH",
+      "rotulo": "NISAR HH temporal variation",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.211
     },
@@ -49,13 +49,13 @@
     },
     {
       "variavel": "nisar_hv_std_t",
-      "rotulo": "NISAR variação temporal HV",
+      "rotulo": "NISAR HV temporal variation",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.1864
     },
     {
       "variavel": "nisar_hh_tex",
-      "rotulo": "NISAR textura HH",
+      "rotulo": "NISAR HH texture",
       "familia": "NISAR (radar 2026)",
       "media_abs_shap": 0.1588
     }
