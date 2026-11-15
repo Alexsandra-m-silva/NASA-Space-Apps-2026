@@ -340,6 +340,10 @@ export function ExploreWorkspace() {
             municipalities={municipalityTerritories}
             selectedId={selectedId}
             onSelect={handleSelectTerritory}
+            onClear={() => {
+              setSelectedId(null);
+              setSelectedMapKey(null);
+            }}
           />
         </div>
         <div className="min-w-0">

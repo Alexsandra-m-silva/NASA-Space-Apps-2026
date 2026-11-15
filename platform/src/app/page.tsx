@@ -55,8 +55,14 @@ export default function HomePage() {
           >
             <source src="/hero/about-hero.mp4" type="video/mp4" />
           </video>
-          {/* Black mask at 20% opacity over the video */}
-          <div className="pointer-events-none absolute inset-0 bg-black/20" />
+          {/* Gradient mask (benchmark: Hefesto hero): darker at the top for the header and at the bottom for the copy */}
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(34,15,8,.78) 0%, rgba(34,15,8,.35) 18%, rgba(34,15,8,.15) 45%, rgba(34,15,8,.85) 100%)",
+            }}
+          />
         </div>
 
         <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-6xl flex-col justify-end px-4 pb-16 pt-28 sm:px-6 sm:pb-20">

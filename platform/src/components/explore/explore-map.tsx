@@ -219,10 +219,12 @@ export function ExploreMap({
   municipalities,
   selectedId,
   onSelect,
+  onClear,
 }: {
   municipalities: Territory[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  onClear: () => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Leaflet.Map | null>(null);
@@ -249,6 +251,7 @@ export function ExploreMap({
   const [cmpCounts, setCmpCounts] = useState<ClassCounts | null>(null);
   const [cmpState, setCmpState] = useState<"idle" | "loading" | "none" | "ok">("idle");
   const [cmpStep, setCmpStep] = useState<string | null>(null);
+  const [playing, setPlaying] = useState(false);
 
   const byId = useMemo(
     () => new Map(municipalities.map((t) => [t.id, t])),
@@ -291,6 +294,8 @@ export function ExploreMap({
         scrollWheelZoom: false,
       }).setView([-8.2, -38.6], 6);
       L.control.zoom({ position: "bottomright" }).addTo(map);
+      // Comparison images above the vector layers (overlayPane = 400)
+      map.createPane("cmp").style.zIndex = "450";
       L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         {
@@ -349,6 +354,22 @@ export function ExploreMap({
       if (active) path.bringToFront();
     });
   }, [mapReady, selectedId, byId]);
+
+  // ---- zoom: selected municipality, or all of them when cleared ----
+  useEffect(() => {
+    const map = mapRef.current;
+    const layer = munLayerRef.current;
+    if (!mapReady || !map || !layer) return;
+    if (!selectedId) {
+      map.fitBounds(layer.getBounds(), { padding: [16, 16] });
+      return;
+    }
+    layer.eachLayer((l) => {
+      const path = l as Leaflet.Polygon & { feature?: GeoJSON.Feature };
+      if ((path.feature?.properties as { id?: string } | undefined)?.id === selectedId)
+        map.fitBounds(path.getBounds(), { padding: [24, 24], maxZoom: 11 });
+    });
+  }, [mapReady, selectedId]);
 
   // ---- model layers ----
   const loadLayer = useCallback(async (id: LayerId) => {
@@ -429,6 +450,7 @@ export function ExploreMap({
     setCmpStats(null);
     setCmpCounts(null);
     setCmpStep(null);
+    setPlaying(false);
     if (!selected || !mapReady || !map) {
       setCmpState("idle");
       return;
@@ -460,6 +482,7 @@ export function ExploreMap({
         )
           .bindTooltip("MODIS × NISAR visual-comparison box")
           .addTo(map);
+        map.fitBounds(cmpBoxRef.current.getBounds(), { padding: [40, 40], maxZoom: 13, animate: false });
         setCmpStats(stats);
         setCmpCounts(counts);
         setCmpState("ok");
@@ -487,10 +510,42 @@ export function ExploreMap({
         [cmpStats.south, cmpStats.west],
         [cmpStats.north, cmpStats.east],
       ],
-      { opacity: 0.9 }
+      { opacity: 0.92, pane: "cmp" }
     ).addTo(map);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cmpStep, cmpStats]);
+
+  const cmpSteps: [string, string][] = cmpStats
+    ? [
+        ["modis-trend", "MODIS trend"],
+        ["nisar-trend", "NISAR trend"],
+        ...cmpStats.modis_years.map((y) => [`modis-${y}`, `MODIS ${y}`] as [string, string]),
+        ...cmpStats.nisar_dates.map(
+          (d) => [`nisar-${d}`, `NISAR ${d.slice(5).split("-").reverse().join("/")}`] as [string, string]
+        ),
+      ]
+    : [];
+  // Time-lapse: MODIS years, then NISAR passes
+  const timeline = cmpSteps.slice(2).map(([id]) => id);
+
+  useEffect(() => {
+    if (!playing || timeline.length === 0) return;
+    const t = window.setInterval(() => {
+      setCmpStep((cur) => {
+        const i = cur ? timeline.indexOf(cur) : -1;
+        return timeline[(i + 1) % timeline.length];
+      });
+    }, 1200);
+    return () => window.clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playing, cmpStats]);
+
+  const ensureBoxInView = () => {
+    const map = mapRef.current;
+    const box = cmpBoxRef.current;
+    if (map && box && (map.getZoom() < 12 || !map.getBounds().contains(box.getBounds())))
+      map.fitBounds(box.getBounds(), { padding: [40, 40], maxZoom: 13 });
+  };
 
   const zoomToBox = () => {
     if (cmpBoxRef.current && mapRef.current)
@@ -588,6 +643,36 @@ export function ExploreMap({
         </div>
 
         <aside className="min-w-0 overflow-y-auto rounded-md border border-border bg-background/50 p-3 text-xs lg:h-[600px]">
+          <div className="mb-3 flex items-center gap-2 border-b border-border pb-2">
+            {selected && (
+              <button
+                type="button"
+                onClick={onClear}
+                className="shrink-0 rounded-full border border-border px-2.5 py-1 text-[0.7rem] hover:bg-secondary"
+              >
+                ← All municipalities
+              </button>
+            )}
+            <label className="sr-only" htmlFor="mun-picker">
+              Choose a municipality
+            </label>
+            <select
+              id="mun-picker"
+              value={selected?.id ?? ""}
+              onChange={(e) => (e.target.value ? onSelect(e.target.value) : onClear())}
+              className="min-w-0 flex-1 rounded-md border border-border bg-card px-2 py-1 text-[0.72rem]"
+            >
+              <option value="">Choose a municipality…</option>
+              {[...municipalities]
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}/{t.dados?.uf}
+                    {focus.has(norm(t.name)) ? " · full diagnosis" : ""}
+                  </option>
+                ))}
+            </select>
+          </div>
           {!selected ? (
             <div>
               <p className="italic text-muted-foreground">
@@ -776,19 +861,15 @@ export function ExploreMap({
                     );
                   })()}
                   <div className="mt-2 flex flex-wrap gap-1">
-                    {[
-                      ["modis-trend", "MODIS trend"],
-                      ["nisar-trend", "NISAR trend"],
-                      ...cmpStats.modis_years.map((y) => [`modis-${y}`, `MODIS ${y}`]),
-                      ...cmpStats.nisar_dates.map((d) => [
-                        `nisar-${d}`,
-                        `NISAR ${d.slice(5).split("-").reverse().join("/")}`,
-                      ]),
-                    ].map(([id, label]) => (
+                    {cmpSteps.map(([id, label]) => (
                       <button
                         key={id}
                         type="button"
-                        onClick={() => setCmpStep(id)}
+                        onClick={() => {
+                          setPlaying(false);
+                          setCmpStep(id);
+                          ensureBoxInView();
+                        }}
                         className={cn(
                           "rounded-full border px-2 py-0.5 text-[0.66rem]",
                           cmpStep === id
@@ -800,11 +881,29 @@ export function ExploreMap({
                       </button>
                     ))}
                   </div>
+                  {cmpStep && (
+                    <p className="mt-2 text-[0.7rem] font-medium text-foreground">
+                      On the map: {cmpSteps.find(([id]) => id === cmpStep)?.[1]}
+                    </p>
+                  )}
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-[0.68rem]">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        ensureBoxInView();
+                        setPlaying((v) => !v);
+                      }}
+                      className={cn(
+                        "rounded-full border px-2 py-0.5",
+                        playing ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-secondary"
+                      )}
+                    >
+                      {playing ? "❚❚ Pause" : "▶ Play time-lapse"}
+                    </button>
                     <button type="button" onClick={zoomToBox} className="rounded-full border border-border px-2 py-0.5 hover:bg-secondary">
                       Zoom to the box
                     </button>
-                    <button type="button" onClick={() => setCmpStep(null)} className="rounded-full border border-border px-2 py-0.5 hover:bg-secondary">
+                    <button type="button" onClick={() => { setPlaying(false); setCmpStep(null); }} className="rounded-full border border-border px-2 py-0.5 hover:bg-secondary">
                       Hide image
                     </button>
                     <a href="/municipios.html" className="text-primary underline-offset-2 hover:underline">
