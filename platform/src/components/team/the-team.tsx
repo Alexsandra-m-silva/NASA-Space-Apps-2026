@@ -4,8 +4,8 @@ import { TEAM } from "@/data/team";
 
 const TOP = TEAM.slice(0, 3);
 const BOTTOM = TEAM.slice(3);
-const SITE_URL = "https://www.climate-sentinel.hefestotech.com.br";
-const SITE_LABEL = "www.climate-sentinel.hefestotech.com.br";
+const SITE_URL = "https://climate-sentinel.hefestotech.com.br";
+const SITE_LABEL = "climate-sentinel.hefestotech.com.br";
 
 function Avatar({
   name,
