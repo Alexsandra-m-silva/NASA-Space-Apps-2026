@@ -116,12 +116,12 @@ export function formatTransitionRisk(score: number): string {
 /** Severity label for transition risk ≥ 50; null below that threshold. */
 export function transitionRiskSeverity(
   score: number
-): "Moderado" | "Alto" | "Crítico" | null {
+): "Moderate" | "High" | "Critical" | null {
   const n = safeNumber(score);
   if (n == null || n < 50) return null;
-  if (n <= 69) return "Moderado";
-  if (n <= 89) return "Alto";
-  return "Crítico";
+  if (n <= 69) return "Moderate";
+  if (n <= 89) return "High";
+  return "Critical";
 }
 
 export function getTerritory(id: string): Territory | undefined {
