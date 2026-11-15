@@ -402,7 +402,11 @@ export function PreferenceForm({
               {cancelLabel}
             </Button>
           )}
-          <Button type="submit" variant="outline">
+          <Button
+            type="submit"
+            variant="accent"
+            className="border-transparent bg-[#FFEA7F] text-[#220F08] shadow hover:bg-[#F5DE6E]"
+          >
             {submitLabel}
           </Button>
         </div>

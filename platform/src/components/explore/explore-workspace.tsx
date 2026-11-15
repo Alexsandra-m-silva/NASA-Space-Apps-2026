@@ -398,7 +398,11 @@ export function ExploreWorkspace() {
           desks. Filters from this page are pre-selected.
         </p>
         <div className="mt-4">
-          <Button asChild variant="ghost">
+          <Button
+            asChild
+            variant="accent"
+            className="border-transparent bg-[#FFEA7F] text-[#220F08] shadow hover:bg-[#F5DE6E]"
+          >
             <Link href={alertsHref} onClick={handleAlertsCta}>
               Go to the newsletter
             </Link>
