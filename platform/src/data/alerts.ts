@@ -56,6 +56,7 @@ export const LENS_LABELS: Record<RankingLens, string> = {
 
 export const ALL_IMPACTS = Object.keys(IMPACT_LABELS) as ImpactType[];
 export const ALL_RISKS = Object.keys(RISK_LABELS) as RiskLevel[];
+export const ALL_LENSES = Object.keys(LENS_LABELS) as RankingLens[];
 
 export const defaultPreferences = (): AlertPreferences => ({
   level: "estado",

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ALL_IMPACTS,
+  ALL_LENSES,
   ALL_RISKS,
   LENS_LABELS,
   type AlertPreferences,
@@ -24,7 +25,6 @@ import {
 import { Button } from "@/components/ui/button";
 
 const LEVELS: GeoLevel[] = ["bioma", "regiao", "estado", "municipio"];
-const LENSES = Object.keys(LENS_LABELS) as RankingLens[];
 
 const LEVEL_NOUN: Record<GeoLevel, string> = {
   bioma: "biomes",
@@ -176,6 +176,7 @@ export function PreferenceForm({
 
   const impactsAll = sameSet(prefs.impacts, ALL_IMPACTS);
   const risksAll = sameSet(prefs.risks, ALL_RISKS);
+  const lensesAll = sameSet(prefs.lenses, ALL_LENSES);
 
   const selectedCount = selectedTerritoryIds.length;
   const levelNoun = LEVEL_NOUN[prefs.level];
@@ -330,12 +331,30 @@ export function PreferenceForm({
             Chart ranking (interest)
           </legend>
           <div className="mt-3 flex flex-wrap gap-2">
-            {LENSES.map((id) => (
+            <ChipToggle
+              label="All"
+              active={lensesAll}
+              onClick={() =>
+                setPrefs((p) => ({
+                  ...p,
+                  lenses: lensesAll ? [] : [...ALL_LENSES],
+                }))
+              }
+            />
+            {ALL_LENSES.map((id) => (
               <ChipToggle
                 key={id}
                 label={LENS_LABELS[id]}
-                active={prefs.lenses.includes(id)}
-                onClick={() => toggleList("lenses", id)}
+                active={!lensesAll && prefs.lenses.includes(id)}
+                onClick={() => {
+                  setPrefs((p) => {
+                    const base = lensesAll ? [] : p.lenses;
+                    const next = base.includes(id)
+                      ? base.filter((x) => x !== id)
+                      : [...base, id];
+                    return { ...p, lenses: next as RankingLens[] };
+                  });
+                }}
               />
             ))}
           </div>
@@ -364,7 +383,10 @@ export function PreferenceForm({
           {risksAll
             ? "all risks"
             : `${prefs.risks.length} risk${prefs.risks.length === 1 ? "" : "s"}`}{" "}
-          · {prefs.lenses.length} lens{prefs.lenses.length === 1 ? "" : "es"}
+          ·{" "}
+          {lensesAll
+            ? "all lenses"
+            : `${prefs.lenses.length} lens${prefs.lenses.length === 1 ? "" : "es"}`}
         </p>
         <div className="flex flex-wrap gap-2">
           {onCancelAlerts && (
