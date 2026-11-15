@@ -51,7 +51,7 @@ export function AskSentinel({
         hidden={!open}
         className={cn(
           "pointer-events-auto flex w-[min(400px,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-lg border border-border bg-card text-foreground shadow-2xl",
-          "h-[min(560px,calc(100vh-10rem))]",
+          "h-[min(560px,calc(100dvh-9rem))]",
           !open && "hidden"
         )}
       >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { plural } from "@/lib/utils";
 import {
@@ -26,6 +26,65 @@ type ChatMessage = {
   role: ChatRole;
   text: string;
 };
+
+/** Inline **bold** → <strong>. */
+function inline(text: string): ReactNode[] {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") ? (
+      <strong key={i}>{part.slice(2, -2)}</strong>
+    ) : (
+      <Fragment key={i}>{part}</Fragment>
+    )
+  );
+}
+
+/** Minimal Markdown for chat answers: paragraphs, "-"/"*"/"1." lists, headings, bold. */
+function RichText({ text }: { text: string }) {
+  const blocks: ReactNode[] = [];
+  let list: { ordered: boolean; items: string[] } | null = null;
+  const flush = () => {
+    if (!list) return;
+    const Tag = list.ordered ? "ol" : "ul";
+    blocks.push(
+      <Tag
+        key={`l${blocks.length}`}
+        className={list.ordered ? "ml-4 list-decimal space-y-0.5" : "ml-4 list-disc space-y-0.5"}
+      >
+        {list.items.map((it, i) => (
+          <li key={i}>{inline(it)}</li>
+        ))}
+      </Tag>
+    );
+    list = null;
+  };
+  for (const raw of text.replace(/\r/g, "").split("\n")) {
+    const line = raw.trim();
+    if (!line) {
+      flush();
+      continue;
+    }
+    const ul = line.match(/^[-*•]\s+(.*)$/);
+    const ol = line.match(/^\d+[.)]\s+(.*)$/);
+    if (ul || ol) {
+      const ordered = !!ol;
+      if (!list || list.ordered !== ordered) {
+        flush();
+        list = { ordered, items: [] };
+      }
+      list.items.push((ul ?? ol)![1]);
+      continue;
+    }
+    flush();
+    const h = line.match(/^#{1,4}\s+(.*)$/);
+    blocks.push(
+      <p key={`p${blocks.length}`} className={h ? "font-semibold" : undefined}>
+        {inline(h ? h[1] : line)}
+      </p>
+    );
+  }
+  flush();
+  return <div className="space-y-1.5">{blocks}</div>;
+}
 
 const SUGGESTIONS = [
   "What should we prioritize here?",
@@ -118,6 +177,14 @@ export function ExploreChat({
   ]);
   const [draft, setDraft] = useState("");
   const [pending, setPending] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const hasAsked = messages.some((m) => m.role === "user");
+
+  // Keep the latest message (and the typing indicator) in view
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [messages, pending]);
 
   const impactLabel =
     impact === "todos" ? "all impacts" : IMPACT_LABELS[impact];
@@ -142,7 +209,7 @@ export function ExploreChat({
     const screenContext = JSON.stringify({
       view: `Desert Sentinel explore · ${LEVEL_LABELS[level]} · ${impactLabel} · ${riskLabel}`,
       territories: items.slice(0, 25).map((t) => ({
-        name: t.name, level: t.level, risk: t.risk, trend_pct_area_declining: t.tendenciaPp,
+        name: t.name, level: t.level, risk: RISK_LABELS[t.risk] ?? t.risk, trend_pct_area_declining: t.tendenciaPp,
         impacts: t.impacts, disaster_losses_2015_24_brl_mi: t.custoNaoAgirMi,
         restore_cost_estimate_brl_mi: t.custoPrevenirMi, population_2022: t.populacaoEstimada,
         degraded_ha: t.areaRecuperavelHa, carbon_estimate_tco2e: t.creditosCarbonoTco2e, evidence: t.dados,
@@ -173,7 +240,7 @@ export function ExploreChat({
     <div
       className={
         isOverlay
-          ? "flex h-full min-h-[420px] flex-col bg-transparent p-3 sm:p-4"
+          ? "flex h-full min-h-0 flex-col bg-transparent p-3 sm:p-4"
           : "flex h-full min-h-[320px] flex-col rounded-md border border-border bg-card p-3 shadow-sm sm:min-h-[420px] sm:p-4"
       }
     >
@@ -203,7 +270,11 @@ export function ExploreChat({
         </p>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto overscroll-contain pr-0.5">
+      <div
+        ref={scrollRef}
+        aria-live="polite"
+        className="min-h-0 flex-1 space-y-2.5 overflow-y-auto overscroll-contain pr-0.5"
+      >
         {messages.map((m) => (
           <div
             key={m.id}
@@ -213,16 +284,26 @@ export function ExploreChat({
                 : "mr-4 border border-border bg-background/90 text-foreground"
             }`}
           >
-            {m.text}
+            {m.role === "assistant" ? <RichText text={m.text} /> : m.text}
           </div>
         ))}
         {pending && (
-          <p className="text-xs text-muted-foreground">Reading the selection…</p>
+          <div
+            className="mr-4 flex items-center gap-2 rounded-md border border-border bg-background/90 px-3 py-2 text-xs text-muted-foreground"
+            role="status"
+          >
+            <span className="flex gap-1" aria-hidden>
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.3s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.15s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current" />
+            </span>
+            Sentinel is reading the selection…
+          </div>
         )}
       </div>
 
       <div className="mt-3 shrink-0 space-y-2 border-t border-border pt-3">
-        <div className="flex flex-wrap gap-1.5">
+        <div className={hasAsked ? "hidden" : "flex flex-wrap gap-1.5"}>
           {SUGGESTIONS.map((s) => (
             <button
               key={s}
@@ -247,6 +328,7 @@ export function ExploreChat({
             placeholder="Ask about this map view…"
             className="h-10 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm"
             aria-label="Message"
+            disabled={pending}
           />
           <Button type="submit" variant="outline" disabled={pending}>
             Send
