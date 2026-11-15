@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Desert Sentinel — sample newsletter email</title>
+    <style>
+      :root {
+        --cafe: #220f08;
+        --barro: #642f07;
+        --sol: #ffea7f;
+        --mel: #daa849;
+        --areia: #fbf7ef;
+        --subtle: #f3ebd9;
+        --muted: #6b5545;
+        --border: #ddd5ba;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 24px 12px;
+        background: #e8e0d0;
+        font-family: Georgia, "Times New Roman", serif;
+        color: var(--cafe);
+      }
+      .shell {
+        max-width: 600px;
+        margin: 0 auto;
+        background: var(--areia);
+        border: 1px solid var(--border);
+      }
+      .band {
+        background: linear-gradient(158deg, #220f08 0%, #341c10 40%, #642f07 100%);
+        color: var(--areia);
+        padding: 28px 28px 24px;
+      }
+      .band .eyebrow {
+        font-family: system-ui, sans-serif;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--sol);
+        margin: 0 0 10px;
+      }
+      .band h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 400;
+        line-height: 1.15;
+      }
+      .band p {
+        margin: 12px 0 0;
+        font-family: system-ui, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #f3ebd9;
+      }
+      .body { padding: 28px; }
+      .body h2 {
+        margin: 0 0 8px;
+        font-size: 20px;
+        font-weight: 400;
+        color: var(--barro);
+      }
+      .body .lede {
+        font-family: system-ui, sans-serif;
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--muted);
+        margin: 0 0 22px;
+      }
+      .card {
+        border-left: 3px solid var(--barro);
+        padding: 12px 0 12px 14px;
+        margin: 0 0 18px;
+      }
+      .card .tag {
+        font-family: system-ui, sans-serif;
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--barro);
+        margin: 0 0 4px;
+      }
+      .card h3 {
+        margin: 0 0 6px;
+        font-size: 17px;
+        font-weight: 400;
+      }
+      .card p {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+      .digest {
+        background: var(--subtle);
+        padding: 16px 18px;
+        margin: 24px 0 0;
+        border: 1px solid var(--border);
+      }
+      .digest h2 { margin-bottom: 10px; }
+      .digest ul {
+        margin: 0;
+        padding-left: 18px;
+        font-family: system-ui, sans-serif;
+        font-size: 13px;
+        line-height: 1.55;
+        color: var(--muted);
+      }
+      .cta {
+        display: inline-block;
+        margin-top: 22px;
+        padding: 12px 18px;
+        background: var(--sol);
+        color: var(--cafe);
+        text-decoration: none;
+        font-family: system-ui, sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .foot {
+        padding: 18px 28px 28px;
+        font-family: system-ui, sans-serif;
+        font-size: 11px;
+        line-height: 1.5;
+        color: var(--muted);
+        border-top: 1px solid var(--border);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="band">
+        <p class="eyebrow">Desert Sentinel · alert email</p>
+        <h1>Evidence moved in your selection</h1>
+        <p>
+          Sample digest for Caatinga / sertão monitors — trend, risk, impact, and
+          carbon signals tied to the filters you set at signup.
+        </p>
+      </div>
+      <div class="body">
+        <h2>What changed</h2>
+        <p class="lede">
+          Fictional signals for layout review. Not live satellite products.
+        </p>
+
+        <div class="card">
+          <p class="tag">Trend shift</p>
+          <h3>Petrolina (PE)</h3>
+          <p>+3.8 → +9.4 p.p. surface trend (≥ 5 p.p. trigger).</p>
+        </div>
+        <div class="card">
+          <p class="tag">Risk category</p>
+          <h3>Tauá (CE)</h3>
+          <p>Moderate → High desertification risk class.</p>
+        </div>
+        <div class="card">
+          <p class="tag">Impact type</p>
+          <h3>Ouricuri (PE)</h3>
+          <p>Migration / emergency pressure added to the impact set.</p>
+        </div>
+        <div class="card">
+          <p class="tag">New territory at risk</p>
+          <h3>Jaguaribe (CE)</h3>
+          <p>Enters your High-risk filter for the first time this cycle.</p>
+        </div>
+
+        <div class="digest">
+          <h2>Monthly digest · selection roll-up</h2>
+          <ul>
+            <li>Cost of waiting vs prevent — sample BRL millions for your slice</li>
+            <li>Transition risk index (SDG 13) — selection average</li>
+            <li>Restoration carbon @ US$ 15/tCO₂e prototype reference</li>
+          </ul>
+        </div>
+
+        <a class="cta" href="https://example.com/explore">Open Explore</a>
+      </div>
+      <div class="foot">
+        Desert Sentinel · NASA Space Apps Challenge · CLIMA / Terra e luz<br />
+        You receive this when evidence in your monitoring criteria changes.<br />
+        Sample email — not a production send.
+      </div>
+    </div>
+  </body>
+</html>
