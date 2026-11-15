@@ -15,8 +15,8 @@ export function AskSentinelMark({
       aria-hidden={title ? undefined : true}
       className={cn(
         "inline-block shrink-0 bg-current",
-        "[mask-image:url(/brand/ask-sentinel-mark.png)] [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center]",
-        "[-webkit-mask-image:url(/brand/ask-sentinel-mark.png)] [-webkit-mask-size:contain] [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center]",
+        "[mask-image:url(/brand/ask-sentinel-mark.svg)] [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center]",
+        "[-webkit-mask-image:url(/brand/ask-sentinel-mark.svg)] [-webkit-mask-size:contain] [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center]",
         className
       )}
     />
