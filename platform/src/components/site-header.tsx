@@ -146,6 +146,18 @@ export function SiteHeader() {
           >
             Explore
           </Link>
+          {/* Model evidence pages (nginx static: map, SHAP, NISAR validation, compare-and-explain) */}
+          <a
+            href="/modelo.html"
+            className={cn(
+              "rounded-md px-2 py-1.5 transition-colors",
+              onDark
+                ? "text-brand-areia/90 hover:bg-white/10 hover:text-brand-areia"
+                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+            )}
+          >
+            Evidence
+          </a>
           <Button
             asChild
             size="sm"
