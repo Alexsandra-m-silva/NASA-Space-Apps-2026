@@ -28,14 +28,14 @@ SMTP_PORT = 587
 BUNDLE = Path(os.environ.get("BUNDLE_DIR", Path(__file__).resolve().parents[1] / "bundle"))
 
 CAT = {
-    "SUPPORT": ("Apoiar", "#2f7d4f", "Política existente pertinente: manter ou ampliar."),
-    "IMPROVE": ("Melhorar", "#b7791f", "Política existente com lacuna identificada pelos dados."),
-    "CREATE": ("Criar", "#b03024", "Necessidade sem política correspondente na lista de referência."),
-    "MONITOR": ("Monitorar", "#2b6cb0", "Situação a acompanhar: sinal fraco, dado provisório ou divergente."),
+    "SUPPORT": ("Support", "#2f7d4f", "Existing relevant policy: keep or expand."),
+    "IMPROVE": ("Improve", "#b7791f", "Existing policy with a gap identified by the data."),
+    "CREATE": ("Create", "#b03024", "Need without a matching policy in the reference list."),
+    "MONITOR": ("Monitor", "#2b6cb0", "Situation to follow: weak signal, provisional or diverging data."),
 }
-ALERTA = {"alto": ("Alerta alto", "#b03024"), "moderado": ("Alerta moderado", "#b7791f"), "baixo": ("Alerta baixo", "#2f7d4f")}
-ESFERA = {"municipal": "Municipal", "estadual": "Estadual", "federal": "Federal"}
-PRIO = {"alta": "alta", "media": "média", "baixa": "baixa"}
+ALERTA = {"alto": ("High alert", "#b03024"), "moderado": ("Moderate alert", "#b7791f"), "baixo": ("Low alert", "#2f7d4f")}
+ESFERA = {"municipal": "Municipal", "estadual": "State", "federal": "Federal"}
+PRIO = {"alta": "high", "media": "medium", "baixa": "low"}
 
 
 class EmailError(Exception):
@@ -52,7 +52,7 @@ def render(rec: dict, app_url: str | None = None) -> tuple[str, str, str]:
     mun = rec.get("municipio", "")
     alerta_txt, alerta_cor = ALERTA.get(rec.get("nivel_alerta"), ALERTA["moderado"])
     pol = {p["id"]: p for p in rec.get("politicas_referencia") or []}
-    subject = f"Desert Sentinel · {mun}: {alerta_txt.lower()} de degradação — recomendações"
+    subject = f"Desert Sentinel · {mun}: {alerta_txt.lower()} of vegetation degradation — recommendations"
 
     cards, text_recs = [], []
     for i, r in enumerate(rec.get("recomendacoes") or [], 1):
@@ -60,7 +60,7 @@ def render(rec: dict, app_url: str | None = None) -> tuple[str, str, str]:
         ev = "".join(f"<li>{_e(x)}</li>" for x in r.get("evidencias") or [])
         pols = "".join(
             f'<span style="display:inline-block;margin:2px 4px 2px 0;padding:2px 8px;border:1px solid #d8cbb3;border-radius:10px;font-size:12px;">'
-            f'{_e(pol.get(pid, {}).get("nome", pid))}{" (verificar)" if pol.get(pid, {}).get("verificar") else ""}</span>'
+            f'{_e(pol.get(pid, {}).get("nome", pid))}{" (to verify)" if pol.get(pid, {}).get("verificar") else ""}</span>'
             for pid in r.get("politicas") or [])
         resp = ", ".join(f'{ESFERA.get(x.get("esfera"), "")}: {_e(x.get("orgao"))}' for x in r.get("responsaveis") or [])
         lim = "".join(f"<li>{_e(x)}</li>" for x in r.get("limitacoes") or [])
@@ -68,23 +68,23 @@ def render(rec: dict, app_url: str | None = None) -> tuple[str, str, str]:
         <tr><td style="padding:0 0 14px 0;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e6dccb;border-left:5px solid {cor};border-radius:8px;">
             <tr><td style="padding:14px 16px;font-family:Arial,Helvetica,sans-serif;color:#1d2a26;">
-              <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:{cor};font-weight:bold;">{i}. {nome} · prioridade {PRIO.get(r.get("prioridade"), _e(r.get("prioridade")))}</div>
+              <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:{cor};font-weight:bold;">{i}. {nome} · {PRIO.get(r.get("prioridade"), _e(r.get("prioridade")))} priority</div>
               <div style="font-size:16px;font-weight:bold;margin:6px 0 6px;">{_e(r.get("acao"))}</div>
               <div style="font-size:14px;line-height:1.5;margin-bottom:8px;">{_e(r.get("justificativa"))}</div>
-              {f'<div style="font-size:13px;font-weight:bold;">Evidências</div><ul style="margin:4px 0 8px 18px;padding:0;font-size:13px;line-height:1.5;">{ev}</ul>' if ev else ""}
-              {f'<div style="font-size:13px;font-weight:bold;margin-bottom:2px;">Políticas relacionadas</div><div style="margin-bottom:8px;">{pols}</div>' if pols else ""}
-              {f'<div style="font-size:13px;"><b>Responsáveis:</b> {resp}</div>' if resp else ""}
-              {f'<div style="font-size:12px;color:#6b6457;margin-top:6px;"><b>Limitações:</b></div><ul style="margin:2px 0 0 18px;padding:0;font-size:12px;color:#6b6457;">{lim}</ul>' if lim else ""}
+              {f'<div style="font-size:13px;font-weight:bold;">Evidence</div><ul style="margin:4px 0 8px 18px;padding:0;font-size:13px;line-height:1.5;">{ev}</ul>' if ev else ""}
+              {f'<div style="font-size:13px;font-weight:bold;margin-bottom:2px;">Related policies</div><div style="margin-bottom:8px;">{pols}</div>' if pols else ""}
+              {f'<div style="font-size:13px;"><b>Responsible:</b> {resp}</div>' if resp else ""}
+              {f'<div style="font-size:12px;color:#6b6457;margin-top:6px;"><b>Limitations:</b></div><ul style="margin:2px 0 0 18px;padding:0;font-size:12px;color:#6b6457;">{lim}</ul>' if lim else ""}
               <div style="font-size:11px;color:#8a8170;margin-top:6px;">{desc}</div>
             </td></tr>
           </table>
         </td></tr>""")
-        text_recs.append(f"{i}. [{nome}] {r.get('acao')}\n   {r.get('justificativa')}\n   Evidências: {'; '.join(r.get('evidencias') or [])}")
+        text_recs.append(f"{i}. [{nome}] {r.get('acao')}\n   {r.get('justificativa')}\n   Evidence: {'; '.join(r.get('evidencias') or [])}")
 
     rascunho = (rec.get("rascunho_x") or {}).get("texto") or ""
     lim_g = "".join(f"<li>{_e(x)}</li>" for x in rec.get("limitacoes_gerais") or [])
     body = f"""<!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{_e(subject)}</title></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{_e(subject)}</title></head>
 <body style="margin:0;padding:0;background:#f4f0e8;">
 <div style="display:none;max-height:0;overflow:hidden;">{_e(rec.get("diagnostico"))[:150]}</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f0e8;padding:24px 0;">
@@ -92,37 +92,37 @@ def render(rec: dict, app_url: str | None = None) -> tuple[str, str, str]:
   <table role="presentation" width="620" cellpadding="0" cellspacing="0" style="max-width:620px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;">
     <tr><td style="background:#10140f;padding:22px 24px;font-family:Arial,Helvetica,sans-serif;">
       <div style="color:#f0c36a;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;">Desert Sentinel · NASA Space Apps 2026</div>
-      <div style="color:#f4efe6;font-size:22px;font-weight:bold;margin-top:6px;">Degradação da vegetação em {_e(mun)}</div>
+      <div style="color:#f4efe6;font-size:22px;font-weight:bold;margin-top:6px;">Vegetation degradation in {_e(mun)}</div>
       <div style="margin-top:10px;"><span style="background:{alerta_cor};color:#fff;font-size:12px;font-weight:bold;padding:4px 10px;border-radius:12px;">{alerta_txt}</span></div>
     </td></tr>
     <tr><td style="padding:22px 24px 6px;font-family:Arial,Helvetica,sans-serif;color:#1d2a26;">
-      <div style="font-size:13px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#8a6d2b;">Diagnóstico</div>
+      <div style="font-size:13px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#8a6d2b;">Diagnosis</div>
       <p style="font-size:15px;line-height:1.6;margin:8px 0 18px;">{_e(rec.get("diagnostico"))}</p>
-      <div style="font-size:13px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#8a6d2b;margin-bottom:10px;">Recomendações</div>
+      <div style="font-size:13px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#8a6d2b;margin-bottom:10px;">Recommendations</div>
     </td></tr>
     <tr><td style="padding:0 24px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">{"".join(cards)}</table></td></tr>
     {f'''<tr><td style="padding:6px 24px 0;font-family:Arial,Helvetica,sans-serif;color:#1d2a26;">
-      <div style="font-size:13px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#8a6d2b;">Sugestão de publicação (requer revisão humana)</div>
+      <div style="font-size:13px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#8a6d2b;">Suggested post (requires human review)</div>
       <div style="margin:8px 0 16px;padding:12px 14px;background:#f7f3ea;border-radius:8px;font-size:14px;line-height:1.5;">{_e(rascunho)}</div>
     </td></tr>''' if rascunho else ""}
     <tr><td align="center" style="padding:8px 24px 20px;">
-      <a href="{_e(app_url)}/modelo.html" style="display:inline-block;background:#f0c36a;color:#1b1408;font-family:Arial,Helvetica,sans-serif;font-weight:bold;font-size:14px;text-decoration:none;padding:12px 22px;border-radius:22px;">Ver mapa e evidências</a>
-      <a href="{_e(app_url)}/comparar/" style="display:inline-block;margin-left:8px;color:#8a6d2b;font-family:Arial,Helvetica,sans-serif;font-size:14px;">Comparar e explicar</a>
+      <a href="{_e(app_url)}/modelo.html" style="display:inline-block;background:#f0c36a;color:#1b1408;font-family:Arial,Helvetica,sans-serif;font-weight:bold;font-size:14px;text-decoration:none;padding:12px 22px;border-radius:22px;">See map and evidence</a>
+      <a href="{_e(app_url)}/comparar/" style="display:inline-block;margin-left:8px;color:#8a6d2b;font-family:Arial,Helvetica,sans-serif;font-size:14px;">Compare and explain</a>
     </td></tr>
     <tr><td style="padding:14px 24px 22px;background:#faf7f1;font-family:Arial,Helvetica,sans-serif;color:#6b6457;font-size:12px;line-height:1.5;">
-      {f'<b>Limitações</b><ul style="margin:4px 0 10px 18px;padding:0;">{lim_g}</ul>' if lim_g else ""}
-      Dados: NASA NISAR (L2 GCOV, provisório, estação seca de 2026), MODIS, CHIRPS, ERA5-Land e MapBiomas.
-      Degradação da vegetação por satélite não equivale a desertificação comprovada em campo.
-      Recomendações geradas por IA a partir desses indicadores e de uma lista fechada de políticas; itens marcados
-      "verificar" precisam de conferência na fonte oficial.<br>
-      Gerado em {_e(rec.get("gerado_em"))} · modelo {_e(rec.get("modelo"))}.
+      {f'<b>Limitations</b><ul style="margin:4px 0 10px 18px;padding:0;">{lim_g}</ul>' if lim_g else ""}
+      Data: NASA NISAR (L2 GCOV, provisional, 2026 dry season), MODIS, CHIRPS, ERA5-Land and MapBiomas.
+      Satellite-based vegetation degradation is not proof of desertification on the ground.
+      Recommendations generated by AI from these indicators and a closed list of policies; items marked
+      "to verify" must be checked against the official source.<br>
+      Generated {_e(rec.get("gerado_em"))} · model {_e(rec.get("modelo"))}.
     </td></tr>
   </table>
 </td></tr></table></body></html>"""
-    text = (f"{subject}\n\nDiagnóstico: {rec.get('diagnostico')}\n\nRecomendações:\n" + "\n".join(text_recs)
-            + (f"\n\nSugestão de publicação (requer revisão): {rascunho}" if rascunho else "")
-            + f"\n\nMapa e evidências: {app_url}/modelo.html\n"
-            "Degradação por satélite não equivale a desertificação comprovada. Recomendações geradas por IA.")
+    text = (f"{subject}\n\nDiagnosis: {rec.get('diagnostico')}\n\nRecommendations:\n" + "\n".join(text_recs)
+            + (f"\n\nSuggested post (requires review): {rascunho}" if rascunho else "")
+            + f"\n\nMap and evidence: {app_url}/modelo.html\n"
+            "Satellite-based degradation is not proof of desertification. Recommendations generated by AI.")
     return subject, body, text
 
 

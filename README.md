@@ -12,18 +12,19 @@ NASA Space Apps Challenge 2026. NISAR L-band is the core of the detection; GPM I
 
 Calm water / flood: very low HH backscatter. Change = pixels that cross the threshold (default −18 dB) between the before/after pair, preferably on the same track and frame (12-day cycle).
 
-## Chat com os dados da tela
+## Chat about the data on screen
 
-O botão de avatar abre o chat nas páginas do projeto. As perguntas incluem o texto e os valores dos controles exibidos na página atual. O navegador chama a API do projeto; a chave do Microsoft Foundry fica apenas no `.env` do servidor.
+The avatar button opens a chat on every project page. Questions include the text and control values shown on the
+current page. The browser calls the project API; the Microsoft Foundry key stays only in the server `.env`.
 
-Preencha `FOUNDRY_API_KEY` no `.env` local. O endpoint e o nome do deployment (`FOUNDRY_ENDPOINT` e `FOUNDRY_MODEL`) também ficam nesse arquivo; não cole a chave no código nem a envie ao navegador. O `.env` está excluído do Git. Depois, na pasta do projeto, reconstrua e inicie os serviços:
+Set `FOUNDRY_API_KEY`, `FOUNDRY_ENDPOINT` and `FOUNDRY_MODEL` in `.env` (never in code or in the browser), then:
 
-```powershell
-docker compose up --build -d
+```bash
+docker compose up --build -d     # http://localhost:8090 — click the avatar in the bottom-right corner
 ```
 
-Abra `http://localhost:8090` e clique no avatar no canto inferior direito.
-
+Deploy (Easypanel), the model pipeline and the Desert Sentinel agent are documented in `docs/DEPLOY_EASYPANEL.md`,
+`docs/MODELO.md` and `docs/DESERT_SENTINEL.md`.
 
 ## 1. See the images now
 

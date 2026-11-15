@@ -1,21 +1,22 @@
-# Climate Guardian — desertificação
+# Climate Guardian — desertification (NASA Space Apps 2026)
 #
-#   docker compose up --build -d        ->  http://localhost:8090
+# Arquivo usado pelo Easypanel (serviço do tipo Compose). Nenhum serviço publica porta:
+# na aba Domains, ligue o domínio ao serviço `guardian-web`, porta 80. O nginx desse
+# serviço encaminha /api, /docs e /comparar/ pela rede interna.
 #
-# Os modelos já rodaram: o worker só publica os resultados (app/bundle) no PostGIS e termina.
-# O navegador apenas exibe o que a API devolve.
-# Para reprocessar (exige .env com Earthdata e GEE):
-#   docker compose --profile pipeline run --rm dg-pipeline python -m pipeline.<etapa>
-#   docker compose --profile pipeline run --rm dg-pipeline python -m pipeline.bundle
-#   docker compose up -d --force-recreate dg-worker
+# Local: o .env define COMPOSE_FILE com docker-compose.yml + docker-compose.local.yml
+# (porta 8090 e o serviço de reprocessamento). Ver docs/DEPLOY_EASYPANEL.md.
 #
-# Prefixo dg- evita colisão de nomes com outras stacks na mesma rede Docker.
+# Os modelos já rodaram: os resultados vão dentro das imagens (app/bundle, products, web).
+# O worker publica no PostGIS e termina; o navegador só exibe o que a API devolve.
+#
+# Prefixo guardian- evita colisão de nomes com outras stacks na rede do servidor.
 
-x-db-env: &db-env
-  DATABASE_URL: postgresql://${POSTGRES_USER:-guardian}:${POSTGRES_PASSWORD:-guardian-dev}@dg-db:5432/${POSTGRES_DB:-guardian}
+x-db-url: &db-url
+  DATABASE_URL: postgresql://${POSTGRES_USER:-guardian}:${POSTGRES_PASSWORD:-guardian-dev}@guardian-db:5432/${POSTGRES_DB:-guardian}
 
 services:
-  dg-db:
+  guardian-db:
     image: postgis/postgis:16-3.4
     restart: unless-stopped
     environment:
@@ -30,22 +31,21 @@ services:
       timeout: 5s
       retries: 20
 
-  # Publica os resultados pré-calculados e termina.
-  dg-worker:
+  # Publica os resultados pré-calculados no PostGIS e termina.
+  guardian-worker:
     build: { context: ., dockerfile: docker/app.Dockerfile }
     command: ["python", "-m", "app.worker.publish"]
-    environment: *db-env
-    volumes:
-      - ./app/bundle:/srv/app/bundle:ro
+    environment:
+      <<: *db-url
     depends_on:
-      dg-db: { condition: service_healthy }
+      guardian-db: { condition: service_healthy }
     restart: "no"
 
-  dg-api:
+  guardian-api:
     build: { context: ., dockerfile: docker/app.Dockerfile }
     restart: unless-stopped
     environment:
-      <<: *db-env
+      <<: *db-url
       # E-mail das recomendações (Brevo SMTP, mesmos nomes do Clinibud)
       BREVO_SMTP_LOGIN: ${BREVO_SMTP_LOGIN:-}
       BREVO_SMTP: ${BREVO_SMTP:-}
@@ -56,11 +56,9 @@ services:
       FOUNDRY_ENDPOINT: ${FOUNDRY_ENDPOINT:-}
       FOUNDRY_API_KEY: ${FOUNDRY_API_KEY:-}
       FOUNDRY_MODEL: ${FOUNDRY_MODEL:-}
-    volumes:
-      - ./app/bundle:/srv/app/bundle:ro
     depends_on:
-      dg-db: { condition: service_healthy }
-      dg-worker: { condition: service_completed_successfully }
+      guardian-db: { condition: service_healthy }
+      guardian-worker: { condition: service_completed_successfully }
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"]
       interval: 10s
@@ -68,26 +66,10 @@ services:
       retries: 10
       start_period: 10s
 
-  dg-web:
-    image: nginx:1.27-alpine
-    restart: unless-stopped
-    ports:
-      - "${WEB_PORT:-8090}:80"
-    volumes:
-      - ./web:/usr/share/nginx/html:ro
-      - ./products:/srv/products:ro
-      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      dg-api: { condition: service_healthy }
-      dg-comparar: { condition: service_started }
-
-  # "Comparar e explicar": desenhe uma área e compare MODIS × NISAR (app Streamlit da equipe).
-  dg-comparar:
+  # "Compare and explain": escolha o município e desenhe uma área (Streamlit).
+  guardian-comparar:
     build: { context: ., dockerfile: docker/streamlit.Dockerfile }
     restart: unless-stopped
-    volumes:
-      - ./products:/srv/products          # o app grava a sobreposição aqui ao iniciar
-      - ./web/municipios:/srv/web/municipios:ro
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/comparar/_stcore/health')"]
       interval: 15s
@@ -95,31 +77,34 @@ services:
       retries: 10
       start_period: 20s
 
-  # Agente Desert Sentinel (Gemini): gera as recomendações no servidor e grava no banco e no bundle.
-  #   docker compose --profile agente run --rm dg-sentinel
-  dg-sentinel:
+  guardian-web:
+    build: { context: ., dockerfile: docker/web.Dockerfile }
+    restart: unless-stopped
+    depends_on:
+      guardian-api: { condition: service_healthy }
+      guardian-comparar: { condition: service_started }
+    # `easypanel` é a rede do proxy do Easypanel: sem ela o domínio responde
+    # "Service is not reachable". `default` mantém o acesso à API e ao comparar.
+    networks:
+      - default
+      - easypanel
+
+  # Agente Desert Sentinel (Gemini): gera as recomendações no servidor e grava no banco.
+  #   docker compose run --rm guardian-sentinel
+  guardian-sentinel:
     profiles: ["agente"]
     build: { context: ., dockerfile: docker/app.Dockerfile }
     command: ["python", "-m", "app.agent.sentinel"]
     environment:
-      <<: *db-env
+      <<: *db-url
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.8-flash}
-    volumes:
-      - ./app/bundle:/srv/app/bundle
     depends_on:
-      dg-db: { condition: service_healthy }
-
-  # Reprocessamento sob demanda (não sobe por padrão).
-  dg-pipeline:
-    profiles: ["pipeline"]
-    build: { context: ., dockerfile: docker/pipeline.Dockerfile }
-    env_file: .env
-    volumes:
-      - ./data:/srv/data
-      - ./app/bundle:/srv/app/bundle
-      - ./pipeline:/srv/pipeline
-      - ${HOME:-~}/.config/earthengine:/root/.config/earthengine:ro
+      guardian-db: { condition: service_healthy }
 
 volumes:
   pg_data:
+
+networks:
+  easypanel:
+    external: true

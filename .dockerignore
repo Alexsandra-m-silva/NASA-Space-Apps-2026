@@ -1,0 +1,13 @@
+# Contexto de build enxuto: dados brutos, ambientes e caches ficam fora das imagens.
+.git
+.venv
+data
+.env
+.env.*
+!.env.example
+**/__pycache__
+**/*.pyc
+.playwright-mcp
+platform/node_modules
+**/node_modules
+products/*_overlay.png

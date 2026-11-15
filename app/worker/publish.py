@@ -54,7 +54,10 @@ def main() -> None:
     url = os.environ["DATABASE_URL"]
     with _connect(url) as conn, conn.cursor() as cur:
         cur.execute(SCHEMA)
-        cur.execute("TRUNCATE municipios, camadas, documentos RESTART IDENTITY")
+        cur.execute("TRUNCATE municipios, camadas RESTART IDENTITY")
+        # As recomendações do agente (Desert Sentinel) são geradas no servidor e não estão no bundle:
+        # preservadas aqui, a não ser que o bundle traga uma versão nova.
+        cur.execute("DELETE FROM documentos WHERE nome <> 'recomendacoes'")
 
         resumo = {r["chave"]: r for r in _load("municipios_resumo.json")}
         for f in _load("municipios.geojson")["features"]:
@@ -75,7 +78,8 @@ def main() -> None:
         if (BUNDLE / "recomendacoes.json").exists():  # gerado pelo agente Desert Sentinel (app.agent.sentinel)
             docs.append("recomendacoes.json")
         for nome in docs:
-            cur.execute("INSERT INTO documentos (nome, conteudo) VALUES (%s,%s)",
+            cur.execute("INSERT INTO documentos (nome, conteudo) VALUES (%s,%s) ON CONFLICT (nome) DO UPDATE "
+                        "SET conteudo = EXCLUDED.conteudo, publicado_em = now()",
                         (nome.removesuffix(".json"), json.dumps(_load(nome), ensure_ascii=False)))
         conn.commit()
     print("publicado:", len(resumo), "municípios", flush=True)

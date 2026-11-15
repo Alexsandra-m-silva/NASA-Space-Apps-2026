@@ -1,0 +1,30 @@
+# Só para uso local; o Easypanel usa apenas docker-compose.yml.
+# O .env local define COMPOSE_FILE com os dois arquivos, então basta `docker compose up -d --build`.
+# Sem .env: docker compose -f docker-compose.yml -f docker-compose.local.yml up -d --build
+
+# Mantém o nome do projeto e, com ele, o volume local nasa_hackathon_pg_data.
+name: nasa_hackathon
+
+services:
+  guardian-web:
+    ports:
+      # Local apenas. Para acesso remoto, use o deploy no Easypanel (docs/DEPLOY_EASYPANEL.md).
+      - "127.0.0.1:${WEB_PORT:-8090}:80"
+
+  # Reprocessamento dos modelos (GEE, NISAR, XGBoost, SHAP). Exige credenciais no .env.
+  #   docker compose run --rm guardian-pipeline python -m pipeline.<etapa>
+  #   docker compose run --rm guardian-pipeline python -m pipeline.bundle
+  guardian-pipeline:
+    profiles: ["pipeline"]
+    build: { context: ., dockerfile: docker/pipeline.Dockerfile }
+    env_file: .env
+    volumes:
+      - ./data:/srv/data
+      - ./app/bundle:/srv/app/bundle
+      - ./pipeline:/srv/pipeline
+      - ${HOME:-~}/.config/earthengine:/root/.config/earthengine:ro
+
+networks:
+  # Fora do servidor não existe a rede do Easypanel: cria uma rede local no lugar.
+  easypanel:
+    external: false
