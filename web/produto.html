@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Produto GeoTIFF — tendência</title>
+    <title>GeoTIFF product — trend</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
       html, body { height: 100%; margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #10140f; color: #f4efe6; }
@@ -35,8 +35,9 @@
   <body>
     <div id="map"></div>
     <aside class="panel">
-      <h1>Tendência no produto</h1>
-      <p id="lead">Lendo os GeoTIFF…</p>
+      <p><a href="modelo.html" style="color:#f0c36a">← Model</a></p>
+      <h1>Trend in the product</h1>
+      <p id="lead">Reading the GeoTIFFs…</p>
       <div class="row" id="places"></div>
       <div class="row" id="layers"></div>
       <div id="legend"></div>
@@ -51,7 +52,7 @@
       L.control.zoom({ position: "bottomright" }).addTo(map);
       L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        { maxZoom: 19, attribution: "Esri, Maxar · produto GeoTIFF" }
+        { maxZoom: 19, attribution: "Esri, Maxar · GeoTIFF product" }
       ).addTo(map);
 
       const state = { slug: null, layer: "classe" };
@@ -60,7 +61,7 @@
       const NODATA = -9999;
 
       function comma(value, digits) {
-        return Number(value).toFixed(digits).replace(".", ",");
+        return Number(value).toFixed(digits);
       }
 
       function missing(value) {
@@ -121,8 +122,8 @@
         });
         const legend = document.getElementById("legend");
         legend.innerHTML = state.layer === "classe"
-          ? '<p><span class="swatch" style="background:#c45c26"></span>só MODIS · <span class="swatch" style="background:#d4a830"></span>só NISAR · <span class="swatch" style="background:#b03024"></span>os dois</p>'
-          : '<div class="ramp"></div><div class="ticks"><span>queda fraca</span><span>só pixels em queda</span><span>queda forte</span></div>';
+          ? '<p><span class="swatch" style="background:#c45c26"></span>MODIS only · <span class="swatch" style="background:#d4a830"></span>NISAR only · <span class="swatch" style="background:#b03024"></span>both</p>'
+          : '<div class="ramp"></div><div class="ticks"><span>weak decline</span><span>declining pixels only</span><span>strong decline</span></div>';
       }
 
       function select(slug, zoom) {
@@ -132,18 +133,19 @@
           button.classList.toggle("on", button.dataset.id === slug);
         });
         const counts = place.counts;
+        const orbit = String(place.meta.orbit).replace("descendente", "descending").replace("quadro", "frame");
         document.getElementById("where").textContent =
-          place.meta.place + ". Órbita " + place.meta.orbit + ". Grade de 0,01° lida de products/" + place.meta.file + ".";
+          place.meta.place + ". Orbit " + orbit + ". A 0.01° grid read from products/" + place.meta.file + ".";
         document.getElementById("rain").innerHTML =
-          "<p><strong>Clima no ponto interno do raster.</strong> Não é um mapa. 2001–2025: chuva " +
-          comma(place.climate.longRain, 1) + " mm por ano, temperatura " + comma(place.climate.longTemp, 2) +
-          " °C por ano. Janela do MODIS: chuva " + comma(place.climate.windowRain, 1) +
-          " mm por ano, temperatura de setembro " + comma(place.climate.windowTemp, 2) + " °C por ano.</p>";
+          "<p><strong>Climate at one point inside the raster.</strong> This is not a map. 2001–2025: rain " +
+          comma(place.climate.longRain, 1) + " mm per year, temperature " + comma(place.climate.longTemp, 2) +
+          " °C per year. MODIS window: rain " + comma(place.climate.windowRain, 1) +
+          " mm per year, September temperature " + comma(place.climate.windowTemp, 2) + " °C per year.</p>";
         document.getElementById("facts").innerHTML =
-          "<li>Classe, contada no GeoTIFF: " + counts.modis + " pixels só MODIS, " + counts.nisar +
-          " só NISAR, " + counts.both + " nos dois. " + counts.steady + " foram observados e não caem.</li>" +
-          "<li>MODIS: " + place.coverage.modis + " pixels com inclinação. NISAR: " + place.coverage.nisar +
-          " pixels. Onde a prévia não existe, a banda fica vazia.</li>";
+          "<li>Class, counted in the GeoTIFF: " + counts.modis + " MODIS-only pixels, " + counts.nisar +
+          " NISAR-only, " + counts.both + " in both. " + counts.steady + " were observed and do not decline.</li>" +
+          "<li>MODIS: " + place.coverage.modis + " pixels with a slope. NISAR: " + place.coverage.nisar +
+          " pixels. Where the preview is missing, the band stays empty.</li>";
         if (zoom) map.fitBounds(place.leafletBounds, { paddingTopLeft: [460, 24], paddingBottomRight: [24, 24], maxZoom: 12 });
       }
 
@@ -230,7 +232,7 @@
               outline.on("click", () => select(place.slug, true));
             });
         });
-        [["classe", "Classe"], ["modis", "MODIS"], ["nisar", "NISAR"]].forEach(([id, label]) => {
+        [["classe", "Class"], ["modis", "MODIS"], ["nisar", "NISAR"]].forEach(([id, label]) => {
           const button = document.createElement("button");
           button.textContent = label;
           button.dataset.id = id;
@@ -242,7 +244,7 @@
         map.fitBounds(group.getBounds(), { paddingTopLeft: [460, 24], paddingBottomRight: [24, 24] });
         select(loaded[0].slug, false);
       }).catch((error) => {
-        document.getElementById("lead").textContent = "Não foi possível ler o GeoTIFF. " + error;
+        document.getElementById("lead").textContent = "Could not read the GeoTIFF. " + error;
       });
     </script>
   </body>

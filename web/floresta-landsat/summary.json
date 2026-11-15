@@ -1,0 +1,408 @@
+{
+  "place": "Floresta, PE",
+  "bbox": [
+    -38.58,
+    -8.66,
+    -38.46,
+    -8.54
+  ],
+  "pixel_m": 30,
+  "scale": [
+    0.14,
+    0.371
+  ],
+  "scenes": [
+    {
+      "year": 2010,
+      "scenes": [
+        {
+          "date": "2010-10-06",
+          "platform": "landsat-5",
+          "cloud_cover": 0.0
+        },
+        {
+          "date": "2010-11-15",
+          "platform": "landsat-7",
+          "cloud_cover": 22.0
+        }
+      ],
+      "ndvi_mean": 0.271,
+      "valid_fraction": 1.0
+    },
+    {
+      "year": 2011,
+      "scenes": [
+        {
+          "date": "2011-08-06",
+          "platform": "landsat-5",
+          "cloud_cover": 21.0
+        },
+        {
+          "date": "2011-11-18",
+          "platform": "landsat-7",
+          "cloud_cover": 19.0
+        },
+        {
+          "date": "2011-10-17",
+          "platform": "landsat-7",
+          "cloud_cover": 26.0
+        },
+        {
+          "date": "2011-08-14",
+          "platform": "landsat-7",
+          "cloud_cover": 34.0
+        }
+      ],
+      "ndvi_mean": 0.232,
+      "valid_fraction": 1.0
+    },
+    {
+      "year": 2012,
+      "scenes": [
+        {
+          "date": "2012-11-20",
+          "platform": "landsat-7",
+          "cloud_cover": 1.0
+        },
+        {
+          "date": "2012-09-01",
+          "platform": "landsat-7",
+          "cloud_cover": 9.0
+        },
+        {
+          "date": "2012-10-03",
+          "platform": "landsat-7",
+          "cloud_cover": 35.0
+        }
+      ],
+      "ndvi_mean": 0.183,
+      "valid_fraction": 1.0
+    },
+    {
+      "year": 2013,
+      "scenes": [
+        {
+          "date": "2013-10-30",
+          "platform": "landsat-8",
+          "cloud_cover": 5.97
+        },
+        {
+          "date": "2013-10-14",
+          "platform": "landsat-8",
+          "cloud_cover": 33.43
+        },
+        {
+          "date": "2013-11-15",
+          "platform": "landsat-8",
+          "cloud_cover": 34.14
+        },
+        {
+          "date": "2013-08-11",
+          "platform": "landsat-8",
+          "cloud_cover": 35.42
+        }
+      ],
+      "ndvi_mean": 0.209,
+      "valid_fraction": 1.0
+    },
+    {
+      "year": 2014,
+      "scenes": [
+        {
+          "date": "2014-10-01",
+          "platform": "landsat-8",
+          "cloud_cover": 13.92
+        },
+        {
+          "date": "2014-08-22",
+          "platform": "landsat-7",
+          "cloud_cover": 6.0
+        },
+        {
+          "date": "2014-11-10",
+          "platform": "landsat-7",
+          "cloud_cover": 7.0
+        },
+        {
+          "date": "2014-11-26",
+          "platform": "landsat-7",
+          "cloud_cover": 25.0
+        }
+      ],
+      "ndvi_mean": 0.22,
+      "valid_fraction": 1.0
+    },
+    {
+      "year": 2015,
+      "scenes": [
+        {
+          "date": "2015-11-21",
+          "platform": "landsat-8",
+          "cloud_cover": 0.01
+        },
+        {
+          "date": "2015-11-05",
+          "platform": "landsat-8",
+          "cloud_cover": 0.05
+        },
+        {
+          "date": "2015-10-04",
+          "platform": "landsat-8",
+          "cloud_cover": 0.18
+        },
+        {
+          "date": "2015-09-02",
+          "platform": "landsat-8",
+          "cloud_cover": 1.29
+        }
+      ],
+      "ndvi_mean": 0.194,
+      "valid_fraction": 1.0
+    },
+    {
+      "year": 2016,
+      "scenes": [
+        {
+          "date": "2016-11-23",
+          "platform": "landsat-8",
+          "cloud_cover": 0.01
+        },
+        {
+          "date": "2016-09-20",
+          "platform": "landsat-8",
+          "cloud_cover": 0.03
+        },
+        {
+          "date": "2016-10-06",
+          "platform": "landsat-8",
+          "cloud_cover": 0.34
+        },
+        {
+          "date": "2016-08-03",
+          "platform": "landsat-8",
+          "cloud_cover": 23.62
+        }
+      ],
+      "ndvi_mean": 0.197,
+      "valid_fraction": 1.0
+    },
+    {
+      "year": 2017,
+      "scenes": [
+        {
+          "date": "2017-11-10",
+          "platform": "landsat-8",
+          "cloud_cover": 9.26
+        },
+        {
+          "date": "2017-11-26",
+          "platform": "landsat-8",
+          "cloud_cover": 24.68
+        },
+        {
+          "date": "2017-10-09",
+          "platform": "landsat-8",
+          "cloud_cover": 36.72
+        },
+        {
+          "date": "2017-11-02",
+          "platform": "landsat-7",
+          "cloud_cover": 2.0
+        }
+      ],
+      "ndvi_mean": 0.191,
+      "valid_fraction": 1.0
+    },
+    {
+      "year": 2018,
+      "scenes": [
+        {
+          "date": "2018-10-28",
+          "platform": "landsat-8",
+          "cloud_cover": 0.02
+        },
+        {
+          "date": "2018-11-13",
+          "platform": "landsat-8",
+          "cloud_cover": 1.54
+        },
+        {
+          "date": "2018-10-12",
+          "platform": "landsat-8",
+          "cloud_cover": 3.7
+        },
+        {
+          "date": "2018-08-25",
+          "platform": "landsat-8",
+          "cloud_cover": 5.96
+        }
+      ],
+      "ndvi_mean": 0.218,
+      "valid_fraction": 1.0
+    },
+    {
+      "year": 2019,
+      "scenes": [
+        {
+          "date": "2019-11-16",
+          "platform": "landsat-8",
+          "cloud_cover": 0.03
+        },
+        {
+          "date": "2019-09-13",
+          "platform": "landsat-8",
+          "cloud_cover": 2.22
+        },
+        {
+          "date": "2019-10-15",
+          "platform": "landsat-8",
+          "cloud_cover": 4.72
+        },
+        {
+          "date": "2019-09-29",
+          "platform": "landsat-8",
+          "cloud_cover": 19.51
+        }
+      ],
+      "ndvi_mean": 0.223,
+      "valid_fraction": 1.0
+    },
+    {
+      "year": 2020,
+      "scenes": [
+        {
+          "date": "2020-11-18",
+          "platform": "landsat-8",
+          "cloud_cover": 4.1
+        },
+        {
+          "date": "2020-10-17",
+          "platform": "landsat-8",
+          "cloud_cover": 7.98
+        },
+        {
+          "date": "2020-09-15",
+          "platform": "landsat-8",
+          "cloud_cover": 15.92
+        },
+        {
+          "date": "2020-08-30",
+          "platform": "landsat-8",
+          "cloud_cover": 18.1
+        }
+      ],
+      "ndvi_mean": 0.256,
+      "valid_fraction": 1.0
+    },
+    {
+      "year": 2021,
+      "scenes": [
+        {
+          "date": "2021-09-02",
+          "platform": "landsat-8",
+          "cloud_cover": 2.43
+        },
+        {
+          "date": "2021-10-04",
+          "platform": "landsat-8",
+          "cloud_cover": 16.73
+        },
+        {
+          "date": "2021-10-20",
+          "platform": "landsat-8",
+          "cloud_cover": 22.69
+        },
+        {
+          "date": "2021-11-21",
+          "platform": "landsat-8",
+          "cloud_cover": 30.6
+        }
+      ],
+      "ndvi_mean": 0.239,
+      "valid_fraction": 1.0
+    },
+    {
+      "year": 2022,
+      "scenes": [
+        {
+          "date": "2022-09-21",
+          "platform": "landsat-8",
+          "cloud_cover": 0.02
+        },
+        {
+          "date": "2022-11-24",
+          "platform": "landsat-8",
+          "cloud_cover": 21.58
+        },
+        {
+          "date": "2022-09-05",
+          "platform": "landsat-8",
+          "cloud_cover": 30.63
+        },
+        {
+          "date": "2022-10-31",
+          "platform": "landsat-9",
+          "cloud_cover": 1.43
+        }
+      ],
+      "ndvi_mean": 0.296,
+      "valid_fraction": 1.0
+    },
+    {
+      "year": 2023,
+      "scenes": [
+        {
+          "date": "2023-10-26",
+          "platform": "landsat-8",
+          "cloud_cover": 0.0
+        },
+        {
+          "date": "2023-09-24",
+          "platform": "landsat-8",
+          "cloud_cover": 0.04
+        },
+        {
+          "date": "2023-11-27",
+          "platform": "landsat-8",
+          "cloud_cover": 2.1
+        },
+        {
+          "date": "2023-10-10",
+          "platform": "landsat-8",
+          "cloud_cover": 2.91
+        }
+      ],
+      "ndvi_mean": 0.235,
+      "valid_fraction": 1.0
+    },
+    {
+      "year": 2024,
+      "scenes": [
+        {
+          "date": "2024-10-12",
+          "platform": "landsat-8",
+          "cloud_cover": 0.01
+        },
+        {
+          "date": "2024-11-29",
+          "platform": "landsat-8",
+          "cloud_cover": 0.02
+        },
+        {
+          "date": "2024-08-25",
+          "platform": "landsat-8",
+          "cloud_cover": 10.02
+        },
+        {
+          "date": "2024-09-26",
+          "platform": "landsat-8",
+          "cloud_cover": 15.81
+        }
+      ],
+      "ndvi_mean": 0.278,
+      "valid_fraction": 1.0
+    }
+  ],
+  "slope_ndvi_per_year": 0.0034,
+  "loss_fraction": 0.03
+}

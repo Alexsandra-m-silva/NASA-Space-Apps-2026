@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Queda da vegetação — cinco municípios</title>
+    <title>Vegetation decline — five municipalities</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
       html, body { height: 100%; margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #10140f; color: #f4efe6; }
@@ -35,15 +35,16 @@
   <body>
     <div id="map"></div>
     <aside class="panel">
-      <h1>Queda da vegetação</h1>
-      <p>Cinco municípios inteiros do semiárido. O mapa mostra só o pixel cuja série está em queda. Setembro do MODIS, de 2016 a 2026, cobre o território. O NISAR não tem anos anteriores: são seis passagens da mesma órbita e da mesma polarização, em 2026. Onde essa prévia não existe, o chão fica visível.</p>
+      <p><a href="modelo.html" style="color:#f0c36a">← Model</a></p>
+      <h1>Vegetation decline</h1>
+      <p>Five whole municipalities in the semiarid. The map shows only pixels whose series is declining. MODIS September, 2016 to 2026, covers the territory. NISAR has no earlier years: six passes of the same orbit and the same polarization, in 2026. Where that preview is missing, the ground stays visible.</p>
       <div class="row" id="places"></div>
       <p id="lead"></p>
       <div class="row" id="sensors"></div>
       <div class="row" id="steps"></div>
       <div id="legend"></div>
       <div id="rain"></div>
-      <svg id="climate" viewBox="0 0 360 118" role="img" aria-label="Chuva e temperatura de 2001 a 2025"></svg>
+      <svg id="climate" viewBox="0 0 360 118" role="img" aria-label="Rain and temperature, 2001 to 2025"></svg>
       <ul id="facts"></ul>
     </aside>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -63,7 +64,7 @@
       let statsBySlug = {};
 
       function comma(value, digits) {
-        return Number(value).toFixed(digits).replace(".", ",");
+        return Number(value).toFixed(digits);
       }
 
       function show(name) {
@@ -92,7 +93,7 @@
         const trend = state.step === "trend";
         show(state.slug + "-" + (trend ? state.sensor + "-trend" : state.sensor + "-" + state.step));
         document.getElementById("legend").innerHTML = trend
-          ? '<div class="ramp"></div><div class="ticks"><span>queda fraca</span><span>só pixels em queda</span><span>queda forte</span></div>'
+          ? '<div class="ramp"></div><div class="ticks"><span>weak decline</span><span>declining pixels only</span><span>strong decline</span></div>'
           : "";
       }
 
@@ -125,7 +126,7 @@
         svg.innerHTML =
           bars +
           '<path d="' + line + '" fill="none" stroke="#f0c36a" stroke-width="2"/>' +
-          '<text class="axis" x="4" y="14">chuva</text>' +
+          '<text class="axis" x="4" y="14">rain</text>' +
           '<text class="axis" x="300" y="14">°C</text>' +
           '<text class="axis" x="' + left + '" y="114">' + annual[0].year + "</text>" +
           '<text class="axis" x="' + (right - 28) + '" y="114">' + annual[annual.length - 1].year + "</text>";
@@ -136,7 +137,7 @@
         const box = document.getElementById("steps");
         box.innerHTML = "";
         const trend = document.createElement("button");
-        trend.textContent = "Tendência";
+        trend.textContent = "Trend";
         trend.dataset.id = "trend";
         trend.onclick = () => { state.step = "trend"; apply(); };
         box.appendChild(trend);
@@ -156,19 +157,20 @@
         const stats = statsBySlug[slug];
         const slopes = stats.rain.slopes;
         const means = stats.nisar_dates.map((day) => day.slice(5) + " " + stats.nisar_means[day]).join(" · ");
-        document.getElementById("lead").textContent = stats.place + ". " + stats.note + " NISAR: órbita " + stats.orbit + ".";
+        const orbit = String(stats.orbit).replace("descendente", "descending").replace("quadro", "frame");
+        document.getElementById("lead").textContent = stats.place + ". " + stats.note + " NISAR: orbit " + orbit + ".";
         document.getElementById("rain").innerHTML =
-          "<p><strong>Clima, NASA POWER, 2001–2025.</strong> Barras são a chuva anual. A linha é a temperatura. Chuva " +
-          comma(slopes.annual_precip_mm_per_year, 1) + " mm por ano. Temperatura " + comma(slopes.annual_temp_c_per_year, 2) +
-          " °C por ano. No período do MODIS a chuva anual vai a " + comma(slopes.modis_years_annual_precip_mm_per_year, 1) +
-          " mm por ano e a temperatura de setembro a " + comma(slopes.modis_years_september_temp_c_per_year, 2) + " °C por ano.</p>";
+          "<p><strong>Climate, NASA POWER, 2001–2025.</strong> Bars are annual rain. The line is temperature. Rain " +
+          comma(slopes.annual_precip_mm_per_year, 1) + " mm per year. Temperature " + comma(slopes.annual_temp_c_per_year, 2) +
+          " °C per year. In the MODIS window, annual rain is " + comma(slopes.modis_years_annual_precip_mm_per_year, 1) +
+          " mm per year and September temperature is " + comma(slopes.modis_years_september_temp_c_per_year, 2) + " °C per year.</p>";
         drawClimate(stats.rain.annual);
         document.getElementById("facts").innerHTML =
-          "<li>MODIS: ficam " + stats.modis_falling_pct + "% dos pixels. Nesses pixels a inclinação média é " +
-          stats.modis_slope_per_year + " por ano na escala de cor. Pixel de cerca de " + stats.modis_pixel_m + " m.</li>" +
-          "<li>NISAR, prévia HV: " + means + ". Ficam " + stats.nisar_falling_pct +
-          "% dos pixels, com inclinação média " + stats.nisar_slope_per_day +
-          " por dia. São cerca de quatro meses, e cada imagem tem a própria escala. Pixel de cerca de " + stats.nisar_pixel_m + " m.</li>";
+          "<li>MODIS: " + stats.modis_falling_pct + "% of pixels decline. On those pixels the mean slope is " +
+          stats.modis_slope_per_year + " per year on the color scale. Pixel size is about " + stats.modis_pixel_m + " m.</li>" +
+          "<li>NISAR HV preview: " + means + ". " + stats.nisar_falling_pct +
+          "% of pixels decline, with a mean slope of " + stats.nisar_slope_per_day +
+          " per day. The record is about four months, and each image has its own scale. Pixel size is about " + stats.nisar_pixel_m + " m.</li>";
         stylePlaces();
         buildSteps();
         apply();

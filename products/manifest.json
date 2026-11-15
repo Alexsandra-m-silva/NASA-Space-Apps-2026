@@ -11,7 +11,7 @@
     "precip_mm_per_year_2016_2025",
     "september_temp_c_per_year_2016_2026"
   ],
-  "note": "O MODIS \u00e9 a inclina\u00e7\u00e3o do canal verde da paleta GIBS de setembro, n\u00e3o NDVI num\u00e9rico. O NISAR \u00e9 a pr\u00e9via HV de uma \u00f3rbita e uma polariza\u00e7\u00e3o, em cerca de quatro meses de 2026, n\u00e3o gamma0. Chuva e temperatura s\u00e3o um ponto interno do munic\u00edpio, repetido no pol\u00edgono para acompanhar o raster. O registro 2001\u20132025 e a janela do MODIS est\u00e3o em bandas separadas.",
+  "note": "MODIS is the slope of the green channel of the September GIBS palette, not numeric NDVI. NISAR is the HV preview of one orbit and one polarization, over about four months of 2026, not gamma0. Rain and temperature are one point inside the municipality, repeated across the polygon so they travel with the raster. The 2001–2025 record and the MODIS window are separate bands.",
   "places": [
     {
       "slug": "floresta",
