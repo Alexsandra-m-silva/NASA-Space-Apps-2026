@@ -7,7 +7,7 @@ import { CostBanner } from "@/components/explore/cost-banner";
 import { ExploreShareActions } from "@/components/explore/explore-actions";
 import { ActionCards } from "@/components/explore/action-cards";
 import { ExploreChat } from "@/components/explore/explore-chat";
-import { BrazilMapPlaceholder } from "@/components/explore/brazil-map-placeholder";
+import { ExploreMap } from "@/components/explore/explore-map";
 import { ImpactSeverityPanel } from "@/components/explore/impact-severity-panel";
 import { RankingCharts } from "@/components/explore/ranking-charts";
 import { TerritoryDetail } from "@/components/explore/territory-detail";
@@ -170,8 +170,8 @@ export function ExploreWorkspace() {
     [level, lens, impact, risk, query]
   );
 
-  const stateTerritories = useMemo(
-    () => territories.filter((t) => t.level === "estado"),
+  const municipalityTerritories = useMemo(
+    () => territories.filter((t) => t.level === "municipio"),
     []
   );
 
@@ -335,10 +335,10 @@ export function ExploreWorkspace() {
         className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
       >
         <div className="min-w-0">
-          <BrazilMapPlaceholder
-            stateTerritories={stateTerritories}
-            selectedMapKey={selectedMapKey}
-            onSelectMapKey={handleMapKey}
+          <ExploreMap
+            municipalities={municipalityTerritories}
+            selectedId={selectedId}
+            onSelect={handleSelectTerritory}
           />
         </div>
         <div className="min-w-0 md:max-h-[520px]">
