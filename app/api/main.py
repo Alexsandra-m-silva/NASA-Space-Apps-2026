@@ -198,7 +198,18 @@ def newsletter_subscribe(corpo: InscricaoNewsletter):
                  atualizado_em = now()""",
             (email, corpo.role.strip(), (corpo.org or "").strip() or None, prefs),
         )
-    return {"subscribed": True, "email": email}
+    # Primeira edição da newsletter, já na inscrição (Brevo SMTP)
+    from app.notify.email import EmailError, render_welcome, send
+    email_sent = False
+    try:
+        subject, body, text = render_welcome(email, corpo.role.strip(), corpo.org, corpo.preferences)
+        send([email], subject, body, text)
+        email_sent = True
+    except EmailError:
+        logger.exception("Newsletter first issue was not sent to a new subscriber")
+    except Exception:  # o e-mail nunca derruba a inscrição
+        logger.exception("Unexpected error rendering/sending the newsletter first issue")
+    return {"subscribed": True, "email": email, "email_sent": email_sent}
 
 
 @app.get("/api/newsletter/subscribers")

@@ -68,6 +68,7 @@ export function AtualizacoesWorkspace() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [savedRemotely, setSavedRemotely] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -117,6 +118,7 @@ export function AtualizacoesWorkspace() {
     });
     setSaving(true);
     let remote = false;
+    let sent = false;
     try {
       const r = await fetch("/api/newsletter/subscribe", {
         method: "POST",
@@ -135,6 +137,10 @@ export function AtualizacoesWorkspace() {
         return;
       }
       remote = r.ok;
+      if (r.ok) {
+        const data = (await r.json().catch(() => ({}))) as { email_sent?: boolean };
+        sent = !!data.email_sent;
+      }
     } catch {
       remote = false;
     }
@@ -146,6 +152,7 @@ export function AtualizacoesWorkspace() {
       preferences: normalized,
     });
     setSavedRemotely(remote);
+    setEmailSent(sent);
     setSaving(false);
     setPrefs(normalized);
     setSeededFromExplore(false);
@@ -286,7 +293,9 @@ export function AtualizacoesWorkspace() {
               . You will get updates when trend, risk, or impact changes in the
               territory you selected.
               {savedRemotely
-                ? " Your selection was saved on the Climate Sentinel server."
+                ? emailSent
+                  ? " Your first briefing is on its way — check your inbox (and the spam folder)."
+                  : " Your selection was saved; the first briefing email could not be sent right now and will go out with the next update."
                 : " We could not reach the server, so the selection was saved in this browser only — please try again later."}
             </DialogDescription>
           </DialogHeader>

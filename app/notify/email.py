@@ -126,6 +126,164 @@ def render(rec: dict, app_url: str | None = None) -> tuple[str, str, str]:
     return subject, body, text
 
 
+_LEVEL_EN = {"bioma": "Biome", "regiao": "Region", "estado": "State", "municipio": "Municipality"}
+_IMPACT_EN = {"inseguranca_alimentar": "Food insecurity", "deficit_hidrico": "Water deficit",
+              "perda_renda": "Income / crop loss", "migracao": "Migration / emergency",
+              "pressao_biodiversidade": "Pressure on flora and fauna"}
+_RISK_EN = {"critico": "Critical", "alto": "High", "moderado": "Moderate"}
+_ROLE_EN = {"gestor": "Government / public sector", "imprensa": "Journalism / media",
+            "ong": "NGO / civil society", "empresa": "Business / private sector", "outro": "Other"}
+
+
+_RISK_ORDER = {"critico": 3, "alto": 2, "moderado": 1}
+_RISK_COLOR = {"critico": "#b0301f", "alto": "#A0522D", "moderado": "#C9A227"}
+
+
+def _territories() -> list[dict]:
+    try:
+        return json.loads((BUNDLE / "territorios.json").read_text(encoding="utf-8"))["territories"]
+    except (OSError, ValueError, KeyError):
+        return []
+
+
+def select_territories(prefs: dict) -> tuple[list[dict], bool]:
+    """Territórios analisados que casam com a seleção da newsletter.
+
+    Devolve (lista ordenada por risco e tendência, casou_com_a_selecao). Se nada da seleção
+    estiver entre os municípios analisados, devolve o panorama dos municípios e False.
+    """
+    allt = _territories()
+    level = prefs.get("level", "estado")
+    items = [t for t in allt if t.get("level") == level]
+    if level == "estado" and prefs.get("estados"):
+        uf_by_code = {str((t.get("dados") or {}).get("ibge", ""))[:2]: t.get("mapKey")
+                      for t in allt if t.get("level") == "municipio"}
+        wanted = {uf_by_code.get(str(c)) for c in prefs["estados"]} - {None}
+        items = [t for t in items if t.get("mapKey") in wanted]
+    elif level == "municipio" and prefs.get("municipios"):
+        wanted = {f"mun-{c}" for c in prefs["municipios"]}
+        items = [t for t in items if t.get("id") in wanted]
+    elif level == "bioma" and prefs.get("biomas"):
+        items = [t for t in items if t.get("mapKey") in set(prefs["biomas"])]
+    elif level == "regiao" and prefs.get("regioes"):
+        # As áreas de estudo ficam todas no Nordeste (região IBGE 2)
+        items = items if "2" in {str(r) for r in prefs["regioes"]} else []
+    impacts = set(prefs.get("impacts") or [])
+    if impacts and len(impacts) < len(_IMPACT_EN):
+        items = [t for t in items if impacts & set(t.get("impacts") or [])]
+    risks = set(prefs.get("risks") or [])
+    if risks and len(risks) < len(_RISK_EN):
+        items = [t for t in items if t.get("risk") in risks]
+    matched = bool(items)
+    if not matched:
+        items = [t for t in allt if t.get("level") == "municipio"]
+    items.sort(key=lambda t: (-_RISK_ORDER.get(t.get("risk"), 0), -(t.get("tendenciaPp") or 0)))
+    return items, matched
+
+
+def _briefing(prefs: dict) -> tuple[str, str]:
+    """Primeira edição: situação atual da seleção (HTML, texto)."""
+    items, matched = select_territories(prefs)
+    top = items[:8]
+    n_crit = sum(1 for t in items if t.get("risk") == "critico")
+    losses = sum(t.get("custoNaoAgirMi") or 0 for t in items)
+    lead = (f"{len(items)} {'territory matches' if len(items) == 1 else 'territories match'} your selection; {n_crit} at critical risk. "
+            f"Recorded drought and flood losses 2015–24: R$ {losses:,.0f} million (inflation-adjusted)."
+            if matched else
+            "Nothing in your selection matches your filters today: either it is outside the 18 municipalities "
+            "we analyse, or no territory there is at the risk level or impact you chose. Here is the overview of "
+            "the Brazilian semi-arid; you will be notified as soon as your selection is affected.")
+
+    def row(t: dict) -> str:
+        nisar = ((t.get("dados") or {}).get("nisar") or {}).get("auc")
+        risk = t.get("risk")
+        return (
+            '<tr>'
+            f'<td style="padding:7px 6px 7px 0;color:#220F08;font-size:13px;border-bottom:1px solid #F0E6CC;">{_e(t.get("name"))}</td>'
+            f'<td style="padding:7px 6px;font-size:12px;border-bottom:1px solid #F0E6CC;">'
+            f'<span style="color:#fff;background:{_RISK_COLOR.get(risk, "#999")};border-radius:4px;padding:2px 6px;">{_e(_RISK_EN.get(risk, risk))}</span></td>'
+            f'<td style="padding:7px 6px;color:#220F08;font-size:13px;text-align:right;border-bottom:1px solid #F0E6CC;">{(t.get("tendenciaPp") or 0):.1f}%</td>'
+            f'<td style="padding:7px 0 7px 6px;color:#220F08;font-size:13px;text-align:right;border-bottom:1px solid #F0E6CC;">{(t.get("custoNaoAgirMi") or 0):,.0f}</td>'
+            f'<td style="padding:7px 0 7px 6px;color:#220F08;font-size:13px;text-align:right;border-bottom:1px solid #F0E6CC;">{f"{nisar:.2f}" if isinstance(nisar, (int, float)) else "—"}</td>'
+            '</tr>')
+
+    th = 'style="padding:6px 6px 6px 0;color:#7a6250;font-size:11px;text-align:{a};text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #E5D4A8;"'
+    html = (
+        '<h2 style="margin:22px 0 6px;color:#642F07;font-family:Georgia,serif;font-size:19px;font-weight:normal;">'
+        'Your first briefing</h2>'
+        f'<p style="margin:0 0 10px;color:#220F08;font-size:14px;line-height:1.5;">{_e(lead)}</p>'
+        '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 6px;">'
+        f'<tr><th {th.format(a="left")}>Territory</th><th {th.format(a="left")}>Risk</th>'
+        f'<th {th.format(a="right")}>Area degrading</th><th {th.format(a="right")}>Losses R$ M</th>'
+        f'<th {th.format(a="right")}>NISAR AUC</th></tr>'
+        + "".join(row(t) for t in top) + '</table>'
+        '<p style="margin:0 0 4px;color:#7a6250;font-size:11px;line-height:1.5;">'
+        'Area degrading: share of the area with declining vegetation, MODIS NDVI 2001–2024 with rainfall '
+        'removed (RESTREND, Mann-Kendall p&lt;0.05). Losses: Atlas Digital de Desastres (S2iD) 2015–24. '
+        'NISAR AUC: how well the 2026 L-band SAR radar separates degraded from stable areas.</p>')
+    text = "\nYour first briefing\n" + lead + "\n" + "\n".join(
+        f"- {t.get('name')}: {_RISK_EN.get(t.get('risk'), t.get('risk'))} risk, "
+        f"{(t.get('tendenciaPp') or 0):.1f}% area degrading, R$ {(t.get('custoNaoAgirMi') or 0):,.0f} M losses"
+        for t in top) + "\n"
+    return html, text
+
+
+def render_welcome(email: str, role: str, org: str | None, prefs: dict,
+                   app_url: str | None = None) -> tuple[str, str, str]:
+    """Primeira edição da newsletter, enviada na inscrição (inglês, cores da marca)."""
+    app_url = (app_url or os.environ.get("FRONTEND_URL") or "http://localhost:8090").rstrip("/")
+    brief_html, brief_text = _briefing(prefs)
+    level = prefs.get("level", "estado")
+    key = {"bioma": "biomas", "regiao": "regioes", "estado": "estados", "municipio": "municipios"}.get(level, "estados")
+    territories = prefs.get(key) or []
+    impacts = [_IMPACT_EN.get(i, i) for i in (prefs.get("impacts") or [])]
+    risks = [_RISK_EN.get(r, r) for r in (prefs.get("risks") or [])]
+    rows = [
+        ("Role", _ROLE_EN.get(role, role)),
+        ("Organization", org or "—"),
+        ("Territory level", _LEVEL_EN.get(level, level)),
+        ("Territories", f"{len(territories)} selected" if territories else "All in the level"),
+        ("Impacts", ", ".join(impacts) if impacts else "All"),
+        ("Risk levels", ", ".join(risks) if risks else "All"),
+        ("Monthly digest", "Yes" if prefs.get("emailMonthly", True) else "No"),
+    ]
+    subject = "Climate Sentinel · Your first briefing"
+    trs = "".join(
+        f'<tr><td style="padding:6px 0;color:#7a6250;font-size:13px;">{_e(k)}</td>'
+        f'<td style="padding:6px 0;color:#220F08;font-size:13px;text-align:right;">{_e(v)}</td></tr>'
+        for k, v in rows)
+    body = f"""<!doctype html><html><body style="margin:0;background:#FBF7EF;font-family:Arial,Helvetica,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FBF7EF;padding:24px 0;">
+<tr><td align="center"><table role="presentation" width="560" cellpadding="0" cellspacing="0"
+ style="max-width:560px;background:#fffdf8;border:1px solid #E5D4A8;border-radius:8px;">
+<tr><td style="background:#220F08;padding:20px 28px;border-radius:8px 8px 0 0;">
+ <p style="margin:0;color:#DAA849;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;">Climate Sentinel · Newsletter</p>
+ <h1 style="margin:8px 0 0;color:#FBF7EF;font-family:Georgia,serif;font-size:24px;font-weight:normal;">You are subscribed</h1>
+</td></tr>
+<tr><td style="padding:24px 28px;">
+ <p style="margin:0 0 14px;color:#220F08;font-size:15px;line-height:1.5;">
+  Thanks for following desertification risk in the Brazilian semi-arid. We will email
+  <b>{_e(email)}</b> when the evidence changes in your selection: a trend shift, a new risk
+  category, a new impact type, or a territory entering your risk filter.</p>
+ {brief_html}
+ <h2 style="margin:22px 0 6px;color:#642F07;font-family:Georgia,serif;font-size:17px;font-weight:normal;">Your subscription</h2>
+ <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+  style="border-top:1px solid #E5D4A8;border-bottom:1px solid #E5D4A8;margin:8px 0 18px;">{trs}</table>
+ <p style="margin:0 0 20px;"><a href="{_e(app_url)}/explore"
+  style="display:inline-block;background:#FFEA7F;color:#220F08;text-decoration:none;padding:10px 18px;border-radius:6px;font-size:14px;font-weight:bold;">Explore the evidence</a></p>
+ <p style="margin:0;color:#7a6250;font-size:12px;line-height:1.5;">
+  Evidence from NISAR SAR radar (2026), MODIS 2001–2024, CHIRPS, ERA5-Land and MapBiomas.
+  Satellite-based degradation is not proof of desertification. To change or cancel,
+  open <a href="{_e(app_url)}/newsletter" style="color:#642F07;">{_e(app_url)}/newsletter</a>.</p>
+</td></tr></table>
+<p style="color:#7a6250;font-size:11px;">Climate Sentinel · NASA Space Apps Challenge 2026</p>
+</td></tr></table></body></html>"""
+    text = (f"Climate Sentinel - you are subscribed\n\nWe will email {email} when the evidence changes in "
+            "your selection.\n" + brief_text + "\nYour subscription\n" + "\n".join(f"{k}: {v}" for k, v in rows) +
+            f"\n\nExplore the evidence: {app_url}/explore\nChange or cancel: {app_url}/newsletter\n")
+    return subject, body, text
+
+
 def send(to: list[str], subject: str, html_body: str, text_body: str) -> str:
     login, key = os.environ.get("BREVO_SMTP_LOGIN", ""), os.environ.get("BREVO_SMTP", "")
     sender = os.environ.get("DEFAULT_FROM_EMAIL", "")
