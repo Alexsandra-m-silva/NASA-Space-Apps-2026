@@ -189,7 +189,7 @@ export function AtualizacoesWorkspace() {
             <legend className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
               Role
             </legend>
-            <p className="mt and text-xs text-muted-foreground">
+            <p className="mt-2 text-xs text-muted-foreground">
               Choose what best describes how you use the evidence.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
