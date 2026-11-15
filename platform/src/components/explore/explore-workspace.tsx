@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CostBanner } from "@/components/explore/cost-banner";
 import { ExploreShareActions } from "@/components/explore/explore-actions";
 import { ActionCards } from "@/components/explore/action-cards";
-import { ExploreChat } from "@/components/explore/explore-chat";
+import { AskSentinel } from "@/components/explore/ask-sentinel";
 import { ExploreMap } from "@/components/explore/explore-map";
 import { ImpactSeverityPanel } from "@/components/explore/impact-severity-panel";
 import { RankingCharts } from "@/components/explore/ranking-charts";
@@ -329,9 +329,9 @@ export function ExploreWorkspace() {
         </fieldset>
       </div>
 
-      {/* ——— First fold: map + AI chat ——— */}
+      {/* ——— First fold: map + Exploration focus ——— */}
       <section
-        aria-label="First fold — map and chat"
+        aria-label="First fold — map and actions"
         className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
       >
         <div className="min-w-0">
@@ -342,7 +342,7 @@ export function ExploreWorkspace() {
           />
         </div>
         <div className="min-w-0 md:max-h-[520px]">
-          <ExploreChat
+          <ActionCards
             items={items}
             level={level}
             impact={impact}
@@ -351,28 +351,25 @@ export function ExploreWorkspace() {
         </div>
       </section>
 
-      {/* ——— Second fold: impact type + what to do now ——— */}
+      <AskSentinel
+        items={items}
+        level={level}
+        impact={impact}
+        risk={risk}
+      />
+
+      {/* ——— Second fold: impact type ——— */}
       <section
-        aria-label="Second fold — impact type and actions"
+        aria-label="Second fold — impact type"
         className="space-y-8 border-t border-border pt-10"
       >
-        <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 md:items-stretch">
-          <div className="min-w-0">
-            <ImpactSeverityPanel
-              items={items}
-              level={level}
-              selectedImpact={impact}
-              onSelectImpact={setImpact}
-            />
-          </div>
-          <div className="min-w-0 md:max-h-[560px]">
-            <ActionCards
-              items={items}
-              level={level}
-              impact={impact}
-              risk={risk}
-            />
-          </div>
+        <div className="min-w-0">
+          <ImpactSeverityPanel
+            items={items}
+            level={level}
+            selectedImpact={impact}
+            onSelectImpact={setImpact}
+          />
         </div>
 
         <RankingCharts

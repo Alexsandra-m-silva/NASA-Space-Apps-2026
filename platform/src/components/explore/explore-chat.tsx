@@ -101,11 +101,13 @@ export function ExploreChat({
   level,
   impact,
   risk,
+  variant = "panel",
 }: {
   items: Territory[];
   level: GeoLevel;
   impact: ImpactType | "todos";
   risk: RiskLevel | "todos";
+  variant?: "panel" | "overlay";
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -120,6 +122,7 @@ export function ExploreChat({
   const impactLabel =
     impact === "todos" ? "all impacts" : IMPACT_LABELS[impact];
   const riskLabel = risk === "todos" ? "all risks" : RISK_LABELS[risk];
+  const isOverlay = variant === "overlay";
 
   function send(text: string) {
     const cleaned = text.trim();
@@ -167,15 +170,31 @@ export function ExploreChat({
   }
 
   return (
-    <div className="flex h-full min-h-[320px] flex-col rounded-md border border-border bg-card p-3 shadow-sm sm:min-h-[420px] sm:p-4">
+    <div
+      className={
+        isOverlay
+          ? "flex h-full min-h-[420px] flex-col bg-transparent p-3 sm:p-4"
+          : "flex h-full min-h-[320px] flex-col rounded-md border border-border bg-card p-3 shadow-sm sm:min-h-[420px] sm:p-4"
+      }
+    >
       <div className="mb-3 shrink-0">
-        <p className="text-[0.65rem] uppercase tracking-[0.16em] text-signal">
-          Desert Sentinel
-        </p>
-        <h2 className="mt-1 font-display text-base text-olive sm:text-lg">
-          Ask the evidence
-        </h2>
-        <p className="mt-1 text-[0.7rem] leading-relaxed text-muted-foreground sm:text-xs">
+        {!isOverlay && (
+          <>
+            <p className="text-[0.65rem] uppercase tracking-[0.16em] text-signal">
+              Desert Sentinel
+            </p>
+            <h2 className="mt-1 font-display text-base text-olive sm:text-lg">
+              Ask the evidence
+            </h2>
+          </>
+        )}
+        <p
+          className={
+            isOverlay
+              ? "text-xs leading-relaxed text-muted-foreground"
+              : "mt-1 text-[0.7rem] leading-relaxed text-muted-foreground sm:text-xs"
+          }
+        >
           Local briefing over the current selection — not a general chatbot.
         </p>
         <p className="mt-2 text-[0.65rem] text-muted-foreground">

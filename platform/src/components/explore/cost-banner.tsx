@@ -4,6 +4,7 @@ import {
   formatCredits,
   formatHectares,
   formatTransitionRisk,
+  transitionRiskSeverity,
 } from "@/data/explore/queries";
 
 export function CostBanner({
@@ -17,6 +18,9 @@ export function CostBanner({
   count?: number;
   levelLabel?: string;
 }) {
+  const riskElevated = transitionRisk >= 50;
+  const riskLabel = transitionRiskSeverity(transitionRisk);
+
   return (
     <aside
       data-header-contrast="dark"
@@ -34,8 +38,17 @@ export function CostBanner({
           <p className="text-[0.7rem] uppercase tracking-[0.16em] text-sand/80">
             Transition risk · SDG 13
           </p>
-          <p className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">
-            {formatTransitionRisk(transitionRisk)}
+          <p
+            className={`mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 font-display text-3xl tracking-tight sm:text-4xl ${
+              riskElevated ? "text-accent" : ""
+            }`}
+          >
+            <span>{formatTransitionRisk(transitionRisk)}</span>
+            {riskLabel && (
+              <span className="text-base font-sans font-semibold tracking-normal sm:text-lg">
+                {riskLabel}
+              </span>
+            )}
           </p>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-sand">
             Measures how exposed the territory is to losses and costs if climate
