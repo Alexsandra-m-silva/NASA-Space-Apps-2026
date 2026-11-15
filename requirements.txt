@@ -21,3 +21,6 @@ xgboost
 requests
 tabulate
 pypdf
+streamlit>=1.40
+folium>=0.15
+streamlit-folium>=0.22

@@ -174,11 +174,34 @@
         };
       }
 
-      fetch("products/manifest.json").then((response) => response.json()).then(async (manifest) => {
+      async function productManifest() {
+        if (window.PRODUCT) return window.PRODUCT.manifest;
+        const response = await fetch("products/manifest.json");
+        return response.json();
+      }
+
+      async function productTiff(meta) {
+        if (window.PRODUCT) {
+          const binary = atob(window.PRODUCT.tifs[meta.slug]);
+          const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+          return GeoTIFF.fromArrayBuffer(bytes.buffer);
+        }
+        const buffer = await fetch("products/" + meta.file).then((response) => response.arrayBuffer());
+        return GeoTIFF.fromArrayBuffer(buffer);
+      }
+
+      function productOutline(slug) {
+        if (window.PRODUCT && window.PRODUCT.outlines[slug]) {
+          return Promise.resolve(window.PRODUCT.outlines[slug]);
+        }
+        return fetch("municipios/" + slug + "/municipality.geojson").then((response) => response.json());
+      }
+
+      productManifest().then(async (manifest) => {
         document.getElementById("lead").textContent = manifest.note;
         const loaded = await Promise.all(manifest.places.map(async (meta) => {
-          const buffer = await fetch("products/" + meta.file).then((response) => response.arrayBuffer());
-          const tiff = await GeoTIFF.fromArrayBuffer(buffer);
+          const tiff = await productTiff(meta);
           const image = await tiff.getImage();
           const rasters = await image.readRasters();
           const [west, south, east, north] = image.getBoundingBox();
@@ -201,8 +224,7 @@
           button.dataset.id = place.slug;
           button.onclick = () => select(place.slug, true);
           placeBox.appendChild(button);
-          fetch("municipios/" + place.slug + "/municipality.geojson")
-            .then((response) => response.json())
+          productOutline(place.slug)
             .then((geo) => {
               const outline = L.geoJSON(geo, { style: { color: "#fff4d6", weight: 1.4, fill: false } }).addTo(map);
               outline.on("click", () => select(place.slug, true));
