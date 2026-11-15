@@ -1,18 +1,18 @@
 # Climate Guardian — Dancing with the SARs
 
-NASA Space Apps Challenge 2026. NISAR L-band no núcleo da detecção; GPM IMERG como contexto de chuva.
+NASA Space Apps Challenge 2026. NISAR L-band is the core of the detection; GPM IMERG is the rainfall context.
 
-## O que está plugado
+## What is wired in
 
-| Papel | Produto NASA | Como entra |
+| Role | NASA product | How it enters |
 | --- | --- | --- |
-| Imagem no mapa (hoje, sem login) | GIBS `NISAR_L2_Geocoded_Polarimetric_Covariance` | mosaico diário do GCOV, 15.6 m |
-| Análise quantitativa | `NISAR_L2_GCOV_V1` (validado 6 nov 2026) ou `NISAR_L2_GCOV_PROVISIONAL_V1` | camada `HHHH` (gamma0) |
-| Chuva | GPM IMERG Late daily `GPM_3IMERGDL` v07 + camada GIBS `IMERG_Precipitation_Rate` | entre as duas passagens SAR |
+| Map image (today, no login) | GIBS `NISAR_L2_Geocoded_Polarimetric_Covariance` | daily GCOV mosaic, 15.6 m |
+| Quantitative analysis | `NISAR_L2_GCOV_V1` (validated 6 Nov 2026) or `NISAR_L2_GCOV_PROVISIONAL_V1` | `HHHH` layer (gamma0) |
+| Rain | GPM IMERG Late daily `GPM_3IMERGDL` v07 + GIBS layer `IMERG_Precipitation_Rate` | between the two SAR passes |
 
-Água calma / inundação: backscatter HH muito baixo. Mudança = pixels que cruzam o limiar (padrão −18 dB) entre o par antes/depois, de preferência no mesmo track/frame (ciclo de 12 dias).
+Calm water / flood: very low HH backscatter. Change = pixels that cross the threshold (default −18 dB) between the before/after pair, preferably on the same track and frame (12-day cycle).
 
-## 1. Ver as imagens agora
+## 1. See the images now
 
 ```bash
 python -m http.server 8000 --directory web
@@ -20,25 +20,25 @@ python -m http.server 8000 --directory web
 
 Open `http://localhost:8000`. The slider compares two NISAR passes over the Uruguay River at Uruguaiana (24 Oct and 5 Nov 2026, same track). Red and cyan on `web/scenes/change.png` are the calculated open-water change. Check GPM for rain.
 
-## 2. Conta Earthdata (números reais)
+## 2. Earthdata account (real numbers)
 
-1. Crie login em [urs.earthdata.nasa.gov](https://urs.earthdata.nasa.gov/).
-2. Copie `.env.example` → `.env` com `EARTHDATA_USERNAME` e `EARTHDATA_PASSWORD`.
-3. Autorize ASF DAAC e GES DISC na conta (Applications).
+1. Create a login at [urs.earthdata.nasa.gov](https://urs.earthdata.nasa.gov/).
+2. Copy `.env.example` to `.env` with `EARTHDATA_USERNAME` and `EARTHDATA_PASSWORD`.
+3. Authorize ASF DAAC and GES DISC on the account (Applications).
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 set -a && source .env && set +a
-python -m pipeline.fetch_nisar              # lista o par GCOV
+python -m pipeline.fetch_nisar              # list the GCOV pair
 python -m pipeline.fetch_gpm
-python -m pipeline.fetch_nisar --download   # HDF5 (grande) — 1 granule de cada lado
-python -m pipeline.detect_change            # hectares + limitações
+python -m pipeline.fetch_nisar --download   # HDF5 (large) — 1 granule on each side
+python -m pipeline.detect_change            # hectares + limitations
 ```
 
-AOI e datas: `pipeline/config.py`.
+AOI and dates: `pipeline/config.py`.
 
-## 3. Julgagem (Validity / Relevance)
+## 3. Judging (Validity / Relevance)
 
-- **Relevance:** o mapa e os indicadores saem do GCOV L-band, não de um basemap decorativo.
-- **Validity:** produto RTC/gamma0 feito para inundação; limiar empírico, speckle, geometria e penetração L-band em vegetação estão listados em `change_stats.json`.
+- **Relevance:** the map and the indicators come from L-band GCOV, not from a decorative basemap.
+- **Validity:** an RTC/gamma0 product built for flooding; the empirical threshold, speckle, geometry, and L-band penetration into vegetation are listed in `change_stats.json`.

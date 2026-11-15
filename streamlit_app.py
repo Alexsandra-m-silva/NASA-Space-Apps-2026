@@ -74,7 +74,7 @@ def _restrend(ndvi: np.ndarray, rain: np.ndarray, years: np.ndarray):
             np.where(enough, p, np.nan).reshape(shape))
 
 
-@st.cache_data(show_spinner="Calculando as tendências por pixel…")
+@st.cache_data(show_spinner="Computing the per-pixel trends…")
 def load(slug: str):
     cube = np.load(PRODUCTS / f"{slug}_ndvi.npz")
     meta = json.loads((PRODUCTS / f"{slug}_ndvi.json").read_text(encoding="utf-8"))
@@ -158,39 +158,39 @@ def _line_slope(frame: pd.DataFrame, x: str, y: str):
 
 # ---------------------------------------------------------------- texto e gráficos
 def _leitura(resid_slope, hv_slope, rain_slope, temp_slope, usou_degradados: bool) -> str:
-    alvo = "Nos pixels degradados do retângulo" if usou_degradados else "No retângulo"
+    alvo = "On the degraded pixels in the rectangle" if usou_degradados else "In the rectangle"
     partes = []
     if resid_slope is None:
-        partes.append(f"{alvo}, não há anos suficientes de NDVI para a tendência.")
+        partes.append(f"{alvo}, there are not enough NDVI years for a trend.")
     elif hv_slope is None:
-        partes.append(f"{alvo}, não há datas suficientes do radar. A leitura usa só o NDVI.")
+        partes.append(f"{alvo}, there are not enough radar dates. The reading uses NDVI only.")
     elif resid_slope < 0 and hv_slope < 0:
-        partes.append(f"{alvo}, o NDVI descontada a chuva cai desde 2001 e, em 2026, o radar NISAR cai mais rápido "
-                      "que o típico do município na estação seca. Os dois sinais de vegetação convergem.")
+        partes.append(f"{alvo}, rainfall-adjusted NDVI has fallen since 2001 and, in 2026, NISAR falls faster "
+                      "than is typical for this municipality in the dry season. The two vegetation signals agree.")
     elif resid_slope > 0 and hv_slope >= 0:
-        partes.append(f"{alvo}, o NDVI descontada a chuva sobe e o radar cai menos que o típico do município. "
-                      "Convergem para uma vegetação mais resistente, não para queda.")
+        partes.append(f"{alvo}, rainfall-adjusted NDVI is rising and the radar falls less than is typical for this municipality. "
+                      "They agree on more persistent vegetation, and they do not agree on a decline.")
     else:
-        partes.append(f"{alvo}, o NDVI descontada a chuva e o radar (comparado ao típico do município) apontam em "
-                      "direções opostas. Divergem: um cobre 24 anos, o outro alguns meses da estação seca de 2026.")
+        partes.append(f"{alvo}, rainfall-adjusted NDVI and the radar (compared with what is typical for the municipality) point in "
+                      "opposite directions. They diverge: one covers 24 years, the other a few months of the 2026 dry season.")
     if resid_slope is not None and resid_slope < 0:
         if rain_slope is not None and rain_slope >= 0:
-            partes.append("A queda da vegetação aparece mesmo com a chuva do município estável ou subindo.")
+            partes.append("The vegetation decline shows up even while municipal rainfall is steady or rising.")
         if temp_slope is not None and temp_slope > 0:
-            partes.append("No mesmo período, a temperatura média do município sobe.")
-    partes.append("Chuva e temperatura são a média do município, iguais para qualquer retângulo. "
-                  "Concordância entre sinais não é prova de causa.")
+            partes.append("Over the same period, the municipality's mean temperature rises.")
+    partes.append("Rain and temperature are the municipal average, the same for every rectangle. "
+                  "Agreement between signals is not proof of a cause.")
     return " ".join(partes)
 
 
 def _chart(frame: pd.DataFrame, x: str, y: str, color: str):
     kept = frame.dropna(subset=[y]).copy()
     if kept.empty:
-        st.caption("Sem dados neste retângulo.")
+        st.caption("No data in this rectangle.")
         return
     if pd.api.types.is_datetime64_any_dtype(kept[x]):
         x_number = kept[x].astype("int64").to_numpy() / 1e9
-        x_type, axis = "temporal", {"format": "%d/%m", "labelAngle": -35, "labelOverlap": False}
+        x_type, axis = "temporal", {"format": "%d %b", "labelAngle": -35, "labelOverlap": False}
     else:
         x_number = kept[x].to_numpy(dtype=float)
         x_type, axis = "quantitative", {"format": "d", "labelOverlap": "greedy"}
@@ -218,22 +218,22 @@ def _legenda(fmap) -> None:
     el._template = Template(
         '{% macro html(this, kwargs) %}<div style="position:absolute;bottom:28px;left:12px;z-index:9999;'
         'background:rgba(16,20,15,0.92);color:#f7f4ea;padding:8px 10px;border-radius:6px;font:12px/1.45 sans-serif;">'
-        + item("#b03024", "Vermelho: NDVI degradando (sem efeito da chuva) e radar caindo mais que o típico")
-        + item("#c45c26", "Laranja: NDVI degradando, radar dentro do típico")
-        + item("#588c54", "Verde: NDVI melhorando")
+        + item("#b03024", "Red: rainfall-adjusted NDVI declining, and radar falling faster than typical")
+        + item("#c45c26", "Orange: NDVI declining, radar within the typical range")
+        + item("#588c54", "Green: NDVI improving")
         + "</div>{% endmacro %}")
     fmap.get_root().add_child(el)
 
 
 # ---------------------------------------------------------------- página
 def main() -> None:
-    st.set_page_config(page_title="Comparar e explicar — degradação da vegetação", layout="wide")
+    st.set_page_config(page_title="Compare and explain — vegetation degradation", layout="wide")
     if not INDEX.exists():
-        st.error("Faltam os cubos em products/. Rode: python -m pipeline.cubos_ndvi build")
+        st.error("The cubes in products/ are missing. Run: python -m pipeline.cubos_ndvi build")
         return
     lugares = json.loads(INDEX.read_text(encoding="utf-8"))
     nomes = {f"{p['municipio']} / {p['uf']}": p["slug"] for p in lugares}
-    escolha = st.selectbox("Município", list(nomes), index=next((i for i, k in enumerate(nomes) if k.startswith("Floresta")), 0))
+    escolha = st.selectbox("Municipality", list(nomes), index=next((i for i, k in enumerate(nomes) if k.startswith("Floresta")), 0))
     slug = nomes[escolha]
     data = load(slug)
     if st.session_state.get("slug") != slug:
@@ -243,20 +243,20 @@ def main() -> None:
     c = data["contagem"]
     total = max(c["validos"], 1)
     m1, m2, m3, m4 = st.columns(4)
-    pct = lambda v: f"{100 * v / total:.1f}".replace(".", ",") + "% da área"
-    m1.metric("NDVI degradando (sem efeito da chuva)", pct(c["degradado"]))
-    m2.metric("Degradando e radar caindo mais que o típico", pct(c["ambos"]))
-    m3.metric("NDVI melhorando", pct(c["melhora"]))
-    m4.metric("Passagens NISAR", f"{len(data['dates'])}")
+    pct = lambda v: f"{100 * v / total:.1f}% of the area"
+    m1.metric("NDVI declining (rainfall removed)", pct(c["degradado"]))
+    m2.metric("Declining, and radar falling faster than typical", pct(c["ambos"]))
+    m3.metric("NDVI improving", pct(c["melhora"]))
+    m4.metric("NISAR passes", f"{len(data['dates'])}")
 
     map_column, side = st.columns([1.35, 1], gap="medium")
     with map_column:
-        st.markdown(f"**{escolha}.** Desenhe um retângulo. Os gráficos usam os pixels degradados dentro dele "
-                    "(ou todos, se não houver degradados).")
+        st.markdown(f"**{escolha}.** Draw a rectangle. The charts use the degraded pixels inside it "
+                    "(or every pixel, if none are degraded).")
         west, south, east, north = st.session_state.box
         fmap = folium.Map(location=[(south + north) / 2, (west + east) / 2], zoom_start=10, tiles=None)
         folium.TileLayer(tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-                         attr="Esri, Maxar", name="Satélite").add_to(fmap)
+                         attr="Esri, Maxar", name="Satellite").add_to(fmap)
         ImageOverlay(image=data["overlay"], bounds=[[data["south"], data["west"]], [data["north"], data["east"]]],
                      opacity=0.9, pixelated=True).add_to(fmap)
         outline = ROOT / "web" / "municipios" / slug / "municipality.geojson"
@@ -286,24 +286,24 @@ def main() -> None:
     clima_janela = clima[clima.ano >= 2001]
 
     with side:
-        st.markdown("**Os sinais no retângulo**")
-        st.caption("Linha tracejada: tendência linear. Concordância não é causa.")
+        st.markdown("**Signals inside the rectangle**")
+        st.caption("Dashed line: linear trend. Agreement is not a cause.")
         a, b = st.columns(2)
         with a:
-            st.caption("NDVI anual — MODIS, 2001–2024")
+            st.caption("Annual NDVI — MODIS, 2001–2024")
             _chart(ndvi_df, "ano", "ndvi", "#7fb069")
         with b:
-            st.caption("NDVI descontada a chuva (resíduo)")
+            st.caption("Rainfall-adjusted NDVI (residual)")
             _chart(resid_df, "ano", "residuo", "#c45c26")
         a, b = st.columns(2)
         with a:
             med = data["hv_med_dia"] * 30 if np.isfinite(data["hv_med_dia"]) else float("nan")
-            st.caption(f"Radar NISAR — HV (dB), 2026 · típico do município: {med:+.2f} dB/mês".replace(".", ","))
+            st.caption(f"NISAR radar — HV (dB), 2026 · typical for the municipality: {med:+.2f} dB/month")
             _chart(radar_df, "data", "hv", "#d4a830")
         with b:
-            st.caption("Chuva anual do município (mm)")
+            st.caption("Municipal annual rainfall (mm)")
             _chart(clima, "ano", "chuva_mm", "#7eb6d6")
-        st.caption("Temperatura média anual do município (°C)")
+        st.caption("Municipal mean annual temperature (°C)")
         _chart(clima, "ano", "temp_c", "#f0c36a")
         hv_sel = _line_slope(radar_df, "data", "hv")
         hv_rel = None if hv_sel is None or not np.isfinite(data["hv_med_dia"]) else hv_sel - data["hv_med_dia"]
@@ -311,11 +311,11 @@ def main() -> None:
                          _line_slope(clima_janela, "ano", "chuva_mm"), _line_slope(clima_janela, "ano", "temp_c"),
                          usou_degradados))
         n_pix = int(sel.sum()) if usou_degradados else int(np.isfinite(data["ndvi"][0][rows, cols]).sum())
-        orbita = data["meta"].get("orbita") or "—"
-        st.caption(f"Pixels usados: {n_pix} ({'degradados' if usou_degradados else 'todos'}), grade de ~1,1 km. "
-                   f"Radar: NISAR L2 GCOV, órbita/quadro {orbita}, gamma0 calibrado. "
-                   "NDVI: MODIS MOD13Q1. Chuva: CHIRPS. Temperatura: ERA5-Land. Degradação = tendência negativa do "
-                   "NDVI descontada a chuva com Mann-Kendall p < 0,05.")
+        orbita = str(data["meta"].get("orbita") or "—").replace("descendente", "descending").replace("quadro", "frame")
+        st.caption(f"Pixels used: {n_pix} ({'degraded' if usou_degradados else 'all'}), grid of about 1.1 km. "
+                   f"Radar: NISAR L2 GCOV, orbit/frame {orbita}, calibrated gamma0. "
+                   "NDVI: MODIS MOD13Q1. Rain: CHIRPS. Temperature: ERA5-Land. Degradation = a negative trend in "
+                   "rainfall-adjusted NDVI with Mann-Kendall p < 0.05.")
 
 
 main()

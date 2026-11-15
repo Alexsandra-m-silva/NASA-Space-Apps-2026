@@ -21,8 +21,8 @@ from psycopg_pool import ConnectionPool
 BUNDLE = Path(os.environ.get("BUNDLE_DIR", Path(__file__).resolve().parents[1] / "bundle"))
 pool = ConnectionPool(os.environ["DATABASE_URL"], min_size=1, max_size=5, open=False,
                       kwargs={"row_factory": dict_row})
-app = FastAPI(title="Climate Guardian — Desertificação", version="1.0",
-              description="Resultados pré-calculados: degradação MODIS, validação NISAR, clima, suscetibilidade e SHAP.")
+app = FastAPI(title="Climate Guardian — Desertification", version="1.0",
+              description="Precomputed results: MODIS degradation, NISAR validation, climate, susceptibility, and SHAP.")
 CAMADAS = {"suscetibilidade", "degradacao_modis", "pontos_nisar"}
 FIGURAS = {"shap_detector_beeswarm.png", "shap_validador_beeswarm.png"}
 
