@@ -1,0 +1,32 @@
+[
+  {
+    "id": "amazonia",
+    "name": "Amazônia",
+    "source": "IBGE/MMA"
+  },
+  {
+    "id": "caatinga",
+    "name": "Caatinga",
+    "source": "IBGE/MMA"
+  },
+  {
+    "id": "cerrado",
+    "name": "Cerrado",
+    "source": "IBGE/MMA"
+  },
+  {
+    "id": "mata_atlantica",
+    "name": "Mata Atlântica",
+    "source": "IBGE/MMA"
+  },
+  {
+    "id": "pampa",
+    "name": "Pampa",
+    "source": "IBGE/MMA"
+  },
+  {
+    "id": "pantanal",
+    "name": "Pantanal",
+    "source": "IBGE/MMA"
+  }
+]
