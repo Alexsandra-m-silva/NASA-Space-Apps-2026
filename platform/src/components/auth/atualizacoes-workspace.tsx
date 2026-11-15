@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { EmailTriggersCard } from "@/components/auth/email-triggers-card";
 import { PreferenceForm } from "@/components/auth/preference-form";
+import { EmailTriggersCard } from "@/components/auth/email-triggers-card";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,224 +13,175 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
-  ROLE_LABELS,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   defaultPreferences,
-  normalizePreferences,
   type AlertPreferences,
-  type UserProfile,
 } from "@/data/alerts";
-import { consumeExploreSeed } from "@/data/explore/seed-preferences";
+import { personas } from "@/data/personas";
 import {
   useNewsletter,
-  type StakeholderRole,
+  type NewsletterSubscription,
 } from "@/lib/newsletter-context";
+import { readExploreSeed } from "@/data/explore/seed-preferences";
 
-const ROLES = Object.keys(ROLE_LABELS) as StakeholderRole[];
-
-function ChipToggle({
-  active,
-  label,
-  onClick,
-}: {
-  active: boolean;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-md border px-2.5 py-1.5 text-left text-xs transition-colors ${
-        active
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-card text-foreground hover:border-primary/40"
-      }`}
-    >
-      {label}
-    </button>
-  );
+function preferencesFromSubscription(
+  sub: NewsletterSubscription | null
+): AlertPreferences {
+  if (!sub) return defaultPreferences;
+  return {
+    ...defaultPreferences,
+    ...sub.preferences,
+    channels: { ...defaultPreferences.channels, ...sub.preferences.channels },
+  };
 }
 
 export function AtualizacoesWorkspace() {
-  const { subscription, ready, subscribe } = useNewsletter();
   const searchParams = useSearchParams();
-  const fromExplore =
-    searchParams.get("from") === "explore" ||
-    searchParams.get("from") === "explorar";
+  const fromExplore = searchParams.get("from") === "explore";
+  const { subscription, ready, subscribe } = useNewsletter();
 
   const [email, setEmail] = useState("");
-  const [org, setOrg] = useState("");
-  const [role, setRole] = useState<StakeholderRole>("gestor");
-  const [prefs, setPrefs] = useState<AlertPreferences>(defaultPreferences());
+  const [institution, setInstitution] = useState("");
+  const [role, setRole] = useState<string>("prefeitura");
+  const [prefs, setPrefs] = useState<AlertPreferences>(defaultPreferences);
+  const [hydrated, setHydrated] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
-  const [seededFromExplore, setSeededFromExplore] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const seed = fromExplore ? consumeExploreSeed() : null;
-    if (seed) {
-      setPrefs(normalizePreferences(seed.preferences));
-      setSeededFromExplore(true);
-    }
-  }, [fromExplore]);
+  useMemo(() => {
+    if (!ready || hydrated) return null;
+    const seed = fromExplore ? readExploreSeed() : null;
+    setEmail(subscription?.email ?? "");
+    setInstitution(subscription?.institution ?? "");
+    setRole(subscription?.role ?? seed?.role ?? "prefeitura");
+    setPrefs(
+      subscription
+        ? preferencesFromSubscription(subscription)
+        : seed?.preferences ?? defaultPreferences
+    );
+    setHydrated(true);
+    return null;
+  }, [ready, hydrated, subscription, fromExplore]);
 
-  useEffect(() => {
-    if (!ready || !subscription || seededFromExplore) return;
-    setEmail(subscription.email);
-    setOrg(subscription.org ?? "");
-    setRole(subscription.role);
-    setPrefs(normalizePreferences(subscription.preferences));
-  }, [ready, subscription, seededFromExplore]);
-
-  const statusMessage = useMemo(() => {
-    if (seededFromExplore) {
+  const intro = useMemo(() => {
+    if (fromExplore && !subscription) {
       return "Your explore selection was pre-filled. Review it and confirm to start receiving the newsletter.";
     }
-    return null;
-  }, [seededFromExplore]);
-
-  function validateContact(): boolean {
-    if (!email.trim() || !email.includes("@")) {
-      setError("Enter a valid institutional or professional email.");
-      return false;
+    if (subscription) {
+      return "Update contact or criteria anytime. Saves stay in this browser for the prototype.";
     }
-    if (!role) {
-      setError("Select the role that best describes your work.");
-      return false;
-    }
-    setError(null);
-    return true;
-  }
+    return "Choose contact and criteria. You are notified when the evidence in your selection actually changes.";
+  }, [fromExplore, subscription]);
 
   function handleSubscribe(nextPrefs: AlertPreferences) {
-    if (!validateContact()) return;
-    const normalized = normalizePreferences({
-      ...nextPrefs,
-      alertsEnabled: true,
-    });
+    const trimmed = email.trim();
+    if (!trimmed) {
+      window.alert("Enter an email to receive the newsletter.");
+      return;
+    }
     subscribe({
-      email,
+      email: trimmed,
+      institution: institution.trim(),
       role,
-      org,
-      preferences: normalized,
+      preferences: nextPrefs,
+      updatedAt: new Date().toISOString(),
     });
-    setPrefs(normalized);
-    setSeededFromExplore(false);
+    setPrefs(nextPrefs);
     setSuccessOpen(true);
   }
 
+  if (!ready || !hydrated) {
+    return (
+      <p className="text-sm text-muted-foreground">Loading newsletter…</p>
+    );
+  }
+
   return (
-    <div
-      data-header-contrast="light"
-      className="mx-auto max-w-3xl space-y-8 px-4 py-12 sm:px-6 sm:py-16"
-    >
-      <div>
-        <p className="text-[0.7rem] uppercase tracking-[0.18em] text-signal">
+    <div className="space-y-10">
+      <header className="max-w-2xl">
+        <p className="text-[0.7rem] uppercase tracking-[0.2em] text-signal">
           Newsletter
         </p>
         <h1 className="mt-2 font-display text-3xl text-olive sm:text-4xl">
-          Get updates when the territory changes
+          Monitor the ground that matters to you
         </h1>
-        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          You set the selection; we notify you when trend, risk, or impact
-          changes.
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          {intro}
         </p>
-        {subscription?.preferences.alertsEnabled && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            Active subscription · {subscription.email} ·{" "}
-            {ROLE_LABELS[subscription.role as UserProfile["role"]]}
-          </p>
-        )}
-      </div>
+      </header>
 
-      <EmailTriggersCard />
-
-      {statusMessage && (
-        <p className="rounded-md border border-signal/30 bg-signal-soft px-4 py-3 text-sm text-olive">
-          {statusMessage}
-        </p>
-      )}
-
-      <section className="rounded-md border border-border bg-card/90 p-5 shadow-sm sm:p-8">
-        <h2 className="font-display text-xl text-olive">
-          Institutional contact
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          The email receives the newsletter. Your role shapes the framing —
-          press, government, or business — without creating a platform account.
-        </p>
-
-        <div className="mt-6 space-y-4">
-          <label className="block text-sm">
-            <span className="mb-1 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
-              Professional email
-            </span>
-            <input
-              type="email"
-              className="h-10 w-full max-w-md rounded-md border border-input bg-background px-3"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              placeholder="name@agency.gov"
-              required
-            />
-          </label>
-
-          <label className="block text-sm">
-            <span className="mb-1 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
-              Organization (optional)
-            </span>
-            <input
-              className="h-10 w-full max-w-md rounded-md border border-input bg-background px-3"
-              value={org}
-              onChange={(e) => setOrg(e.target.value)}
-              autoComplete="organization"
-              placeholder="type here"
-            />
-          </label>
-
-          <fieldset>
-            <legend className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
-              Role
-            </legend>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Choose what best describes how you use the evidence.
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {ROLES.map((r) => (
-                <ChipToggle
-                  key={r}
-                  label={ROLE_LABELS[r]}
-                  active={role === r}
-                  onClick={() => setRole(r)}
-                />
-              ))}
+      <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="space-y-6 rounded-lg border border-border bg-card/60 p-5 sm:p-6">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="nl-email">Email</Label>
+              <Input
+                id="nl-email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@organization.gov.br"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
-          </fieldset>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="nl-institution">Institution</Label>
+              <Input
+                id="nl-institution"
+                placeholder="City hall, newsroom, NGO…"
+                value={institution}
+                onChange={(e) => setInstitution(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Role</Label>
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {personas.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                The email receives the newsletter. Your role shapes the framing —
+                cabinet brief, story angle, or field note.
+              </p>
+            </div>
+          </div>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
-        </div>
-      </section>
-
-      <section className="rounded-md border border-border bg-card/90 p-5 shadow-sm sm:p-8">
-        <h2 className="font-display text-xl text-olive">
-          Monitoring selection
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Set territory, impacts, and risk levels. The same criteria used in
-          Explore power the newsletter — useful for story ideas, public policy, or
-          operational exposure.
-        </p>
-
-        <div className="mt-6">
           <PreferenceForm
-            initial={prefs}
+            value={prefs}
+            onChange={setPrefs}
             submitLabel="Subscribe to the newsletter"
             cancelLabel="Cancel newsletter updates"
             onSubmit={handleSubscribe}
           />
         </div>
+
+        <EmailTriggersCard preferences={prefs} />
+      </section>
+
+      <section className="rounded-lg border border-border bg-secondary/40 p-5 sm:p-6">
+        <h2 className="font-display text-lg text-olive">What you get</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          Same evidence stack as Explore — territory, trend, risk, impact, and
+          suggested actions — delivered when your criteria move. Filters from
+          Explore power the newsletter — useful for story ideas, public policy, or
+          regeneration planning.
+        </p>
       </section>
 
       <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
@@ -246,8 +197,7 @@ export function AtualizacoesWorkspace() {
                 {email.trim() || "your email"}
               </span>
               . You will get updates when trend, risk, or impact changes in the
-              territory you selected. This prototype stores the preference in
-              this browser only.
+              territory you selected.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
