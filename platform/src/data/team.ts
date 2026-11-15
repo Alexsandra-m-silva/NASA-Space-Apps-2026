@@ -13,35 +13,35 @@ export const TEAM: TeamMember[] = [
     id: "alexsandra",
     name: "Alexsandra Meneses",
     line: "Turns complex ops into scalable Power Platform systems",
-    photo: null, // photo file not uploaded yet (initials avatar)
+    photo: "/team/alexsandra-meneses.svg",
     initials: "AM",
   },
   {
     id: "gabriela",
     name: "Gabriela Slovac",
     line: "Shapes Climate Sentinel’s product experience across different use cases",
-    photo: null, // photo file not uploaded yet (initials avatar)
+    photo: "/team/gabriela-slovac.svg",
     initials: "GS",
   },
   {
     id: "jose",
     name: "José Fronza",
     line: "Grounds the platform in remote sensing, GIS, and territorial intelligence",
-    photo: null, // photo file not uploaded yet (initials avatar)
+    photo: "/team/jose-fronza.svg",
     initials: "JF",
   },
   {
     id: "matheus",
     name: "Matheus P. Pedroso",
     line: "Builds the software and AI layer behind Climate Sentinel’s evidence",
-    photo: null, // photo file not uploaded yet (initials avatar)
+    photo: "/team/matheus-pedroso.svg",
     initials: "MP",
   },
   {
     id: "yasmin",
     name: "Yasmin Bondan Nicolodi",
     line: "Contributes to connecting NISAR data to partners and action plans",
-    photo: null, // photo file not uploaded yet (initials avatar)
+    photo: "/team/yasmin.svg",
     initials: "YN",
   },
 ];
