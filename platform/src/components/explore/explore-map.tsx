@@ -155,9 +155,9 @@ const LAYERS: { id: LayerId; label: string; legend: [string, string][] }[] = [
 // ---------- small UI pieces ----------
 function Kpi({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-md border border-border bg-background/60 px-3 py-2">
-      <p className="font-display text-lg leading-tight text-foreground">{value}</p>
-      <p className="mt-0.5 text-[0.68rem] leading-snug text-muted-foreground">{label}</p>
+    <div className="rounded-md border border-border bg-background/60 px-2 py-2 sm:px-3">
+      <p className="whitespace-nowrap font-display text-[0.95rem] leading-tight text-foreground sm:text-lg">{value}</p>
+      <p className="mt-0.5 text-[0.62rem] leading-snug sm:text-[0.68rem] text-muted-foreground">{label}</p>
     </div>
   );
 }
@@ -201,7 +201,7 @@ function Row({ k, v }: { k: string; v: string }) {
   return (
     <tr className="border-b border-border/60 last:border-0">
       <td className="py-1 pr-2 text-muted-foreground">{k}</td>
-      <td className="py-1 text-right tabular-nums text-foreground">{v}</td>
+      <td className="whitespace-nowrap py-1 pl-2 text-right tabular-nums text-foreground">{v}</td>
     </tr>
   );
 }
@@ -293,7 +293,7 @@ export function ExploreMap({
         zoomControl: false,
         scrollWheelZoom: false,
       }).setView([-8.2, -38.6], 6);
-      L.control.zoom({ position: "bottomright" }).addTo(map);
+      L.control.zoom({ position: "topright" }).addTo(map);
       // Comparison images above the vector layers (overlayPane = 400)
       map.createPane("cmp").style.zIndex = "450";
       L.tileLayer(

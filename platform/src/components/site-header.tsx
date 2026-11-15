@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Menu, X } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -95,6 +96,25 @@ export function SiteHeader() {
     };
   }, [pathname]);
 
+  // Mobile menu (below md the inline nav does not fit: 5 items ≈ 520 px)
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => setMenuOpen(false), [pathname]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
+
+  const NAV = [
+    { href: "/about", label: "About", active: pathname === "/" || pathname === "/about" },
+    { href: "/team", label: "The Team", active: pathname === "/team" },
+    { href: "/explore", label: "Explore", active: pathname === "/explore" },
+  ];
+  const GITHUB = "https://github.com/Alexsandra-m-silva/NASA-Space-Apps-2026";
+
   const linkTone = onDark
     ? "text-brand-areia/90 hover:bg-white/10 hover:text-brand-areia"
     : "text-muted-foreground hover:bg-secondary hover:text-foreground";
@@ -110,7 +130,7 @@ export function SiteHeader() {
           : "border-b border-border/70 bg-card/80 text-foreground backdrop-blur-md"
       )}
     >
-      <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3 sm:gap-4 sm:px-6">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:px-6 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-4">
         <Link
           href="/"
           className="group relative flex items-center justify-self-start"
@@ -143,7 +163,7 @@ export function SiteHeader() {
           size="sm"
           variant="tertiary"
           className={cn(
-            "justify-self-center gap-1.5 px-2 font-medium shadow-none",
+            "hidden justify-self-center gap-1.5 px-2 font-medium shadow-none md:inline-flex",
             linkTone
           )}
         >
@@ -168,7 +188,7 @@ export function SiteHeader() {
           </a>
         </Button>
 
-        <nav className="flex items-center justify-self-end gap-2 text-sm sm:gap-4">
+        <nav className="hidden items-center justify-self-end gap-4 text-sm md:flex">
           <Link
             href="/about"
             className={cn(
@@ -211,7 +231,64 @@ export function SiteHeader() {
             <Link href="/newsletter">Newsletter</Link>
           </Button>
         </nav>
+
+        {/* Mobile: hamburger */}
+        <button
+          type="button"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-nav"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          className={cn("rounded-md p-2 transition-colors md:hidden", linkTone)}
+        >
+          {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
       </div>
+
+      {/* Mobile: drop-down panel (solid background, readable over the hero video) */}
+      <nav
+        id="mobile-nav"
+        hidden={!menuOpen}
+        className={cn(
+          "border-t px-4 pb-4 pt-2 md:hidden",
+          onDark ? "border-white/15 bg-[#220F08]/95" : "border-border/70 bg-card",
+          !menuOpen && "hidden"
+        )}
+      >
+        <ul className="flex flex-col">
+          {NAV.map((item) => (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className={cn(
+                  "block rounded-md px-2 py-3 text-base transition-colors",
+                  linkTone,
+                  item.active && (onDark ? "font-medium text-brand-areia" : "font-medium text-foreground")
+                )}
+              >
+                {item.label}
+              </Link>
+            </li>
+          ))}
+          <li>
+            <a
+              href={GITHUB}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn("block rounded-md px-2 py-3 text-base transition-colors", linkTone)}
+            >
+              Github repository ↗
+            </a>
+          </li>
+        </ul>
+        <Button
+          asChild
+          variant="accent"
+          className="mt-2 w-full border-transparent bg-[#FFEA7F] text-[#220F08] shadow hover:bg-[#F5DE6E]"
+        >
+          <Link href="/newsletter">Newsletter</Link>
+        </Button>
+      </nav>
     </header>
   );
 }
