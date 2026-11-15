@@ -8,3 +8,4 @@ data/processed/
 web/overlays/
 .DS_Store
 .playwright-mcp/
+products/*_ndvi_overlay.png

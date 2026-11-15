@@ -1,0 +1,193 @@
+{
+  "slug": "petrolina",
+  "municipio": "Petrolina",
+  "uf": "PE",
+  "orbita": "088_A_173",
+  "datas_nisar": [
+    "2026-06-20",
+    "2026-07-02",
+    "2026-07-14",
+    "2026-08-19",
+    "2026-09-12",
+    "2026-10-06",
+    "2026-10-30"
+  ],
+  "clima_anual": [
+    {
+      "ano": 1991,
+      "chuva_mm": 394.7,
+      "temp_c": 25.83
+    },
+    {
+      "ano": 1992,
+      "chuva_mm": 501.8,
+      "temp_c": 25.5
+    },
+    {
+      "ano": 1993,
+      "chuva_mm": 191.4,
+      "temp_c": 26.94
+    },
+    {
+      "ano": 1994,
+      "chuva_mm": 420.5,
+      "temp_c": 26.14
+    },
+    {
+      "ano": 1995,
+      "chuva_mm": 675.5,
+      "temp_c": 25.85
+    },
+    {
+      "ano": 1996,
+      "chuva_mm": 576.9,
+      "temp_c": 26.05
+    },
+    {
+      "ano": 1997,
+      "chuva_mm": 525.3,
+      "temp_c": 25.58
+    },
+    {
+      "ano": 1998,
+      "chuva_mm": 287.1,
+      "temp_c": 27.11
+    },
+    {
+      "ano": 1999,
+      "chuva_mm": 563.8,
+      "temp_c": 25.96
+    },
+    {
+      "ano": 2000,
+      "chuva_mm": 599.3,
+      "temp_c": 25.57
+    },
+    {
+      "ano": 2001,
+      "chuva_mm": 324.7,
+      "temp_c": 26.33
+    },
+    {
+      "ano": 2002,
+      "chuva_mm": 454.5,
+      "temp_c": 26.49
+    },
+    {
+      "ano": 2003,
+      "chuva_mm": 378.7,
+      "temp_c": 26.92
+    },
+    {
+      "ano": 2004,
+      "chuva_mm": 653.1,
+      "temp_c": 26.22
+    },
+    {
+      "ano": 2005,
+      "chuva_mm": 479.5,
+      "temp_c": 26.16
+    },
+    {
+      "ano": 2006,
+      "chuva_mm": 482.9,
+      "temp_c": 25.96
+    },
+    {
+      "ano": 2007,
+      "chuva_mm": 343.6,
+      "temp_c": 26.16
+    },
+    {
+      "ano": 2008,
+      "chuva_mm": 575.7,
+      "temp_c": 25.94
+    },
+    {
+      "ano": 2009,
+      "chuva_mm": 686.0,
+      "temp_c": 26.07
+    },
+    {
+      "ano": 2010,
+      "chuva_mm": 414.1,
+      "temp_c": 26.26
+    },
+    {
+      "ano": 2011,
+      "chuva_mm": 354.1,
+      "temp_c": 26.04
+    },
+    {
+      "ano": 2012,
+      "chuva_mm": 209.0,
+      "temp_c": 27.01
+    },
+    {
+      "ano": 2013,
+      "chuva_mm": 353.9,
+      "temp_c": 26.87
+    },
+    {
+      "ano": 2014,
+      "chuva_mm": 471.4,
+      "temp_c": 26.07
+    },
+    {
+      "ano": 2015,
+      "chuva_mm": 253.8,
+      "temp_c": 27.14
+    },
+    {
+      "ano": 2016,
+      "chuva_mm": 366.2,
+      "temp_c": 27.09
+    },
+    {
+      "ano": 2017,
+      "chuva_mm": 244.7,
+      "temp_c": 26.68
+    },
+    {
+      "ano": 2018,
+      "chuva_mm": 424.0,
+      "temp_c": 26.38
+    },
+    {
+      "ano": 2019,
+      "chuva_mm": 405.5,
+      "temp_c": 26.96
+    },
+    {
+      "ano": 2020,
+      "chuva_mm": 675.7,
+      "temp_c": 26.38
+    },
+    {
+      "ano": 2021,
+      "chuva_mm": 525.3,
+      "temp_c": 26.76
+    },
+    {
+      "ano": 2022,
+      "chuva_mm": 619.1,
+      "temp_c": 25.85
+    },
+    {
+      "ano": 2023,
+      "chuva_mm": 372.4,
+      "temp_c": 26.99
+    },
+    {
+      "ano": 2024,
+      "chuva_mm": 586.6,
+      "temp_c": 26.97
+    }
+  ],
+  "fontes": {
+    "ndvi": "MODIS MOD13Q1 (NDVI anual médio, QA bom)",
+    "chuva": "CHIRPS",
+    "radar": "NISAR L2 GCOV, gamma0 HV/HH em dB",
+    "clima": "CHIRPS e ERA5-Land, média do município"
+  }
+}

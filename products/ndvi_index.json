@@ -1,0 +1,27 @@
+[
+  {
+    "slug": "currais-novos",
+    "municipio": "Currais Novos",
+    "uf": "RN"
+  },
+  {
+    "slug": "parelhas",
+    "municipio": "Parelhas",
+    "uf": "RN"
+  },
+  {
+    "slug": "petrolina",
+    "municipio": "Petrolina",
+    "uf": "PE"
+  },
+  {
+    "slug": "casa-nova",
+    "municipio": "Casa Nova",
+    "uf": "BA"
+  },
+  {
+    "slug": "floresta",
+    "municipio": "Floresta",
+    "uf": "PE"
+  }
+]

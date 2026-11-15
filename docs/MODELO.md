@@ -55,6 +55,7 @@ Nada é calculado no navegador e não é preciso credencial para subir.
 | `/api/camadas/{suscetibilidade,degradacao_modis,pontos_nisar}?municipio=` | GeoJSON |
 | `/api/shap/{detector,validador}`, `/api/figuras/{nome}.png` | explicação global e gráficos SHAP |
 | `/docs` | Swagger (documentação interativa da API) |
+| `/comparar/` | Comparar e explicar: escolha o município, desenhe um retângulo; NDVI 2001–2024 descontada a chuva (RESTREND + Mann-Kendall), NISAR HV em dB, chuva e temperatura |
 
 Reprocessar (exige `.env` com Earthdata e GEE):
 
@@ -62,4 +63,12 @@ Reprocessar (exige `.env` com Earthdata e GEE):
 docker compose --profile pipeline run --rm dg-pipeline python -m pipeline.shap_modelos
 docker compose --profile pipeline run --rm dg-pipeline python -m pipeline.bundle
 docker compose up -d --force-recreate dg-worker
+```
+
+### Cubos do "Comparar e explicar"
+
+```bash
+python -m pipeline.cubos_ndvi modis             # NDVI e chuva anuais 2001–2024 (GEE), grade 0,01°
+python -m pipeline.cubos_ndvi nisar <slug>      # NISAR GCOV HV/HH em dB (Earthdata), uma órbita por município
+python -m pipeline.cubos_ndvi build             # products/<slug>_ndvi.npz/.json e products/ndvi_index.json
 ```

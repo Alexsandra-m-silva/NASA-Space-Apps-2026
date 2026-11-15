@@ -1,0 +1,192 @@
+{
+  "slug": "casa-nova",
+  "municipio": "Casa Nova",
+  "uf": "BA",
+  "orbita": "088_A_173",
+  "datas_nisar": [
+    "2026-06-20",
+    "2026-07-14",
+    "2026-08-19",
+    "2026-09-12",
+    "2026-10-06",
+    "2026-10-30"
+  ],
+  "clima_anual": [
+    {
+      "ano": 1991,
+      "chuva_mm": 436.4,
+      "temp_c": 25.48
+    },
+    {
+      "ano": 1992,
+      "chuva_mm": 550.3,
+      "temp_c": 25.23
+    },
+    {
+      "ano": 1993,
+      "chuva_mm": 249.5,
+      "temp_c": 26.61
+    },
+    {
+      "ano": 1994,
+      "chuva_mm": 488.5,
+      "temp_c": 25.95
+    },
+    {
+      "ano": 1995,
+      "chuva_mm": 672.1,
+      "temp_c": 25.58
+    },
+    {
+      "ano": 1996,
+      "chuva_mm": 550.3,
+      "temp_c": 25.72
+    },
+    {
+      "ano": 1997,
+      "chuva_mm": 662.1,
+      "temp_c": 25.3
+    },
+    {
+      "ano": 1998,
+      "chuva_mm": 381.1,
+      "temp_c": 26.84
+    },
+    {
+      "ano": 1999,
+      "chuva_mm": 511.7,
+      "temp_c": 25.71
+    },
+    {
+      "ano": 2000,
+      "chuva_mm": 608.2,
+      "temp_c": 25.39
+    },
+    {
+      "ano": 2001,
+      "chuva_mm": 318.8,
+      "temp_c": 26.24
+    },
+    {
+      "ano": 2002,
+      "chuva_mm": 489.9,
+      "temp_c": 26.37
+    },
+    {
+      "ano": 2003,
+      "chuva_mm": 370.5,
+      "temp_c": 26.65
+    },
+    {
+      "ano": 2004,
+      "chuva_mm": 690.5,
+      "temp_c": 26.01
+    },
+    {
+      "ano": 2005,
+      "chuva_mm": 544.9,
+      "temp_c": 25.93
+    },
+    {
+      "ano": 2006,
+      "chuva_mm": 481.6,
+      "temp_c": 25.68
+    },
+    {
+      "ano": 2007,
+      "chuva_mm": 396.7,
+      "temp_c": 25.91
+    },
+    {
+      "ano": 2008,
+      "chuva_mm": 628.8,
+      "temp_c": 25.75
+    },
+    {
+      "ano": 2009,
+      "chuva_mm": 689.2,
+      "temp_c": 25.81
+    },
+    {
+      "ano": 2010,
+      "chuva_mm": 476.0,
+      "temp_c": 26.2
+    },
+    {
+      "ano": 2011,
+      "chuva_mm": 410.5,
+      "temp_c": 25.86
+    },
+    {
+      "ano": 2012,
+      "chuva_mm": 226.2,
+      "temp_c": 26.77
+    },
+    {
+      "ano": 2013,
+      "chuva_mm": 488.2,
+      "temp_c": 26.61
+    },
+    {
+      "ano": 2014,
+      "chuva_mm": 483.5,
+      "temp_c": 25.82
+    },
+    {
+      "ano": 2015,
+      "chuva_mm": 271.3,
+      "temp_c": 26.82
+    },
+    {
+      "ano": 2016,
+      "chuva_mm": 502.2,
+      "temp_c": 26.77
+    },
+    {
+      "ano": 2017,
+      "chuva_mm": 291.1,
+      "temp_c": 26.41
+    },
+    {
+      "ano": 2018,
+      "chuva_mm": 511.3,
+      "temp_c": 26.07
+    },
+    {
+      "ano": 2019,
+      "chuva_mm": 385.0,
+      "temp_c": 26.82
+    },
+    {
+      "ano": 2020,
+      "chuva_mm": 850.2,
+      "temp_c": 25.89
+    },
+    {
+      "ano": 2021,
+      "chuva_mm": 590.4,
+      "temp_c": 26.38
+    },
+    {
+      "ano": 2022,
+      "chuva_mm": 637.3,
+      "temp_c": 25.67
+    },
+    {
+      "ano": 2023,
+      "chuva_mm": 354.1,
+      "temp_c": 26.81
+    },
+    {
+      "ano": 2024,
+      "chuva_mm": 609.5,
+      "temp_c": 26.73
+    }
+  ],
+  "fontes": {
+    "ndvi": "MODIS MOD13Q1 (NDVI anual médio, QA bom)",
+    "chuva": "CHIRPS",
+    "radar": "NISAR L2 GCOV, gamma0 HV/HH em dB",
+    "clima": "CHIRPS e ERA5-Land, média do município"
+  }
+}

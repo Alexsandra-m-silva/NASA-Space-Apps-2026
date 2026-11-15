@@ -1,0 +1,196 @@
+{
+  "slug": "parelhas",
+  "municipio": "Parelhas",
+  "uf": "RN",
+  "orbita": "059_A_174",
+  "datas_nisar": [
+    "2026-06-18",
+    "2026-06-30",
+    "2026-07-12",
+    "2026-07-24",
+    "2026-08-17",
+    "2026-08-29",
+    "2026-09-10",
+    "2026-10-04",
+    "2026-10-16",
+    "2026-10-28"
+  ],
+  "clima_anual": [
+    {
+      "ano": 1991,
+      "chuva_mm": 533.8,
+      "temp_c": 25.5
+    },
+    {
+      "ano": 1992,
+      "chuva_mm": 512.9,
+      "temp_c": 25.41
+    },
+    {
+      "ano": 1993,
+      "chuva_mm": 192.4,
+      "temp_c": 26.21
+    },
+    {
+      "ano": 1994,
+      "chuva_mm": 729.3,
+      "temp_c": 25.67
+    },
+    {
+      "ano": 1995,
+      "chuva_mm": 637.1,
+      "temp_c": 25.73
+    },
+    {
+      "ano": 1996,
+      "chuva_mm": 610.5,
+      "temp_c": 25.57
+    },
+    {
+      "ano": 1997,
+      "chuva_mm": 459.4,
+      "temp_c": 25.88
+    },
+    {
+      "ano": 1998,
+      "chuva_mm": 246.3,
+      "temp_c": 26.73
+    },
+    {
+      "ano": 1999,
+      "chuva_mm": 397.5,
+      "temp_c": 25.91
+    },
+    {
+      "ano": 2000,
+      "chuva_mm": 641.0,
+      "temp_c": 25.08
+    },
+    {
+      "ano": 2001,
+      "chuva_mm": 429.5,
+      "temp_c": 25.88
+    },
+    {
+      "ano": 2002,
+      "chuva_mm": 770.5,
+      "temp_c": 25.62
+    },
+    {
+      "ano": 2003,
+      "chuva_mm": 478.8,
+      "temp_c": 25.88
+    },
+    {
+      "ano": 2004,
+      "chuva_mm": 677.9,
+      "temp_c": 25.3
+    },
+    {
+      "ano": 2005,
+      "chuva_mm": 523.5,
+      "temp_c": 25.96
+    },
+    {
+      "ano": 2006,
+      "chuva_mm": 829.5,
+      "temp_c": 25.88
+    },
+    {
+      "ano": 2007,
+      "chuva_mm": 527.2,
+      "temp_c": 25.6
+    },
+    {
+      "ano": 2008,
+      "chuva_mm": 862.6,
+      "temp_c": 25.14
+    },
+    {
+      "ano": 2009,
+      "chuva_mm": 1005.4,
+      "temp_c": 25.35
+    },
+    {
+      "ano": 2010,
+      "chuva_mm": 548.7,
+      "temp_c": 25.99
+    },
+    {
+      "ano": 2011,
+      "chuva_mm": 898.2,
+      "temp_c": 24.96
+    },
+    {
+      "ano": 2012,
+      "chuva_mm": 257.7,
+      "temp_c": 25.61
+    },
+    {
+      "ano": 2013,
+      "chuva_mm": 407.1,
+      "temp_c": 26.03
+    },
+    {
+      "ano": 2014,
+      "chuva_mm": 574.6,
+      "temp_c": 25.58
+    },
+    {
+      "ano": 2015,
+      "chuva_mm": 552.0,
+      "temp_c": 25.95
+    },
+    {
+      "ano": 2016,
+      "chuva_mm": 444.5,
+      "temp_c": 25.99
+    },
+    {
+      "ano": 2017,
+      "chuva_mm": 519.2,
+      "temp_c": 25.91
+    },
+    {
+      "ano": 2018,
+      "chuva_mm": 644.1,
+      "temp_c": 25.87
+    },
+    {
+      "ano": 2019,
+      "chuva_mm": 615.4,
+      "temp_c": 25.9
+    },
+    {
+      "ano": 2020,
+      "chuva_mm": 769.4,
+      "temp_c": 25.85
+    },
+    {
+      "ano": 2021,
+      "chuva_mm": 464.7,
+      "temp_c": 26.11
+    },
+    {
+      "ano": 2022,
+      "chuva_mm": 872.9,
+      "temp_c": 25.53
+    },
+    {
+      "ano": 2023,
+      "chuva_mm": 642.6,
+      "temp_c": 25.85
+    },
+    {
+      "ano": 2024,
+      "chuva_mm": 609.1,
+      "temp_c": 25.92
+    }
+  ],
+  "fontes": {
+    "ndvi": "MODIS MOD13Q1 (NDVI anual médio, QA bom)",
+    "chuva": "CHIRPS",
+    "radar": "NISAR L2 GCOV, gamma0 HV/HH em dB",
+    "clima": "CHIRPS e ERA5-Land, média do município"
+  }
+}

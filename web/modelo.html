@@ -228,7 +228,7 @@
           <div class="row" id="cmp-steps"></div>
           <div class="row"><button id="cmp-zoom">Aproximar da caixa</button><button id="cmp-off">Esconder imagem</button>
             <a href="municipios.html" style="font-size:.72rem;color:var(--gold);align-self:center">abrir comparação completa →</a>
-            ${slug === "floresta" ? `<a href="/comparar/" style="font-size:.72rem;color:var(--gold);align-self:center">desenhar uma área e explicar →</a>` : ""}</div>`;
+            <a href="/comparar/" style="font-size:.72rem;color:var(--gold);align-self:center">desenhar uma área e explicar →</a></div>`;
         const stepBox = el("cmp-steps");
         for (const [id, label] of steps) {
           const b = document.createElement("button");

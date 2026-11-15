@@ -1,0 +1,196 @@
+{
+  "slug": "currais-novos",
+  "municipio": "Currais Novos",
+  "uf": "RN",
+  "orbita": "059_A_174",
+  "datas_nisar": [
+    "2026-06-18",
+    "2026-06-30",
+    "2026-07-12",
+    "2026-07-24",
+    "2026-08-17",
+    "2026-08-29",
+    "2026-09-10",
+    "2026-10-04",
+    "2026-10-16",
+    "2026-10-28"
+  ],
+  "clima_anual": [
+    {
+      "ano": 1991,
+      "chuva_mm": 512.2,
+      "temp_c": 24.84
+    },
+    {
+      "ano": 1992,
+      "chuva_mm": 454.2,
+      "temp_c": 24.84
+    },
+    {
+      "ano": 1993,
+      "chuva_mm": 168.2,
+      "temp_c": 25.66
+    },
+    {
+      "ano": 1994,
+      "chuva_mm": 635.1,
+      "temp_c": 25.03
+    },
+    {
+      "ano": 1995,
+      "chuva_mm": 546.3,
+      "temp_c": 25.03
+    },
+    {
+      "ano": 1996,
+      "chuva_mm": 471.2,
+      "temp_c": 25.04
+    },
+    {
+      "ano": 1997,
+      "chuva_mm": 382.1,
+      "temp_c": 25.31
+    },
+    {
+      "ano": 1998,
+      "chuva_mm": 227.0,
+      "temp_c": 26.11
+    },
+    {
+      "ano": 1999,
+      "chuva_mm": 315.7,
+      "temp_c": 25.34
+    },
+    {
+      "ano": 2000,
+      "chuva_mm": 560.8,
+      "temp_c": 24.6
+    },
+    {
+      "ano": 2001,
+      "chuva_mm": 356.4,
+      "temp_c": 25.26
+    },
+    {
+      "ano": 2002,
+      "chuva_mm": 633.0,
+      "temp_c": 25.06
+    },
+    {
+      "ano": 2003,
+      "chuva_mm": 483.9,
+      "temp_c": 25.31
+    },
+    {
+      "ano": 2004,
+      "chuva_mm": 679.5,
+      "temp_c": 24.9
+    },
+    {
+      "ano": 2005,
+      "chuva_mm": 382.8,
+      "temp_c": 25.44
+    },
+    {
+      "ano": 2006,
+      "chuva_mm": 521.1,
+      "temp_c": 25.32
+    },
+    {
+      "ano": 2007,
+      "chuva_mm": 444.5,
+      "temp_c": 25.12
+    },
+    {
+      "ano": 2008,
+      "chuva_mm": 684.5,
+      "temp_c": 24.64
+    },
+    {
+      "ano": 2009,
+      "chuva_mm": 872.8,
+      "temp_c": 24.69
+    },
+    {
+      "ano": 2010,
+      "chuva_mm": 380.7,
+      "temp_c": 25.55
+    },
+    {
+      "ano": 2011,
+      "chuva_mm": 732.7,
+      "temp_c": 24.43
+    },
+    {
+      "ano": 2012,
+      "chuva_mm": 223.5,
+      "temp_c": 25.06
+    },
+    {
+      "ano": 2013,
+      "chuva_mm": 311.9,
+      "temp_c": 25.59
+    },
+    {
+      "ano": 2014,
+      "chuva_mm": 417.1,
+      "temp_c": 25.11
+    },
+    {
+      "ano": 2015,
+      "chuva_mm": 390.5,
+      "temp_c": 25.33
+    },
+    {
+      "ano": 2016,
+      "chuva_mm": 414.6,
+      "temp_c": 25.4
+    },
+    {
+      "ano": 2017,
+      "chuva_mm": 542.4,
+      "temp_c": 25.25
+    },
+    {
+      "ano": 2018,
+      "chuva_mm": 634.1,
+      "temp_c": 25.28
+    },
+    {
+      "ano": 2019,
+      "chuva_mm": 666.2,
+      "temp_c": 25.34
+    },
+    {
+      "ano": 2020,
+      "chuva_mm": 642.3,
+      "temp_c": 25.39
+    },
+    {
+      "ano": 2021,
+      "chuva_mm": 429.3,
+      "temp_c": 25.68
+    },
+    {
+      "ano": 2022,
+      "chuva_mm": 589.6,
+      "temp_c": 25.0
+    },
+    {
+      "ano": 2023,
+      "chuva_mm": 525.0,
+      "temp_c": 25.34
+    },
+    {
+      "ano": 2024,
+      "chuva_mm": 626.0,
+      "temp_c": 25.33
+    }
+  ],
+  "fontes": {
+    "ndvi": "MODIS MOD13Q1 (NDVI anual médio, QA bom)",
+    "chuva": "CHIRPS",
+    "radar": "NISAR L2 GCOV, gamma0 HV/HH em dB",
+    "clima": "CHIRPS e ERA5-Land, média do município"
+  }
+}
