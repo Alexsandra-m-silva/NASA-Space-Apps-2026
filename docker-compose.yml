@@ -44,7 +44,11 @@ services:
   dg-api:
     build: { context: ., dockerfile: docker/app.Dockerfile }
     restart: unless-stopped
-    environment: *db-env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-guardian}:${POSTGRES_PASSWORD:-guardian-dev}@dg-db:5432/${POSTGRES_DB:-guardian}
+      FOUNDRY_ENDPOINT: ${FOUNDRY_ENDPOINT:-}
+      FOUNDRY_API_KEY: ${FOUNDRY_API_KEY:-}
+      FOUNDRY_MODEL: ${FOUNDRY_MODEL:-}
     volumes:
       - ./app/bundle:/srv/app/bundle:ro
     depends_on:

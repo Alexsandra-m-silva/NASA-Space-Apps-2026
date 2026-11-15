@@ -12,6 +12,18 @@ NASA Space Apps Challenge 2026. NISAR L-band no núcleo da detecção; GPM IMERG
 
 Água calma / inundação: backscatter HH muito baixo. Mudança = pixels que cruzam o limiar (padrão −18 dB) entre o par antes/depois, de preferência no mesmo track/frame (ciclo de 12 dias).
 
+## Chat com os dados da tela
+
+O botão de avatar abre o chat nas páginas do projeto. As perguntas incluem o texto e os valores dos controles exibidos na página atual. O navegador chama a API do projeto; a chave do Microsoft Foundry fica apenas no `.env` do servidor.
+
+Preencha `FOUNDRY_API_KEY` no `.env` local. O endpoint e o nome do deployment (`FOUNDRY_ENDPOINT` e `FOUNDRY_MODEL`) também ficam nesse arquivo; não cole a chave no código nem a envie ao navegador. O `.env` está excluído do Git. Depois, na pasta do projeto, reconstrua e inicie os serviços:
+
+```powershell
+docker compose up --build -d
+```
+
+Abra `http://localhost:8090` e clique no avatar no canto inferior direito.
+
 ## 1. Ver as imagens agora
 
 ```bash
