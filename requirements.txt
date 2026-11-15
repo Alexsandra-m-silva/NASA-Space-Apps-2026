@@ -10,3 +10,6 @@ geopandas
 pyproj
 harmony-py
 python-dotenv
+streamlit>=1.40
+folium>=0.15
+streamlit-folium>=0.22
