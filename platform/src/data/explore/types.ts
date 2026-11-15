@@ -48,6 +48,25 @@ export type Territory = {
     impactAdded?: ImpactType[];
     impactRemoved?: ImpactType[];
   };
+  /** Fields that are labelled estimates (not observed data) */
+  estimativas?: string[];
+  /** Evidence behind the numbers (MODIS, NISAR, climate, Atlas, susceptibility) */
+  dados?: {
+    uf?: string;
+    area_estudo?: string;
+    pct_melhora?: number;
+    aquecimento_c_decada?: number;
+    aquecimento_significativo?: boolean;
+    chuva_1991_2007_mm?: number;
+    chuva_2008_2024_mm?: number;
+    perda_seca_10a_mi?: number;
+    emergencias_reconhecidas_10a?: number;
+    nisar?: { pontos: number; auc: number | null; prob_media: number } | null;
+    desmatamento_ha_2001_2024?: number | null;
+    suscetibilidade_indice?: number | null;
+    agregado_de?: string[];
+    nota?: string;
+  };
 };
 
 export const IMPACT_LABELS: Record<ImpactType, string> = {

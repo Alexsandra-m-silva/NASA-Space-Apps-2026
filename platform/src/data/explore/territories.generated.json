@@ -1,0 +1,1336 @@
+{
+ "meta": {
+  "fontes": {
+   "tendenciaPp": "MODIS MOD13Q1 NDVI 2001–2024 with rainfall removed (CHIRPS, RESTREND, Mann-Kendall p<0.05): % of the municipality area with declining vegetation",
+   "risk": "Thresholds on the MODIS declining-vegetation share: ≥8% critical, ≥3% high, otherwise moderate (consistent with the susceptibility index where it exists)",
+   "impacts": "Rules on observed data: water deficit = significant warming or drier aridity (CHIRPS/ERA5-Land 1991–2024); income loss = drought losses recorded in Atlas Digital 2015–2024; migration/emergency = recognised drought or flood emergencies 2015–2024 (Atlas); biodiversity = native-vegetation loss (MapBiomas/MODIS)",
+   "custoNaoAgirMi": "Observed: economic losses from droughts and floods recorded in the Atlas Digital de Desastres 2015–2024 (S2iD), inflation-adjusted (IPCA)",
+   "custoPrevenirMi": "ESTIMATE: degraded area × R$ 10,955/ha (assisted natural regeneration in the Caatinga under unfavourable conditions, TNC 2018, table 11), IPCA-adjusted",
+   "populacaoEstimada": "IBGE Census 2022",
+   "areaRecuperavelHa": "Degraded area mapped by MODIS (hectares)",
+   "creditosCarbonoTco2e": "ESTIMATE: degraded area × 53.9 tCO2e/ha (14.7 t C/ha soil carbon lost when dense Caatinga becomes degraded pasture, Bieluczyk et al., J. Environ. Manage.)",
+   "regeneracaoStatus": "MODIS: improving area > declining area → regenerating; otherwise → to restore"
+  },
+  "custo_restauracao_brl_ha": 16552,
+  "tco2e_por_ha": 53.9,
+  "municipios": 18,
+  "referencias": {
+   "TNC 2018": "Restauração da vegetação nativa no Brasil: caracterização de técnicas e estimativas de custo (The Nature Conservancy), tabela 11",
+   "Bieluczyk et al.": "From overgrazed land to forests: assessing soil health in the Caatinga biome, Journal of Environmental Management",
+   "Atlas Digital": "Atlas Digital de Desastres no Brasil, base consolidada 1991–2025 v1.1 (Sedec/MIDR)"
+  }
+ },
+ "territories": [
+  {
+   "id": "mun-2403103",
+   "name": "Currais Novos",
+   "level": "municipio",
+   "parentId": "uf-rn",
+   "mapKey": "RN",
+   "tendenciaPp": 0.4,
+   "risk": "moderado",
+   "impacts": [
+    "perda_renda",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 224.3,
+   "custoPrevenirMi": 5.3,
+   "populacaoEstimada": 41313,
+   "areaRecuperavelHa": 319,
+   "creditosCarbonoTco2e": 17190,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "RN",
+    "ibge": "2403103",
+    "area_estudo": "Seridó núcleo (RN)",
+    "pct_melhora": 4.8,
+    "ha_total": 87538,
+    "aquecimento_c_decada": 0.1,
+    "aquecimento_significativo": false,
+    "chuva_1991_2007_mm": 457,
+    "chuva_2008_2024_mm": 534,
+    "perda_seca_10a_mi": 224.3,
+    "perda_1995_2025_mi": 247.8,
+    "emergencias_reconhecidas_10a": 9,
+    "nisar": {
+     "pontos": 193,
+     "auc": 0.817,
+     "prob_media": 0.299
+    },
+    "desmatamento_ha_2001_2024": 16920,
+    "suscetibilidade_indice": 0.3,
+    "shap_detector": {
+     "pontos": 183,
+     "prob_media": 0.153,
+     "principais": [
+      {
+       "rotulo": "NISAR HV (dB)",
+       "familia": "NISAR (radar 2026)",
+       "efeito": -0.561,
+       "direcao": "reduces risk"
+      },
+      {
+       "rotulo": "Warming (°C/decade)",
+       "familia": "Climate (CHIRPS/ERA5)",
+       "efeito": -0.17,
+       "direcao": "reduces risk"
+      },
+      {
+       "rotulo": "Rain 2015–24 vs 2001–14",
+       "familia": "Climate (CHIRPS/ERA5)",
+       "efeito": 0.116,
+       "direcao": "increases risk"
+      },
+      {
+       "rotulo": "Aridity 2015–2024",
+       "familia": "Climate (CHIRPS/ERA5)",
+       "efeito": 0.113,
+       "direcao": "increases risk"
+      },
+      {
+       "rotulo": "NISAR HH (dB)",
+       "familia": "NISAR (radar 2026)",
+       "efeito": -0.103,
+       "direcao": "reduces risk"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "mun-2400109",
+   "name": "Acari",
+   "level": "municipio",
+   "parentId": "uf-rn",
+   "mapKey": "RN",
+   "tendenciaPp": 0.2,
+   "risk": "moderado",
+   "impacts": [
+    "perda_renda",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 8.4,
+   "custoPrevenirMi": 2.3,
+   "populacaoEstimada": 10597,
+   "areaRecuperavelHa": 139,
+   "creditosCarbonoTco2e": 7476,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "RN",
+    "ibge": "2400109",
+    "area_estudo": "Seridó núcleo (RN)",
+    "pct_melhora": 16.5,
+    "ha_total": 61701,
+    "aquecimento_c_decada": 0.09,
+    "aquecimento_significativo": false,
+    "chuva_1991_2007_mm": 513,
+    "chuva_2008_2024_mm": 606,
+    "perda_seca_10a_mi": 8.4,
+    "perda_1995_2025_mi": 19.9,
+    "emergencias_reconhecidas_10a": 8,
+    "nisar": {
+     "pontos": 80,
+     "auc": null,
+     "prob_media": 0.189
+    },
+    "desmatamento_ha_2001_2024": 7643,
+    "suscetibilidade_indice": null,
+    "shap_detector": null
+   }
+  },
+  {
+   "id": "mun-2408904",
+   "name": "Parelhas",
+   "level": "municipio",
+   "parentId": "uf-rn",
+   "mapKey": "RN",
+   "tendenciaPp": 0.1,
+   "risk": "moderado",
+   "impacts": [
+    "perda_renda",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 19.3,
+   "custoPrevenirMi": 1.0,
+   "populacaoEstimada": 21499,
+   "areaRecuperavelHa": 62,
+   "creditosCarbonoTco2e": 3369,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "RN",
+    "ibge": "2408904",
+    "area_estudo": "Seridó núcleo (RN)",
+    "pct_melhora": 32.9,
+    "ha_total": 51996,
+    "aquecimento_c_decada": 0.05,
+    "aquecimento_significativo": false,
+    "chuva_1991_2007_mm": 541,
+    "chuva_2008_2024_mm": 629,
+    "perda_seca_10a_mi": 19.0,
+    "perda_1995_2025_mi": 43.6,
+    "emergencias_reconhecidas_10a": 8,
+    "nisar": {
+     "pontos": 25,
+     "auc": null,
+     "prob_media": 0.199
+    },
+    "desmatamento_ha_2001_2024": 6898,
+    "suscetibilidade_indice": 0.254,
+    "shap_detector": {
+     "pontos": 119,
+     "prob_media": 0.059,
+     "principais": [
+      {
+       "rotulo": "NISAR HV (dB)",
+       "familia": "NISAR (radar 2026)",
+       "efeito": -0.796,
+       "direcao": "reduces risk"
+      },
+      {
+       "rotulo": "Mean rainfall",
+       "familia": "Climate (CHIRPS/ERA5)",
+       "efeito": -0.481,
+       "direcao": "reduces risk"
+      },
+      {
+       "rotulo": "Warming (°C/decade)",
+       "familia": "Climate (CHIRPS/ERA5)",
+       "efeito": -0.187,
+       "direcao": "reduces risk"
+      },
+      {
+       "rotulo": "Rain 2015–24 vs 2001–14",
+       "familia": "Climate (CHIRPS/ERA5)",
+       "efeito": -0.136,
+       "direcao": "reduces risk"
+      },
+      {
+       "rotulo": "NISAR HH (dB)",
+       "familia": "NISAR (radar 2026)",
+       "efeito": -0.111,
+       "direcao": "reduces risk"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "mun-2403400",
+   "name": "Equador",
+   "level": "municipio",
+   "parentId": "uf-rn",
+   "mapKey": "RN",
+   "tendenciaPp": 1.1,
+   "risk": "moderado",
+   "impacts": [
+    "perda_renda",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 10.2,
+   "custoPrevenirMi": 5.1,
+   "populacaoEstimada": 5360,
+   "areaRecuperavelHa": 307,
+   "creditosCarbonoTco2e": 16545,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "RN",
+    "ibge": "2403400",
+    "area_estudo": "Seridó núcleo (RN)",
+    "pct_melhora": 7.4,
+    "ha_total": 26826,
+    "aquecimento_c_decada": 0.07,
+    "aquecimento_significativo": false,
+    "chuva_1991_2007_mm": 534,
+    "chuva_2008_2024_mm": 610,
+    "perda_seca_10a_mi": 10.2,
+    "perda_1995_2025_mi": 29.3,
+    "emergencias_reconhecidas_10a": 8,
+    "nisar": {
+     "pontos": 69,
+     "auc": 0.733,
+     "prob_media": 0.283
+    },
+    "desmatamento_ha_2001_2024": 2401,
+    "suscetibilidade_indice": null,
+    "shap_detector": null
+   }
+  },
+  {
+   "id": "mun-2402402",
+   "name": "Carnaúba dos Dantas",
+   "level": "municipio",
+   "parentId": "uf-rn",
+   "mapKey": "RN",
+   "tendenciaPp": 0.0,
+   "risk": "moderado",
+   "impacts": [
+    "perda_renda",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 8.0,
+   "custoPrevenirMi": 0.0,
+   "populacaoEstimada": 7992,
+   "areaRecuperavelHa": 0,
+   "creditosCarbonoTco2e": 0,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "RN",
+    "ibge": "2402402",
+    "area_estudo": "Seridó núcleo (RN)",
+    "pct_melhora": 19.2,
+    "ha_total": 24902,
+    "aquecimento_c_decada": 0.08,
+    "aquecimento_significativo": false,
+    "chuva_1991_2007_mm": 471,
+    "chuva_2008_2024_mm": 548,
+    "perda_seca_10a_mi": 8.0,
+    "perda_1995_2025_mi": 25.0,
+    "emergencias_reconhecidas_10a": 9,
+    "nisar": {
+     "pontos": 10,
+     "auc": null,
+     "prob_media": 0.186
+    },
+    "desmatamento_ha_2001_2024": 1984,
+    "suscetibilidade_indice": null,
+    "shap_detector": null
+   }
+  },
+  {
+   "id": "mun-2402006",
+   "name": "Caicó",
+   "level": "municipio",
+   "parentId": "uf-rn",
+   "mapKey": "RN",
+   "tendenciaPp": 0.8,
+   "risk": "moderado",
+   "impacts": [
+    "perda_renda",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 190.5,
+   "custoPrevenirMi": 16.3,
+   "populacaoEstimada": 61146,
+   "areaRecuperavelHa": 985,
+   "creditosCarbonoTco2e": 53109,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "RN",
+    "ibge": "2402006",
+    "area_estudo": "Seridó núcleo (RN)",
+    "pct_melhora": 17.0,
+    "ha_total": 124489,
+    "aquecimento_c_decada": 0.05,
+    "aquecimento_significativo": false,
+    "chuva_1991_2007_mm": 582,
+    "chuva_2008_2024_mm": 712,
+    "perda_seca_10a_mi": 190.5,
+    "perda_1995_2025_mi": 235.7,
+    "emergencias_reconhecidas_10a": 9,
+    "nisar": {
+     "pontos": 278,
+     "auc": 0.748,
+     "prob_media": 0.345
+    },
+    "desmatamento_ha_2001_2024": 17358,
+    "suscetibilidade_indice": null,
+    "shap_detector": null
+   }
+  },
+  {
+   "id": "mun-2405702",
+   "name": "Jardim do Seridó",
+   "level": "municipio",
+   "parentId": "uf-rn",
+   "mapKey": "RN",
+   "tendenciaPp": 0.7,
+   "risk": "moderado",
+   "impacts": [
+    "perda_renda",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 14.8,
+   "custoPrevenirMi": 4.1,
+   "populacaoEstimada": 11655,
+   "areaRecuperavelHa": 248,
+   "creditosCarbonoTco2e": 13360,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "RN",
+    "ibge": "2405702",
+    "area_estudo": "Seridó núcleo (RN)",
+    "pct_melhora": 10.3,
+    "ha_total": 37207,
+    "aquecimento_c_decada": 0.07,
+    "aquecimento_significativo": false,
+    "chuva_1991_2007_mm": 546,
+    "chuva_2008_2024_mm": 655,
+    "perda_seca_10a_mi": 14.8,
+    "perda_1995_2025_mi": 90.3,
+    "emergencias_reconhecidas_10a": 6,
+    "nisar": {
+     "pontos": 83,
+     "auc": 0.926,
+     "prob_media": 0.462
+    },
+    "desmatamento_ha_2001_2024": 9904,
+    "suscetibilidade_indice": null,
+    "shap_detector": null
+   }
+  },
+  {
+   "id": "mun-2403004",
+   "name": "Cruzeta",
+   "level": "municipio",
+   "parentId": "uf-rn",
+   "mapKey": "RN",
+   "tendenciaPp": 0.3,
+   "risk": "moderado",
+   "impacts": [
+    "perda_renda",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 7.7,
+   "custoPrevenirMi": 1.4,
+   "populacaoEstimada": 8005,
+   "areaRecuperavelHa": 83,
+   "creditosCarbonoTco2e": 4471,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "RN",
+    "ibge": "2403004",
+    "area_estudo": "Seridó núcleo (RN)",
+    "pct_melhora": 18.1,
+    "ha_total": 29931,
+    "aquecimento_c_decada": 0.08,
+    "aquecimento_significativo": false,
+    "chuva_1991_2007_mm": 558,
+    "chuva_2008_2024_mm": 667,
+    "perda_seca_10a_mi": 7.7,
+    "perda_1995_2025_mi": 13.4,
+    "emergencias_reconhecidas_10a": 8,
+    "nisar": {
+     "pontos": 29,
+     "auc": null,
+     "prob_media": 0.263
+    },
+    "desmatamento_ha_2001_2024": 5048,
+    "suscetibilidade_indice": null,
+    "shap_detector": null
+   }
+  },
+  {
+   "id": "mun-2611101",
+   "name": "Petrolina",
+   "level": "municipio",
+   "parentId": "uf-pe",
+   "mapKey": "PE",
+   "tendenciaPp": 11.2,
+   "risk": "critico",
+   "impacts": [
+    "deficit_hidrico",
+    "perda_renda",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 1012.3,
+   "custoPrevenirMi": 859.1,
+   "populacaoEstimada": 386791,
+   "areaRecuperavelHa": 51904,
+   "creditosCarbonoTco2e": 2797603,
+   "regeneracaoStatus": "a_recuperar",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "PE",
+    "ibge": "2611101",
+    "area_estudo": "Sub-middle São Francisco (PE/BA)",
+    "pct_melhora": 6.8,
+    "ha_total": 464732,
+    "aquecimento_c_decada": 0.26,
+    "aquecimento_significativo": true,
+    "chuva_1991_2007_mm": 462,
+    "chuva_2008_2024_mm": 443,
+    "perda_seca_10a_mi": 895.2,
+    "perda_1995_2025_mi": 1456.3,
+    "emergencias_reconhecidas_10a": 11,
+    "nisar": {
+     "pontos": 301,
+     "auc": 0.743,
+     "prob_media": 0.569
+    },
+    "desmatamento_ha_2001_2024": 71262,
+    "suscetibilidade_indice": 0.702,
+    "shap_detector": {
+     "pontos": 225,
+     "prob_media": 0.232,
+     "principais": [
+      {
+       "rotulo": "Mean rainfall",
+       "familia": "Climate (CHIRPS/ERA5)",
+       "efeito": 0.266,
+       "direcao": "increases risk"
+      },
+      {
+       "rotulo": "NISAR HV (dB)",
+       "familia": "NISAR (radar 2026)",
+       "efeito": -0.14,
+       "direcao": "reduces risk"
+      },
+      {
+       "rotulo": "Warming (°C/decade)",
+       "familia": "Climate (CHIRPS/ERA5)",
+       "efeito": 0.099,
+       "direcao": "increases risk"
+      },
+      {
+       "rotulo": "Native vegetation 2001",
+       "familia": "History 2001–2014 (MODIS/MapBiomas)",
+       "efeito": -0.071,
+       "direcao": "reduces risk"
+      },
+      {
+       "rotulo": "NISAR HH (dB)",
+       "familia": "NISAR (radar 2026)",
+       "efeito": -0.065,
+       "direcao": "reduces risk"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "mun-2918407",
+   "name": "Juazeiro",
+   "level": "municipio",
+   "parentId": "uf-ba",
+   "mapKey": "BA",
+   "tendenciaPp": 3.7,
+   "risk": "alto",
+   "impacts": [
+    "deficit_hidrico",
+    "perda_renda",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 226.2,
+   "custoPrevenirMi": 417.6,
+   "populacaoEstimada": 237821,
+   "areaRecuperavelHa": 25229,
+   "creditosCarbonoTco2e": 1359853,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "BA",
+    "ibge": "2918407",
+    "area_estudo": "Sub-middle São Francisco (PE/BA)",
+    "pct_melhora": 10.3,
+    "ha_total": 686070,
+    "aquecimento_c_decada": 0.29,
+    "aquecimento_significativo": true,
+    "chuva_1991_2007_mm": 451,
+    "chuva_2008_2024_mm": 411,
+    "perda_seca_10a_mi": 158.0,
+    "perda_1995_2025_mi": 281.2,
+    "emergencias_reconhecidas_10a": 10,
+    "nisar": {
+     "pontos": 263,
+     "auc": 0.644,
+     "prob_media": 0.423
+    },
+    "desmatamento_ha_2001_2024": 85881,
+    "suscetibilidade_indice": null,
+    "shap_detector": null
+   }
+  },
+  {
+   "id": "mun-2907202",
+   "name": "Casa Nova",
+   "level": "municipio",
+   "parentId": "uf-ba",
+   "mapKey": "BA",
+   "tendenciaPp": 5.8,
+   "risk": "alto",
+   "impacts": [
+    "deficit_hidrico",
+    "perda_renda",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 100.9,
+   "custoPrevenirMi": 943.6,
+   "populacaoEstimada": 72086,
+   "areaRecuperavelHa": 57007,
+   "creditosCarbonoTco2e": 3072671,
+   "regeneracaoStatus": "a_recuperar",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "BA",
+    "ibge": "2907202",
+    "area_estudo": "Sub-middle São Francisco (PE/BA)",
+    "pct_melhora": 2.1,
+    "ha_total": 983545,
+    "aquecimento_c_decada": 0.26,
+    "aquecimento_significativo": true,
+    "chuva_1991_2007_mm": 494,
+    "chuva_2008_2024_mm": 494,
+    "perda_seca_10a_mi": 100.9,
+    "perda_1995_2025_mi": 270.8,
+    "emergencias_reconhecidas_10a": 9,
+    "nisar": {
+     "pontos": 430,
+     "auc": 0.744,
+     "prob_media": 0.414
+    },
+    "desmatamento_ha_2001_2024": 104853,
+    "suscetibilidade_indice": 0.614,
+    "shap_detector": {
+     "pontos": 349,
+     "prob_media": 0.137,
+     "principais": [
+      {
+       "rotulo": "NISAR HV (dB)",
+       "familia": "NISAR (radar 2026)",
+       "efeito": -0.709,
+       "direcao": "reduces risk"
+      },
+      {
+       "rotulo": "Mean rainfall",
+       "familia": "Climate (CHIRPS/ERA5)",
+       "efeito": 0.17,
+       "direcao": "increases risk"
+      },
+      {
+       "rotulo": "Warming (°C/decade)",
+       "familia": "Climate (CHIRPS/ERA5)",
+       "efeito": -0.144,
+       "direcao": "reduces risk"
+      },
+      {
+       "rotulo": "NISAR HV/HH ratio",
+       "familia": "NISAR (radar 2026)",
+       "efeito": -0.111,
+       "direcao": "reduces risk"
+      },
+      {
+       "rotulo": "Pasture vigor 2014",
+       "familia": "History 2001–2014 (MODIS/MapBiomas)",
+       "efeito": -0.108,
+       "direcao": "reduces risk"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "mun-2605707",
+   "name": "Floresta",
+   "level": "municipio",
+   "parentId": "uf-pe",
+   "mapKey": "PE",
+   "tendenciaPp": 2.7,
+   "risk": "moderado",
+   "impacts": [
+    "perda_renda",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 275.4,
+   "custoPrevenirMi": 162.5,
+   "populacaoEstimada": 30137,
+   "areaRecuperavelHa": 9817,
+   "creditosCarbonoTco2e": 529110,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "PE",
+    "ibge": "2605707",
+    "area_estudo": "Sub-middle São Francisco (PE/BA)",
+    "pct_melhora": 8.2,
+    "ha_total": 366947,
+    "aquecimento_c_decada": 0.14,
+    "aquecimento_significativo": false,
+    "chuva_1991_2007_mm": 473,
+    "chuva_2008_2024_mm": 491,
+    "perda_seca_10a_mi": 275.4,
+    "perda_1995_2025_mi": 422.3,
+    "emergencias_reconhecidas_10a": 9,
+    "nisar": {
+     "pontos": 93,
+     "auc": 0.506,
+     "prob_media": 0.364
+    },
+    "desmatamento_ha_2001_2024": 35451,
+    "suscetibilidade_indice": 0.454,
+    "shap_detector": {
+     "pontos": 121,
+     "prob_media": 0.085,
+     "principais": [
+      {
+       "rotulo": "NISAR HV (dB)",
+       "familia": "NISAR (radar 2026)",
+       "efeito": -0.578,
+       "direcao": "reduces risk"
+      },
+      {
+       "rotulo": "Mean rainfall",
+       "familia": "Climate (CHIRPS/ERA5)",
+       "efeito": -0.166,
+       "direcao": "reduces risk"
+      },
+      {
+       "rotulo": "Pasture vigor 2014",
+       "familia": "History 2001–2014 (MODIS/MapBiomas)",
+       "efeito": -0.151,
+       "direcao": "reduces risk"
+      },
+      {
+       "rotulo": "NISAR HH (dB)",
+       "familia": "NISAR (radar 2026)",
+       "efeito": -0.123,
+       "direcao": "reduces risk"
+      },
+      {
+       "rotulo": "NISAR HV/HH ratio",
+       "familia": "NISAR (radar 2026)",
+       "efeito": -0.083,
+       "direcao": "reduces risk"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "mun-2924009",
+   "name": "Paulo Afonso",
+   "level": "municipio",
+   "parentId": "uf-ba",
+   "mapKey": "BA",
+   "tendenciaPp": 0.9,
+   "risk": "moderado",
+   "impacts": [
+    "deficit_hidrico",
+    "perda_renda",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 144.1,
+   "custoPrevenirMi": 22.4,
+   "populacaoEstimada": 112870,
+   "areaRecuperavelHa": 1355,
+   "creditosCarbonoTco2e": 73008,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "BA",
+    "ibge": "2924009",
+    "area_estudo": "Sub-middle São Francisco (PE/BA)",
+    "pct_melhora": 11.2,
+    "ha_total": 157770,
+    "aquecimento_c_decada": 0.19,
+    "aquecimento_significativo": true,
+    "chuva_1991_2007_mm": 505,
+    "chuva_2008_2024_mm": 511,
+    "perda_seca_10a_mi": 128.5,
+    "perda_1995_2025_mi": 211.0,
+    "emergencias_reconhecidas_10a": 6,
+    "nisar": {
+     "pontos": 43,
+     "auc": null,
+     "prob_media": 0.384
+    },
+    "desmatamento_ha_2001_2024": 22877,
+    "suscetibilidade_indice": null,
+    "shap_detector": null
+   }
+  },
+  {
+   "id": "mun-2930774",
+   "name": "Sobradinho",
+   "level": "municipio",
+   "parentId": "uf-ba",
+   "mapKey": "BA",
+   "tendenciaPp": 1.3,
+   "risk": "moderado",
+   "impacts": [
+    "deficit_hidrico",
+    "perda_renda",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 33.3,
+   "custoPrevenirMi": 29.6,
+   "populacaoEstimada": 25475,
+   "areaRecuperavelHa": 1788,
+   "creditosCarbonoTco2e": 96396,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "BA",
+    "ibge": "2930774",
+    "area_estudo": "Sub-middle São Francisco (PE/BA)",
+    "pct_melhora": 9.1,
+    "ha_total": 138252,
+    "aquecimento_c_decada": 0.28,
+    "aquecimento_significativo": true,
+    "chuva_1991_2007_mm": 473,
+    "chuva_2008_2024_mm": 440,
+    "perda_seca_10a_mi": 33.3,
+    "perda_1995_2025_mi": 49.2,
+    "emergencias_reconhecidas_10a": 4,
+    "nisar": {
+     "pontos": 34,
+     "auc": null,
+     "prob_media": 0.314
+    },
+    "desmatamento_ha_2001_2024": 12209,
+    "suscetibilidade_indice": null,
+    "shap_detector": null
+   }
+  },
+  {
+   "id": "mun-2204402",
+   "name": "Gilbués",
+   "level": "municipio",
+   "parentId": "uf-pi",
+   "mapKey": "PI",
+   "tendenciaPp": 13.2,
+   "risk": "critico",
+   "impacts": [
+    "deficit_hidrico",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 0.0,
+   "custoPrevenirMi": 776.7,
+   "populacaoEstimada": 10892,
+   "areaRecuperavelHa": 46928,
+   "creditosCarbonoTco2e": 2529396,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "PI",
+    "ibge": "2204402",
+    "area_estudo": "Official desertification cores (PI/CE/PE)",
+    "pct_melhora": 25.9,
+    "ha_total": 356520,
+    "aquecimento_c_decada": 0.35,
+    "aquecimento_significativo": true,
+    "chuva_1991_2007_mm": 1050,
+    "chuva_2008_2024_mm": 1091,
+    "perda_seca_10a_mi": 0.0,
+    "perda_1995_2025_mi": 17.4,
+    "emergencias_reconhecidas_10a": 2,
+    "nisar": null,
+    "desmatamento_ha_2001_2024": null,
+    "suscetibilidade_indice": null,
+    "shap_detector": null
+   }
+  },
+  {
+   "id": "mun-2306108",
+   "name": "Irauçuba",
+   "level": "municipio",
+   "parentId": "uf-ce",
+   "mapKey": "CE",
+   "tendenciaPp": 0.3,
+   "risk": "moderado",
+   "impacts": [
+    "deficit_hidrico",
+    "perda_renda",
+    "migracao"
+   ],
+   "custoNaoAgirMi": 85.2,
+   "custoPrevenirMi": 8.2,
+   "populacaoEstimada": 23915,
+   "areaRecuperavelHa": 493,
+   "creditosCarbonoTco2e": 26591,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "CE",
+    "ibge": "2306108",
+    "area_estudo": "Official desertification cores (PI/CE/PE)",
+    "pct_melhora": 6.7,
+    "ha_total": 148056,
+    "aquecimento_c_decada": 0.17,
+    "aquecimento_significativo": true,
+    "chuva_1991_2007_mm": 599,
+    "chuva_2008_2024_mm": 656,
+    "perda_seca_10a_mi": 82.9,
+    "perda_1995_2025_mi": 265.0,
+    "emergencias_reconhecidas_10a": 7,
+    "nisar": null,
+    "desmatamento_ha_2001_2024": null,
+    "suscetibilidade_indice": null,
+    "shap_detector": null
+   }
+  },
+  {
+   "id": "mun-2603009",
+   "name": "Cabrobó",
+   "level": "municipio",
+   "parentId": "uf-pe",
+   "mapKey": "PE",
+   "tendenciaPp": 0.8,
+   "risk": "moderado",
+   "impacts": [
+    "deficit_hidrico",
+    "perda_renda",
+    "migracao"
+   ],
+   "custoNaoAgirMi": 88.4,
+   "custoPrevenirMi": 22.5,
+   "populacaoEstimada": 30294,
+   "areaRecuperavelHa": 1359,
+   "creditosCarbonoTco2e": 73229,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "PE",
+    "ibge": "2603009",
+    "area_estudo": "Official desertification cores (PI/CE/PE)",
+    "pct_melhora": 10.4,
+    "ha_total": 168713,
+    "aquecimento_c_decada": 0.19,
+    "aquecimento_significativo": true,
+    "chuva_1991_2007_mm": 516,
+    "chuva_2008_2024_mm": 491,
+    "perda_seca_10a_mi": 88.4,
+    "perda_1995_2025_mi": 299.2,
+    "emergencias_reconhecidas_10a": 9,
+    "nisar": null,
+    "desmatamento_ha_2001_2024": null,
+    "suscetibilidade_indice": null,
+    "shap_detector": null
+   }
+  },
+  {
+   "id": "mun-2601607",
+   "name": "Belém do São Francisco",
+   "level": "municipio",
+   "parentId": "uf-pe",
+   "mapKey": "PE",
+   "tendenciaPp": 0.7,
+   "risk": "moderado",
+   "impacts": [
+    "perda_renda",
+    "migracao"
+   ],
+   "custoNaoAgirMi": 56.8,
+   "custoPrevenirMi": 21.8,
+   "populacaoEstimada": 18301,
+   "areaRecuperavelHa": 1315,
+   "creditosCarbonoTco2e": 70902,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "uf": "PE",
+    "ibge": "2601607",
+    "area_estudo": "Official desertification cores (PI/CE/PE)",
+    "pct_melhora": 3.2,
+    "ha_total": 186441,
+    "aquecimento_c_decada": 0.18,
+    "aquecimento_significativo": false,
+    "chuva_1991_2007_mm": 444,
+    "chuva_2008_2024_mm": 407,
+    "perda_seca_10a_mi": 56.8,
+    "perda_1995_2025_mi": 107.2,
+    "emergencias_reconhecidas_10a": 8,
+    "nisar": null,
+    "desmatamento_ha_2001_2024": null,
+    "suscetibilidade_indice": null,
+    "shap_detector": null
+   }
+  },
+  {
+   "id": "uf-ba",
+   "name": "Bahia (analysed municipalities)",
+   "level": "estado",
+   "parentId": "bioma-caatinga",
+   "mapKey": "BA",
+   "tendenciaPp": 4.3,
+   "risk": "alto",
+   "impacts": [
+    "deficit_hidrico",
+    "migracao",
+    "perda_renda",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 504.5,
+   "custoPrevenirMi": 1413.2,
+   "populacaoEstimada": 448252,
+   "areaRecuperavelHa": 85379,
+   "creditosCarbonoTco2e": 4601928,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "agregado_de": [
+     "Juazeiro",
+     "Casa Nova",
+     "Paulo Afonso",
+     "Sobradinho"
+    ],
+    "nota": "Aggregate of the 4 analysed municipalities only, not the whole estado"
+   }
+  },
+  {
+   "id": "uf-ce",
+   "name": "Ceará (analysed municipalities)",
+   "level": "estado",
+   "parentId": "bioma-caatinga",
+   "mapKey": "CE",
+   "tendenciaPp": 0.3,
+   "risk": "moderado",
+   "impacts": [
+    "deficit_hidrico",
+    "migracao",
+    "perda_renda"
+   ],
+   "custoNaoAgirMi": 85.2,
+   "custoPrevenirMi": 8.2,
+   "populacaoEstimada": 23915,
+   "areaRecuperavelHa": 493,
+   "creditosCarbonoTco2e": 26591,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "agregado_de": [
+     "Irauçuba"
+    ],
+    "nota": "Aggregate of the 1 analysed municipalities only, not the whole estado"
+   }
+  },
+  {
+   "id": "uf-pe",
+   "name": "Pernambuco (analysed municipalities)",
+   "level": "estado",
+   "parentId": "bioma-caatinga",
+   "mapKey": "PE",
+   "tendenciaPp": 5.4,
+   "risk": "alto",
+   "impacts": [
+    "deficit_hidrico",
+    "migracao",
+    "perda_renda",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 1432.9,
+   "custoPrevenirMi": 1065.9,
+   "populacaoEstimada": 465523,
+   "areaRecuperavelHa": 64395,
+   "creditosCarbonoTco2e": 3470844,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "agregado_de": [
+     "Petrolina",
+     "Floresta",
+     "Cabrobó",
+     "Belém do São Francisco"
+    ],
+    "nota": "Aggregate of the 4 analysed municipalities only, not the whole estado"
+   }
+  },
+  {
+   "id": "uf-pi",
+   "name": "Piauí (analysed municipalities)",
+   "level": "estado",
+   "parentId": "bioma-caatinga",
+   "mapKey": "PI",
+   "tendenciaPp": 13.2,
+   "risk": "critico",
+   "impacts": [
+    "deficit_hidrico",
+    "migracao",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 0.0,
+   "custoPrevenirMi": 776.7,
+   "populacaoEstimada": 10892,
+   "areaRecuperavelHa": 46928,
+   "creditosCarbonoTco2e": 2529396,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "agregado_de": [
+     "Gilbués"
+    ],
+    "nota": "Aggregate of the 1 analysed municipalities only, not the whole estado"
+   }
+  },
+  {
+   "id": "uf-rn",
+   "name": "Rio Grande do Norte (analysed municipalities)",
+   "level": "estado",
+   "parentId": "bioma-caatinga",
+   "mapKey": "RN",
+   "tendenciaPp": 0.5,
+   "risk": "moderado",
+   "impacts": [
+    "migracao",
+    "perda_renda",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 483.2,
+   "custoPrevenirMi": 35.5,
+   "populacaoEstimada": 167567,
+   "areaRecuperavelHa": 2143,
+   "creditosCarbonoTco2e": 115520,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "agregado_de": [
+     "Currais Novos",
+     "Acari",
+     "Parelhas",
+     "Equador",
+     "Carnaúba dos Dantas",
+     "Caicó",
+     "Jardim do Seridó",
+     "Cruzeta"
+    ],
+    "nota": "Aggregate of the 8 analysed municipalities only, not the whole estado"
+   }
+  },
+  {
+   "id": "regiao-serido",
+   "name": "Seridó núcleo (RN)",
+   "level": "regiao",
+   "parentId": "bioma-caatinga",
+   "mapKey": "",
+   "tendenciaPp": 0.5,
+   "risk": "moderado",
+   "impacts": [
+    "migracao",
+    "perda_renda",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 483.2,
+   "custoPrevenirMi": 35.5,
+   "populacaoEstimada": 167567,
+   "areaRecuperavelHa": 2143,
+   "creditosCarbonoTco2e": 115520,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "agregado_de": [
+     "Currais Novos",
+     "Acari",
+     "Parelhas",
+     "Equador",
+     "Carnaúba dos Dantas",
+     "Caicó",
+     "Jardim do Seridó",
+     "Cruzeta"
+    ],
+    "nota": "Aggregate of the 8 analysed municipalities only, not the whole regiao"
+   }
+  },
+  {
+   "id": "regiao-sao_francisco",
+   "name": "Sub-middle São Francisco (PE/BA)",
+   "level": "regiao",
+   "parentId": "bioma-caatinga",
+   "mapKey": "",
+   "tendenciaPp": 5.3,
+   "risk": "alto",
+   "impacts": [
+    "deficit_hidrico",
+    "migracao",
+    "perda_renda",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 1792.2,
+   "custoPrevenirMi": 2434.8,
+   "populacaoEstimada": 865180,
+   "areaRecuperavelHa": 147100,
+   "creditosCarbonoTco2e": 7928641,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "agregado_de": [
+     "Petrolina",
+     "Juazeiro",
+     "Casa Nova",
+     "Floresta",
+     "Paulo Afonso",
+     "Sobradinho"
+    ],
+    "nota": "Aggregate of the 6 analysed municipalities only, not the whole regiao"
+   }
+  },
+  {
+   "id": "regiao-comprovados",
+   "name": "Official desertification cores (PI/CE/PE)",
+   "level": "regiao",
+   "parentId": "bioma-caatinga",
+   "mapKey": "",
+   "tendenciaPp": 5.8,
+   "risk": "alto",
+   "impacts": [
+    "deficit_hidrico",
+    "migracao",
+    "perda_renda",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 230.4,
+   "custoPrevenirMi": 829.2,
+   "populacaoEstimada": 83402,
+   "areaRecuperavelHa": 50095,
+   "creditosCarbonoTco2e": 2700118,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "agregado_de": [
+     "Gilbués",
+     "Irauçuba",
+     "Cabrobó",
+     "Belém do São Francisco"
+    ],
+    "nota": "Aggregate of the 4 analysed municipalities only, not the whole regiao"
+   }
+  },
+  {
+   "id": "bioma-caatinga",
+   "name": "Caatinga (18 analysed municipalities)",
+   "level": "bioma",
+   "parentId": null,
+   "mapKey": "caatinga",
+   "tendenciaPp": 4.9,
+   "risk": "alto",
+   "impacts": [
+    "deficit_hidrico",
+    "migracao",
+    "perda_renda",
+    "pressao_biodiversidade"
+   ],
+   "custoNaoAgirMi": 2505.8,
+   "custoPrevenirMi": 3299.5,
+   "populacaoEstimada": 1116149,
+   "areaRecuperavelHa": 199338,
+   "creditosCarbonoTco2e": 10744279,
+   "regeneracaoStatus": "em_regeneracao",
+   "estimativas": [
+    "custoPrevenirMi",
+    "creditosCarbonoTco2e"
+   ],
+   "dados": {
+    "agregado_de": [
+     "Currais Novos",
+     "Acari",
+     "Parelhas",
+     "Equador",
+     "Carnaúba dos Dantas",
+     "Caicó",
+     "Jardim do Seridó",
+     "Cruzeta",
+     "Petrolina",
+     "Juazeiro",
+     "Casa Nova",
+     "Floresta",
+     "Paulo Afonso",
+     "Sobradinho",
+     "Gilbués",
+     "Irauçuba",
+     "Cabrobó",
+     "Belém do São Francisco"
+    ],
+    "nota": "Aggregate of the 18 analysed municipalities only, not the whole bioma"
+   }
+  }
+ ]
+}

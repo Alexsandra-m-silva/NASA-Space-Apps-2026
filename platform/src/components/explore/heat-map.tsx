@@ -205,7 +205,7 @@ export function HeatMap({
       </div>
 
       <p className="mt-2 text-[0.7rem] text-muted-foreground">
-        Sample data for prototyping · not official NISAR series
+        Schematic map · data: MODIS 2001–2024 (rainfall removed), NISAR 2026, Atlas Digital, IBGE 2022 — 18 analysed municipalities
       </p>
     </div>
   );

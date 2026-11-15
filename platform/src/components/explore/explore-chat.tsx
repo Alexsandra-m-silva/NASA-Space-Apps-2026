@@ -131,14 +131,38 @@ export function ExploreChat({
     setMessages((m) => [...m, userMsg]);
     setDraft("");
     setPending(true);
-    window.setTimeout(() => {
-      const answer = replyFor(cleaned, { items, level, impact, risk });
-      setMessages((m) => [
-        ...m,
-        { id: `a-${Date.now()}`, role: "assistant", text: answer },
-      ]);
-      setPending(false);
-    }, 450);
+    const history = messages
+      .filter((m) => m.id !== "welcome")
+      .slice(-10)
+      .map((m) => ({ role: m.role, content: m.text }));
+    const screenContext = JSON.stringify({
+      view: `Desert Sentinel explore · ${LEVEL_LABELS[level]} · ${impactLabel} · ${riskLabel}`,
+      territories: items.slice(0, 25).map((t) => ({
+        name: t.name, level: t.level, risk: t.risk, trend_pct_area_declining: t.tendenciaPp,
+        impacts: t.impacts, disaster_losses_2015_24_brl_mi: t.custoNaoAgirMi,
+        restore_cost_estimate_brl_mi: t.custoPrevenirMi, population_2022: t.populacaoEstimada,
+        degraded_ha: t.areaRecuperavelHa, carbon_estimate_tco2e: t.creditosCarbonoTco2e, evidence: t.dados,
+      })),
+    }).slice(0, 15000);
+    fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: cleaned, screen_context: screenContext, history }),
+    })
+      .then(async (r) => {
+        if (!r.ok) throw new Error(String(r.status));
+        const data = (await r.json()) as { answer?: string };
+        if (!data.answer) throw new Error("empty");
+        return data.answer;
+      })
+      .catch(() => replyFor(cleaned, { items, level, impact, risk }))
+      .then((answer) => {
+        setMessages((m) => [
+          ...m,
+          { id: `a-${Date.now()}`, role: "assistant", text: answer },
+        ]);
+        setPending(false);
+      });
   }
 
   return (

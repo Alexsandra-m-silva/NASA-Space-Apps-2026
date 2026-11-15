@@ -67,9 +67,9 @@ export function CostBanner({
             </div>
           </div>
           <p className="mt-3 max-w-md text-sm leading-relaxed text-sand">
-            Estimated potential across {formatHectares(areaHa)} eligible (1
-            credit ≈ 1 tCO₂e × ${CARBON_CREDIT_USD_PER_TCO2E}/tCO₂e prototype
-            market reference — sample, not certified methodology).
+            Estimate: {formatHectares(areaHa)} of degraded land × 53.9 tCO₂e/ha of soil carbon lost when dense
+            Caatinga becomes degraded pasture (Bieluczyk et al.), at an assumed US${CARBON_CREDIT_USD_PER_TCO2E}/tCO₂e —
+            not a certified methodology.
           </p>
         </div>
       </div>
