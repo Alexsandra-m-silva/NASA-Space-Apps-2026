@@ -136,13 +136,14 @@ export function SiteHeader() {
 
         <nav className="flex items-center gap-1 text-sm sm:gap-2">
           <Link
-            href="/"
+            href="/about"
             className={cn(
               "rounded-md px-2 py-1.5 transition-colors",
               onDark
                 ? "text-brand-areia/90 hover:bg-white/10 hover:text-brand-areia"
                 : "text-muted-foreground hover:bg-secondary hover:text-foreground",
-              pathname === "/" && (onDark ? "text-brand-areia" : "text-foreground")
+              (pathname === "/" || pathname === "/about") &&
+                (onDark ? "text-brand-areia" : "text-foreground")
             )}
           >
             About
@@ -161,12 +162,8 @@ export function SiteHeader() {
           <Button
             asChild
             size="sm"
-            variant={onDark ? "accent" : "outline"}
-            className={
-              onDark
-                ? undefined
-                : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-            }
+            variant="accent"
+            className="border-transparent bg-[#FFEA7F] text-[#220F08] shadow hover:bg-[#F5DE6E]"
           >
             <Link href="/newsletter">Newsletter</Link>
           </Button>
