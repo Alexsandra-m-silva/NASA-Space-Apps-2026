@@ -8,9 +8,9 @@ export const brand = {
   thesis:
     "Showing the map is not enough. We show the price of waiting, the action available, and the incentive for those who restore.",
   logo: {
-    /** Mel wordmark — dark backgrounds (Terra e luz) */
+    /** Mel wordmark — dark backgrounds */
     onDark: "/brand/logo-on-dark.svg",
-    /** Barro wordmark — light backgrounds (Terra e luz) */
+    /** Barro wordmark — light backgrounds */
     onLight: "/brand/logo-on-light.svg",
   },
 } as const;

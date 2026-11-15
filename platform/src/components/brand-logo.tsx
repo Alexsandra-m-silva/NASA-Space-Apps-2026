@@ -7,7 +7,7 @@ export function BrandLogo({
   variant,
   className,
 }: {
-  /** onDark = mel wordmark; onLight = barro wordmark */
+  /** onDark = mel wordmark; onLight = barro wordmark (vector, 2033×730) */
   variant: "onDark" | "onLight";
   className?: string;
   /** Kept for call-site compatibility with the header. */

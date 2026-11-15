@@ -9,7 +9,7 @@ export default function NotFound() {
         That route is not part of Climate Sentinel.
       </p>
       <Button asChild className="mt-6">
-        <Link href="/explore">Go to Explore</Link>
+        <Link href="/">Back to About</Link>
       </Button>
     </div>
   );

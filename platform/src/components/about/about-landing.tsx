@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AboutTeam } from "@/components/about/about-team";
 import { HeroVideo } from "@/components/about/hero-video";
 import { PartnerCta } from "@/components/about/partner-cta";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ const AUDIENCE = [
   },
   {
     who: "Partner companies",
-    what: "Teams restoring priority land who need impact proof and a clear path to carbon-credit potential.",
+    what: "Teams restoring priority land who need territory-level proof, ranked credit potential, and a credible path from hectares restored to reportable climate value.",
   },
   {
     who: "Remote monitors",
@@ -229,6 +230,8 @@ export function AboutLanding() {
         </div>
       </section>
 
+      <AboutTeam />
+
       {/* Partners — companies only; soft Mel wash for quiet highlight */}
       <section
         id="partners"
@@ -242,12 +245,17 @@ export function AboutLanding() {
                 For companies
               </p>
               <h2 className="mt-2 font-display text-2xl text-olive sm:text-3xl">
-                Restore with credit potential
+                Turn restoration into measurable climate value
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                Partner companies regenerating priority land get impact proof
-                and a clear path to carbon-credit potential. Leave interest here
-                on About — this is not the public newsletter path.
+                Companies that regenerate priority land get territory-level
+                evidence — trend, risk, impact, and recoverable area — plus an
+                estimate of carbon-credit potential in dollars. Use it to
+                prioritize where to invest, report progress with the same map
+                decision-makers see, and build a credible path from hectares
+                restored to credits. Leave interest here for a company track:
+                priority territories, cost of inaction vs. prevention, and
+                modeled credit upside — separate from the public newsletter.
               </p>
             </div>
             <PartnerCta />
@@ -272,7 +280,7 @@ export function AboutLanding() {
           </div>
           <div className="flex flex-wrap gap-3">
             <Button asChild variant="accent">
-              <Link href="/explore">Open Explore</Link>
+              <Link href="/explore">Explore</Link>
             </Button>
             <Button asChild variant="accent">
               <Link href="/newsletter">Subscribe to the newsletter</Link>

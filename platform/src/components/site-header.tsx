@@ -134,7 +134,7 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-1 text-sm sm:gap-2">
+        <nav className="flex items-center gap-3 text-sm sm:gap-4">
           <Link
             href="/about"
             className={cn(

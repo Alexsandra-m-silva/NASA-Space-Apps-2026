@@ -67,8 +67,8 @@ export const personas: Persona[] = [
       "Understand what is changing nearby and what to ask city hall for — without becoming a fiscal Climate Sentinel user.",
     context:
       "Arrives via link shared by the municipality or social card. Pressure and awareness channel; does not write PPAs.",
-    successMetric: "Shared \"your area\" card + handoff to official channel.",
-    primaryOutput: "Shareable \"your area at risk\" card",
+    successMetric: "Shared “your area” card + handoff to official channel.",
+    primaryOutput: 'Shareable “your area at risk” card',
     accent: "familia",
   },
 ];
