@@ -64,11 +64,11 @@ function luminanceOfCssColor(color: string): number | null {
 
 export function SiteHeader() {
   const pathname = usePathname();
-  // Explore / newsletter are light — start light to avoid a sand-logo flash
-  const [onDark, setOnDark] = useState(false);
+  // Home hero is dark — start Mel wordmark to avoid a barro flash on load
+  const [onDark, setOnDark] = useState(() => pathname === "/");
 
   useEffect(() => {
-    setOnDark(false);
+    setOnDark(pathname === "/");
 
     const header = document.querySelector<HTMLElement>("[data-site-header]");
     const headerHeight = header?.offsetHeight ?? 56;
@@ -108,7 +108,7 @@ export function SiteHeader() {
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <Link
-          href="/explore"
+          href="/"
           className="group relative flex items-center"
           aria-label="Desert Sentinel"
         >
@@ -135,6 +135,18 @@ export function SiteHeader() {
         </Link>
 
         <nav className="flex items-center gap-1 text-sm sm:gap-2">
+          <Link
+            href="/"
+            className={cn(
+              "rounded-md px-2 py-1.5 transition-colors",
+              onDark
+                ? "text-brand-areia/90 hover:bg-white/10 hover:text-brand-areia"
+                : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+              pathname === "/" && (onDark ? "text-brand-areia" : "text-foreground")
+            )}
+          >
+            About
+          </Link>
           <Link
             href="/explore"
             className={cn(
