@@ -1,10 +1,10 @@
 export const brand = {
-  name: "Desert Sentinel",
-  nameShort: "Desert Sentinel",
+  name: "Climate Sentinel",
+  nameShort: "Climate Sentinel",
   tagline:
     "From NISAR insights — SAR radar that reads the ground through cloud and canopy — to the cost of inaction and regeneration that earns credits.",
   purpose:
-    "Desert Sentinel turns surface change seen by NISAR radar into risk, human and ecological impact, the cost of waiting, and regeneration opportunities with carbon credits.",
+    "Climate Sentinel turns surface change seen by NISAR radar into risk, human and ecological impact, the cost of waiting, and regeneration opportunities with carbon credits.",
   thesis:
     "Showing the map is not enough. We show the price of waiting, the action available, and the incentive for those who restore.",
   logo: {

@@ -27,8 +27,8 @@ export default function DownloadPage() {
       <div className="mt-8 flex flex-wrap gap-3">
         <Button asChild size="lg">
           <a
-            href="/Desert-Sentinel-explore-newsletter.zip"
-            download="Desert-Sentinel-explore-newsletter.zip"
+            href="/Climate-Sentinel-explore-newsletter.zip"
+            download="Climate-Sentinel-explore-newsletter.zip"
           >
             Download ZIP
           </a>
@@ -41,10 +41,10 @@ export default function DownloadPage() {
         Direct file:{" "}
         <a
           className="underline underline-offset-2 hover:text-foreground"
-          href="/Desert-Sentinel-explore-newsletter.zip"
+          href="/Climate-Sentinel-explore-newsletter.zip"
           download
         >
-          /Desert-Sentinel-explore-newsletter.zip
+          /Climate-Sentinel-explore-newsletter.zip
         </a>
       </p>
     </div>

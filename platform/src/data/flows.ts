@@ -7,7 +7,7 @@ export const flows: Record<PersonaId, FlowStep[]> = {
       title: "Enter via institutional scope",
       phase: "Entry",
       objective:
-        "Reach Desert Sentinel from your work context (state, biome, or program) without hunting municipalities at random.",
+        "Reach Climate Sentinel from your work context (state, biome, or program) without hunting municipalities at random.",
       dataOnScreen: [
         "Deep link or selector: state / biome / program",
         "Scope summary: municipality count, average NISAR trend",
@@ -162,7 +162,7 @@ export const flows: Record<PersonaId, FlowStep[]> = {
       dataOnScreen: [
         "NISAR trend in municipality area",
         "Political horizon: remaining term years",
-        "Order-of-magnitude local loss (Desert Sentinel)",
+        "Order-of-magnitude local loss (Climate Sentinel)",
       ],
       decision: "Does the risk fit my term or only “after I’m gone”?",
       cta: "View possible actions",
@@ -218,7 +218,7 @@ export const flows: Record<PersonaId, FlowStep[]> = {
         headline: "Forwarding to state",
         bullets: [
           "Pre-filled memo with BRL and trend",
-          "Desert Sentinel attachment (municipality version)",
+          "Climate Sentinel attachment (municipality version)",
         ],
       },
     },
@@ -262,7 +262,7 @@ export const flows: Record<PersonaId, FlowStep[]> = {
       cta: "Assemble one-pager",
       nextHint: "Build problem → BRL → action narrative",
       sampleUi: {
-        headline: "New amendment — Desert Sentinel attachment",
+        headline: "New amendment — Climate Sentinel attachment",
         bullets: [
           "Amendment not numbered yet",
           "Territory: 3 municipalities in Cariri",
@@ -369,7 +369,7 @@ export const flows: Record<PersonaId, FlowStep[]> = {
       cta: "Open investigation",
       nextHint: "Explore time series and projections",
       sampleUi: {
-        headline: "Beats with Desert Sentinel evidence",
+        headline: "Beats with Climate Sentinel evidence",
         bullets: [
           "Emergencies and surface trend",
           "Semi-arid: 10 years of pressure",
@@ -405,7 +405,7 @@ export const flows: Record<PersonaId, FlowStep[]> = {
       title: "Verify what you cannot claim",
       phase: "Verify",
       objective:
-        "Read methodology, radar limits, and what Desert Sentinel does not attribute causally.",
+        "Read methodology, radar limits, and what Climate Sentinel does not attribute causally.",
       dataOnScreen: [
         "Short methodology sheet",
         "NISAR limits (what it measures / does not)",
@@ -442,7 +442,7 @@ export const flows: Record<PersonaId, FlowStep[]> = {
         bullets: [
           "3 findings with source and date",
           "2 PNG/SVG charts",
-          "NISAR / Desert Sentinel credits block",
+          "NISAR / Climate Sentinel credits block",
         ],
       },
     },
@@ -499,7 +499,7 @@ export const flows: Record<PersonaId, FlowStep[]> = {
       dataOnScreen: [
         "Short trend explanation",
         "What may affect local flora/fauna (summary)",
-        "What city hall already logged in Desert Sentinel",
+        "What city hall already logged in Climate Sentinel",
       ],
       decision: "Want to know what to ask city hall?",
       cta: "See what to ask for",

@@ -38,7 +38,7 @@ export const personas: Persona[] = [
     jobToBeDone:
       "Attach numbers to an amendment or report the same day, with auditable sources.",
     context:
-      "Does not operate Desert Sentinel day to day. Builds the attachment from municipality/state or an amendment draft and needs to compare 2–3 scopes to prioritize.",
+      "Does not operate Climate Sentinel day to day. Builds the attachment from municipality/state or an amendment draft and needs to compare 2–3 scopes to prioritize.",
     successMetric: "One-pager + cost-of-inaction table usable in a report.",
     primaryOutput: "One-pager + sources + cost-of-inaction table",
     accent: "assessor",
@@ -64,7 +64,7 @@ export const personas: Persona[] = [
     shortRole: "Awareness / local pressure",
     priority: "stretch",
     jobToBeDone:
-      "Understand what is changing nearby and what to ask city hall for — without becoming a fiscal Desert Sentinel user.",
+      "Understand what is changing nearby and what to ask city hall for — without becoming a fiscal Climate Sentinel user.",
     context:
       "Arrives via link shared by the municipality or social card. Pressure and awareness channel; does not write PPAs.",
     successMetric: "Shared \"your area\" card + handoff to official channel.",
