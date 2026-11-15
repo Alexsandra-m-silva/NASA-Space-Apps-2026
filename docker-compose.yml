@@ -64,6 +64,7 @@ services:
       - "${WEB_PORT:-8090}:80"
     volumes:
       - ./web:/usr/share/nginx/html:ro
+      - ./products:/srv/products:ro
       - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       dg-api: { condition: service_healthy }

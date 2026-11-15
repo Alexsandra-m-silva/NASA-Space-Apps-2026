@@ -38,12 +38,23 @@
       .note { font-size: 0.68rem; color: var(--muted); }
       img.fig { width: 100%; border-radius: 8px; background: #fff; margin: 4px 0; }
       .hint { font-size: 0.72rem; color: var(--muted); font-style: italic; }
+      nav { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 10px; font-size: 0.72rem; }
+      nav a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--muted); }
+      nav a.on { color: var(--gold); border-bottom-color: var(--gold); }
+      .cmp { border: 1px dashed var(--line); border-radius: 10px; padding: 8px 10px; margin-top: 10px; }
+      .cmp .row button { padding: 4px 8px; font-size: 0.7rem; }
       @media (max-width: 640px) { .panel { top: auto; bottom: 0; left: 0; width: 100%; max-height: 55%; border-radius: 14px 14px 0 0; } }
     </style>
   </head>
   <body>
     <div id="map"></div>
     <aside class="panel">
+      <nav>
+        <a class="on" href="modelo.html">Modelo e suscetibilidade</a>
+        <a href="municipios.html">Comparação MODIS × NISAR por município</a>
+        <a href="produto.html">Produto GeoTIFF</a>
+        <a href="/docs">API</a>
+      </nav>
       <h1>Suscetibilidade à desertificação sob estresse climático</h1>
       <p>Degradação histórica (MODIS 2001–2024), clima (CHIRPS, ERA5-Land), uso do solo (MapBiomas) e o radar NISAR
         (jun–out/2026) que confirma a degradação no presente. Resultados pré-calculados no servidor.</p>
@@ -154,7 +165,78 @@
           ${bars(Object.entries(contrib).map(([k, v]) => [nomeContrib[k] || k, v]), 0.2)}
           <h2>Por que o detector aponta (ou não) degradação aqui</h2>
           ${sh.length ? bars(sh.map((p) => [p.rotulo, p.efeito]), Math.max(...sh.map((p) => Math.abs(p.efeito)), 0.1))
-            + `<p class="note">Barras douradas aumentam o risco; verdes reduzem (SHAP em log-odds).</p>` : "<p class='note'>Sem pontos do detector neste município.</p>"}`;
+            + `<p class="note">Barras douradas aumentam o risco; verdes reduzem (SHAP em log-odds).</p>` : "<p class='note'>Sem pontos do detector neste município.</p>"}
+          <div class="cmp" id="cmp"><p class="hint">Carregando a comparação visual MODIS × NISAR…</p></div>`;
+        showCompare(r.municipio);
+      }
+
+      // ---- Comparação visual MODIS × NISAR (assets da equipe em web/municipios/<slug>/) ----
+      const slugify = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, "-");
+      const cmp = { slug: null, overlay: null, box: null, stats: null };
+      let productsManifest = null;
+
+      function setOverlay(name) {
+        if (cmp.overlay) map.removeLayer(cmp.overlay);
+        cmp.overlay = null;
+        document.querySelectorAll("#cmp-steps button").forEach((b) => b.classList.toggle("on", b.dataset.id === name));
+        if (!name) return;
+        const s = cmp.stats;
+        cmp.overlay = L.imageOverlay(`municipios/${cmp.slug}/${name}.png?v=1`,
+          [[s.south, s.west], [s.north, s.east]], { opacity: 0.9 }).addTo(map);
+      }
+
+      async function showCompare(nome) {
+        const slug = slugify(nome);
+        const box = el("cmp");
+        if (cmp.box) map.removeLayer(cmp.box);
+        setOverlay(null);
+        cmp.slug = slug;
+        let stats;
+        try {
+          const r = await fetch(`municipios/${slug}/stats.json?v=1`);
+          if (!r.ok) throw new Error(r.status);
+          stats = await r.json();
+        } catch {
+          box.innerHTML = "<p class='note'>Sem comparação visual MODIS × NISAR para este município.</p>";
+          return;
+        }
+        if (cmp.slug !== slug) return;
+        cmp.stats = stats;
+        if (!productsManifest) {
+          try { productsManifest = await (await fetch("products/manifest.json")).json(); } catch { productsManifest = { places: [] }; }
+        }
+        const prod = (productsManifest.places || []).find((p) => p.slug === slug);
+        const cc = prod && prod.class_counts;
+        const total = cc ? cc.modis_only + cc.nisar_only + cc.both + cc.observed_without_decline : 0;
+        cmp.box = L.rectangle([[stats.south, stats.west], [stats.north, stats.east]],
+          { color: "#fff4d6", weight: 2, fill: false, dashArray: "4 4" }).addTo(map)
+          .bindTooltip("Caixa da comparação visual MODIS × NISAR");
+        const steps = [["modis-trend", "MODIS tendência"], ["nisar-trend", "NISAR tendência"],
+          ...stats.modis_years.map((y) => [`modis-${y}`, `MODIS ${y}`]),
+          ...stats.nisar_dates.map((d) => [`nisar-${d}`, `NISAR ${d.slice(5).split("-").reverse().join("/")}`])];
+        box.innerHTML = `
+          <h2>Comparação visual MODIS × NISAR (caixa de ~13 km)</h2>
+          <p class="note">Método qualitativo da equipe: cor das imagens de visualização GIBS (MODIS em setembro de
+            ${stats.modis_years[0]}–${stats.modis_years.at(-1)}; NISAR HV de ${stats.nisar_dates.length} passagens de 2026, órbita ${esc(stats.orbit)}).
+            Não é o mesmo cálculo do índice acima (NDVI 2001–2024 descontada a chuva, município inteiro).</p>
+          <table>
+            <tr><th></th><th>MODIS</th><th>NISAR</th></tr>
+            <tr><td>Área da caixa com queda</td><td>${fmt(stats.modis_falling_pct)}%</td><td>${fmt(stats.nisar_falling_pct)}%</td></tr>
+            ${cc ? `<tr><td>Concordância (pixels)</td><td colspan="2">os dois: ${fmt(100 * cc.both / total, 0)}% · só MODIS: ${fmt(100 * cc.modis_only / total, 0)}% · só NISAR: ${fmt(100 * cc.nisar_only / total, 0)}%</td></tr>` : ""}
+          </table>
+          <div class="row" id="cmp-steps"></div>
+          <div class="row"><button id="cmp-zoom">Aproximar da caixa</button><button id="cmp-off">Esconder imagem</button>
+            <a href="municipios.html" style="font-size:.72rem;color:var(--gold);align-self:center">abrir comparação completa →</a></div>`;
+        const stepBox = el("cmp-steps");
+        for (const [id, label] of steps) {
+          const b = document.createElement("button");
+          b.textContent = label; b.dataset.id = id;
+          b.onclick = () => setOverlay(id);
+          stepBox.appendChild(b);
+        }
+        el("cmp-zoom").onclick = () => map.fitBounds(cmp.box.getBounds(), { padding: [40, 40], maxZoom: 13 });
+        el("cmp-off").onclick = () => setOverlay(null);
+        setOverlay("modis-trend");
       }
 
       async function init() {
