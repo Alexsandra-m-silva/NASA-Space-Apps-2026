@@ -294,9 +294,9 @@ export function AtualizacoesWorkspace() {
               territory you selected.
               {savedRemotely
                 ? emailSent
-                  ? " Your first briefing is on its way — check your inbox (and the spam folder)."
-                  : " Your selection was saved; the first briefing email could not be sent right now and will go out with the next update."
-                : " We could not reach the server, so the selection was saved in this browser only — please try again later."}
+                  ? " Your first briefing is on its way."
+                  : " The first briefing will arrive with the next update."
+                : " Saved in this browser only — please try again later."}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
