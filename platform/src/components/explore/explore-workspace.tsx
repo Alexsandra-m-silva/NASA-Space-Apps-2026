@@ -332,8 +332,9 @@ export function ExploreWorkspace() {
       {/* ——— First fold: map + Exploration focus ——— */}
       <section
         aria-label="First fold — map and actions"
-        className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
+        className="space-y-3 sm:space-y-4"
       >
+        {/* Full width: map + model layers + diagnosis + SHAP (ex-modelo.html) */}
         <div className="min-w-0">
           <ExploreMap
             municipalities={municipalityTerritories}
@@ -341,7 +342,7 @@ export function ExploreWorkspace() {
             onSelect={handleSelectTerritory}
           />
         </div>
-        <div className="min-w-0 md:max-h-[520px]">
+        <div className="min-w-0">
           <ActionCards
             items={items}
             level={level}

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
-import { X } from "lucide-react";
+import { useEffect, useId, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { AskSentinelMark } from "@/components/explore/ask-sentinel-mark";
 import { ExploreChat } from "@/components/explore/explore-chat";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,11 @@ import type {
   Territory,
 } from "@/data/explore/types";
 
+/**
+ * Help-desk style chat: a launcher in the bottom-right corner opens a drop-up
+ * panel beside the content. Non-modal — no backdrop, no scroll lock — so the
+ * map, filters and rankings stay usable while the chat is open.
+ */
 export function AskSentinel({
   items,
   level,
@@ -24,8 +29,8 @@ export function AskSentinel({
   risk: RiskLevel | "todos";
 }) {
   const [open, setOpen] = useState(false);
+  const panelId = useId();
   const titleId = useId();
-  const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -33,84 +38,72 @@ export function AskSentinel({
       if (e.key === "Escape") setOpen(false);
     };
     window.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    closeRef.current?.focus();
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-haspopup="dialog"
-        aria-expanded={open}
+    <div className="pointer-events-none fixed bottom-4 right-3 z-40 flex flex-col items-end gap-2 sm:bottom-6 sm:right-5">
+      {/* Panel stays mounted so the conversation survives closing/reopening */}
+      <section
+        id={panelId}
+        role="region"
+        aria-labelledby={titleId}
+        hidden={!open}
         className={cn(
-          "ask-sentinel-fab group fixed bottom-5 right-2 z-40 flex items-center gap-2.5 rounded-md border px-3.5 py-2.5 text-sm sm:bottom-6 sm:right-3",
-          "border-border/70 bg-card/80 text-foreground backdrop-blur-md",
-          "hover:bg-card/95"
+          "pointer-events-auto flex w-[min(400px,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-lg border border-border bg-card text-foreground shadow-2xl",
+          "h-[min(560px,calc(100vh-10rem))]",
+          !open && "hidden"
         )}
       >
-        <AskSentinelMark className="ask-sentinel-sparkle h-5 w-5 text-olive transition-transform duration-300 group-hover:scale-110" />
-        <span className="font-medium tracking-tight">Ask Sentinel</span>
-      </button>
-
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center p-3 sm:items-center sm:p-6">
+        <header className="flex items-center justify-between gap-3 border-b border-border bg-[#220F08] px-4 py-3 text-[#FBF7EF]">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <AskSentinelMark className="h-5 w-5 text-[#DAA849]" />
+            <h2 id={titleId} className="truncate font-display text-base">
+              Ask Sentinel
+            </h2>
+          </div>
           <button
             type="button"
-            aria-label="Close Ask Sentinel"
-            className="absolute inset-0 bg-[#220F08]/45 backdrop-blur-[2px]"
             onClick={() => setOpen(false)}
-          />
-
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={titleId}
-            className={cn(
-              "relative z-10 flex w-full max-w-lg flex-col overflow-hidden rounded-md border shadow-lg",
-              "max-h-[min(88vh,640px)]",
-              "border-border/70 bg-card/90 text-foreground backdrop-blur-md"
-            )}
+            className="rounded-md p-1.5 text-[#FBF7EF]/80 transition-colors hover:bg-white/10 hover:text-[#FBF7EF]"
+            aria-label="Minimise Ask Sentinel"
           >
-            <div className="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-3">
-              <div className="flex min-w-0 items-center gap-2.5">
-                <AskSentinelMark className="h-5 w-5 text-olive" />
-                <h2
-                  id={titleId}
-                  className="truncate font-display text-lg text-olive"
-                >
-                  Ask Sentinel
-                </h2>
-              </div>
-              <button
-                ref={closeRef}
-                type="button"
-                onClick={() => setOpen(false)}
-                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                aria-label="Close"
-              >
-                <X className="h-4 w-4" strokeWidth={1.75} />
-              </button>
-            </div>
-
-            <div className="min-h-0 flex-1 overflow-hidden">
-              <ExploreChat
-                items={items}
-                level={level}
-                impact={impact}
-                risk={risk}
-                variant="overlay"
-              />
-            </div>
-          </div>
+            <ChevronDown className="h-4 w-4" strokeWidth={2} />
+          </button>
+        </header>
+        <div className="min-h-0 flex-1 overflow-hidden bg-card">
+          <ExploreChat
+            items={items}
+            level={level}
+            impact={impact}
+            risk={risk}
+            variant="overlay"
+          />
         </div>
-      )}
-    </>
+      </section>
+
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-controls={panelId}
+        className={cn(
+          "ask-sentinel-fab group pointer-events-auto flex items-center gap-2.5 rounded-full border px-4 py-2.5 text-sm shadow-lg transition-colors",
+          open
+            ? "border-[#220F08] bg-[#220F08] text-[#FBF7EF]"
+            : "border-border bg-card text-foreground hover:bg-secondary"
+        )}
+      >
+        <AskSentinelMark
+          className={cn(
+            "ask-sentinel-sparkle h-5 w-5 transition-transform duration-300 group-hover:scale-110",
+            open ? "text-[#DAA849]" : "text-olive"
+          )}
+        />
+        <span className="font-medium tracking-tight">
+          {open ? "Close" : "Ask Sentinel"}
+        </span>
+      </button>
+    </div>
   );
 }
