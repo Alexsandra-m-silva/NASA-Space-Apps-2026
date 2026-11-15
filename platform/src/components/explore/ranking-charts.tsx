@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { plural } from "@/lib/utils";
 import { ds } from "@/data/design-tokens";
 import {
   formatBRLMillions,
@@ -138,7 +139,7 @@ export function RankingCharts({
       <div className="flex items-baseline justify-between gap-2">
         <div>
           <h2 className="font-display text-2xl text-olive">
-            Rankings · {LEVEL_LABELS[level].toLowerCase()}s
+            Rankings · {plural(LEVEL_LABELS[level].toLowerCase())}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Charts for the current view — click a bar for details.
@@ -210,8 +211,8 @@ export function RankingCharts({
         </ChartCard>
 
         <ChartCard
-          title="Cost of inaction"
-          subtitle="Expected loss over 10 years (BRL)"
+          title="Disaster losses 2015–24"
+          subtitle="Recorded drought and flood losses, Atlas Digital (S2iD), BRL, inflation-adjusted"
         >
           {byCost.map((t) => (
             <BarRow

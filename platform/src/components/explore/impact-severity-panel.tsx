@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { plural } from "@/lib/utils";
 import { ds } from "@/data/design-tokens";
 import {
   IMPACT_LABELS,
@@ -120,7 +121,7 @@ export function ImpactSeverityPanel({
     <div className="flex h-full min-h-0 flex-col rounded-md border border-border bg-card p-3 shadow-sm sm:p-4">
       <div className="mb-3">
         <h2 className="font-display text-base text-olive sm:text-lg">
-          Impact type · {LEVEL_LABELS[level].toLowerCase()}s
+          Impact type · {plural(LEVEL_LABELS[level].toLowerCase())}
         </h2>
         <p className="mt-0.5 text-[0.7rem] text-muted-foreground sm:text-xs">
           Distribution by severity (most → least critical).

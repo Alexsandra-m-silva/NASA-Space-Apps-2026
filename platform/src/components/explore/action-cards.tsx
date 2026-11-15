@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { plural } from "@/lib/utils";
 import {
   ACTION_KIND_LABELS,
   buildActionSuggestions,
@@ -53,7 +54,7 @@ export function ActionCards({
           <strong className="font-medium text-foreground">reverse</strong> impact
           in the current filtered view
           {impact !== "todos" ? ` · ${IMPACT_LABELS[impact]}` : ""} ·{" "}
-          {LEVEL_LABELS[level].toLowerCase()}s.
+          {plural(LEVEL_LABELS[level].toLowerCase())}.
         </p>
       </div>
 

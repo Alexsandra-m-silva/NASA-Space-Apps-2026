@@ -11,3 +11,4 @@ data
 platform/node_modules
 **/node_modules
 products/*_overlay.png
+platform/.next

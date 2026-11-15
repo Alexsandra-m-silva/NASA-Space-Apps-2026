@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { plural } from "@/lib/utils";
 import {
   formatCredits,
   formatTransitionRisk,
@@ -75,24 +76,24 @@ function replyFor(
     if (!lead) {
       return "Impact tags are empty for this selection.";
     }
-    return `Most frequent impact here is ${IMPACT_LABELS[lead[0]]} (${lead[1]} of ${n} ${level}s). Filter Impact type to isolate it, then check “What to do now” for preserve / slow / reverse moves.`;
+    return `Most frequent impact here is ${IMPACT_LABELS[lead[0]]} (${lead[1]} of ${n} ${plural(level)}). Filter Impact type to isolate it, then check “What to do now” for preserve / slow / reverse moves.`;
   }
 
   if (q.includes("risk") || q.includes("summar")) {
     const critico = ctx.items.filter((t) => t.risk === "critico").length;
     const alto = ctx.items.filter((t) => t.risk === "alto").length;
-    return `Selection: ${n} ${level}s · ${impactLabel} · ${riskLabel}. Transition risk index ${formatTransitionRisk(costs.transitionRisk)} (SDG 13). Critical: ${critico} · High: ${alto}. Use the map to pick a territory, then ask what to prioritize.`;
+    return `Selection: ${n} ${plural(level)} · ${impactLabel} · ${riskLabel}. Transition risk index ${formatTransitionRisk(costs.transitionRisk)} (SDG 13). Critical: ${critico} · High: ${alto}. Use the map to pick a territory, then ask what to prioritize.`;
   }
 
   const first = actions[0];
   if (q.includes("priorit") || q.includes("should") || q.includes("do now") || first) {
     if (!first) {
-      return `I see ${n} ${level}s but no strong action cards yet. Try raising risk severity or focusing one impact type.`;
+      return `I see ${n} ${plural(level)} but no strong action cards yet. Try raising risk severity or focusing one impact type.`;
     }
     return `I’d prioritize “${first.title}” (${first.kind}). ${first.summary} Why: ${first.why}`;
   }
 
-  return `This view covers ${n} ${level}s (${impactLabel}, ${riskLabel}). Transition risk ${formatTransitionRisk(costs.transitionRisk)}; credit potential ${formatCredits(costs.creditos)}. Ask about priorities, risk, impacts, or carbon — answers stay tied to the filters you set.`;
+  return `This view covers ${n} ${plural(level)} (${impactLabel}, ${riskLabel}). Transition risk ${formatTransitionRisk(costs.transitionRisk)}; credit potential ${formatCredits(costs.creditos)}. Ask about priorities, risk, impacts, or carbon — answers stay tied to the filters you set.`;
 }
 
 export function ExploreChat({
@@ -178,7 +179,7 @@ export function ExploreChat({
           Local briefing over the current selection — not a general chatbot.
         </p>
         <p className="mt-2 text-[0.65rem] text-muted-foreground">
-          {items.length} {LEVEL_LABELS[level].toLowerCase()}s · {impactLabel} ·{" "}
+          {items.length} {plural(LEVEL_LABELS[level].toLowerCase())} · {impactLabel} ·{" "}
           {riskLabel}
         </p>
       </div>
