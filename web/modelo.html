@@ -53,6 +53,7 @@
         <a class="on" href="modelo.html">Modelo e suscetibilidade</a>
         <a href="municipios.html">Comparação MODIS × NISAR por município</a>
         <a href="produto.html">Produto GeoTIFF</a>
+        <a href="/comparar/">Comparar e explicar (desenhe uma área)</a>
         <a href="/docs">API</a>
       </nav>
       <h1>Suscetibilidade à desertificação sob estresse climático</h1>
@@ -226,7 +227,8 @@
           </table>
           <div class="row" id="cmp-steps"></div>
           <div class="row"><button id="cmp-zoom">Aproximar da caixa</button><button id="cmp-off">Esconder imagem</button>
-            <a href="municipios.html" style="font-size:.72rem;color:var(--gold);align-self:center">abrir comparação completa →</a></div>`;
+            <a href="municipios.html" style="font-size:.72rem;color:var(--gold);align-self:center">abrir comparação completa →</a>
+            ${slug === "floresta" ? `<a href="/comparar/" style="font-size:.72rem;color:var(--gold);align-self:center">desenhar uma área e explicar →</a>` : ""}</div>`;
         const stepBox = el("cmp-steps");
         for (const [id, label] of steps) {
           const b = document.createElement("button");
