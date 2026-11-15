@@ -44,7 +44,14 @@ services:
   dg-api:
     build: { context: ., dockerfile: docker/app.Dockerfile }
     restart: unless-stopped
-    environment: *db-env
+    environment:
+      <<: *db-env
+      # E-mail das recomendações (Brevo SMTP, mesmos nomes do Clinibud)
+      BREVO_SMTP_LOGIN: ${BREVO_SMTP_LOGIN:-}
+      BREVO_SMTP: ${BREVO_SMTP:-}
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8090}
+      EMAIL_ADMIN_TOKEN: ${EMAIL_ADMIN_TOKEN:-}
     volumes:
       - ./app/bundle:/srv/app/bundle:ro
     depends_on:

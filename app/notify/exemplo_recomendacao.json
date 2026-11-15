@@ -1,0 +1,37 @@
+{
+  "municipio": "Petrolina/PE",
+  "diagnostico": "EXEMPLO ILUSTRATIVO para o layout do e-mail (não gerado pelo agente). Entre 2001 e 2024, 11,2% da área de Petrolina mostra queda da vegetação que a chuva não explica, contra 6,8% em melhora. A temperatura subiu 0,26 °C por década desde 1991, de forma significativa, sem aumento de chuva. O radar NISAR confirma a degradação mapeada pelo MODIS (AUC 0,74), e 87,8% da área está em suscetibilidade alta ou muito alta.",
+  "nivel_alerta": "alto",
+  "recomendacoes": [
+    {
+      "categoria": "IMPROVE",
+      "acao": "Priorizar a recuperação de vegetação nativa nas manchas degradadas mapeadas",
+      "justificativa": "A queda da vegetação se concentra em manchas identificáveis e coincide com aquecimento significativo e chuva estável.",
+      "evidencias": ["pct_area_degradando = 11.2", "aquecimento_c_por_decada = 0.26", "auc_confirma_modis = 0.74"],
+      "politicas": ["pab_brasil_2024", "codigo_florestal"],
+      "responsaveis": [{"esfera": "estadual", "orgao": "órgão estadual de meio ambiente", "perfil_x": null},
+                       {"esfera": "municipal", "orgao": "secretaria municipal de meio ambiente", "perfil_x": null}],
+      "prioridade": "alta",
+      "limitacoes": ["Degradação por satélite não comprova desertificação em campo."]
+    },
+    {
+      "categoria": "MONITOR",
+      "acao": "Acompanhar as áreas com radar em queda acima do típico na próxima estação seca",
+      "justificativa": "O NISAR tem só a estação seca de 2026; a confirmação exige mais um ciclo.",
+      "evidencias": ["especificidade_pct = 53.9", "sensibilidade_pct = 78.9"],
+      "politicas": ["lei_13153_2015"],
+      "responsaveis": [{"esfera": "federal", "orgao": "MMA", "perfil_x": null}],
+      "prioridade": "media",
+      "limitacoes": ["Dado NISAR provisório."]
+    }
+  ],
+  "rascunho_x": {"texto": "Dados da NASA (NISAR, MODIS) indicam queda da vegetação em 11% de Petrolina desde 2001, com aquecimento de 0,26 °C/década. Veja as evidências e recomendações. #NISAR #Desertificação", "status": "pending_review"},
+  "limitacoes_gerais": ["Exemplo ilustrativo; não usar como recomendação real."],
+  "gerado_em": "exemplo",
+  "modelo": "exemplo",
+  "politicas_referencia": [
+    {"id": "lei_13153_2015", "nome": "Lei 13.153/2015 — Política Nacional de Combate à Desertificação e Mitigação dos Efeitos da Seca", "esfera": "federal", "orgao": "MMA", "verificar": false},
+    {"id": "pab_brasil_2024", "nome": "PAB-Brasil 2024", "esfera": "federal", "orgao": "MMA", "verificar": false},
+    {"id": "codigo_florestal", "nome": "Lei 12.651/2012 — Código Florestal", "esfera": "federal", "orgao": "MMA", "verificar": false}
+  ]
+}

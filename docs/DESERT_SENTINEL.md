@@ -69,3 +69,27 @@ botão **copiar** — a publicação no X é sempre manual, depois de revisão h
 
 - Pesquisa de políticas e responsáveis atuais em fontes oficiais (LexML, Câmara, Senado, TSE) para ampliar a lista.
 - Botão "gerar novamente" no backend (com limite de frequência) em vez de só linha de comando.
+
+## E-mail da recomendação (Brevo)
+
+Mesmo padrão do Clinibud: Brevo por SMTP (`smtp-relay.brevo.com:587`, TLS). Variáveis no `.env` da raiz:
+
+```
+BREVO_SMTP_LOGIN=      # login SMTP do Brevo
+BREVO_SMTP=            # chave SMTP do Brevo
+DEFAULT_FROM_EMAIL=    # remetente com domínio validado no Brevo
+FRONTEND_URL=http://localhost:8090
+EMAIL_ADMIN_TOKEN=     # segredo exigido para disparar envios pela API
+```
+
+| Método | Rota | Uso |
+|---|---|---|
+| GET | `/api/recomendacoes/{Município}/{UF}/email.html` | pré-visualização do e-mail (não envia) |
+| POST | `/api/recomendacoes/{Município}/{UF}/email` | envia; corpo `{"para": ["a@b.org"]}`, cabeçalho `X-Admin-Token` |
+
+Sem `EMAIL_ADMIN_TOKEN` o envio fica desligado (503). Máximo de 20 destinatários por envio.
+Modelo em `app/notify/email.py`; exemplo ilustrativo para testar o layout em `app/notify/exemplo_recomendacao.json`:
+
+```bash
+python -m app.notify.email "Petrolina/PE" --exemplo app/notify/exemplo_recomendacao.json --preview email.html
+```

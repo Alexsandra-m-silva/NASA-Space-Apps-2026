@@ -9,8 +9,12 @@ import os
 from pathlib import Path
 
 import psycopg
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, JSONResponse
+import hmac
+import re
+
+from fastapi import FastAPI, Header, HTTPException
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from pydantic import BaseModel
 from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool
 
@@ -94,12 +98,50 @@ def recomendacoes():
     return {"publicado_em": row["publicado_em"].isoformat(), "municipios": row["conteudo"]}
 
 
-@app.get("/api/recomendacoes/{chave:path}")
-def recomendacao(chave: str):
+def _rec(chave: str) -> dict:
     row = _one("SELECT conteudo -> %s AS r FROM documentos WHERE nome = 'recomendacoes'", (chave,))
     if not row or row["r"] is None:
         raise HTTPException(404, "sem recomendação para este município")
     return row["r"]
+
+
+@app.get("/api/recomendacoes/{chave:path}/email.html", response_class=HTMLResponse)
+def email_preview(chave: str):
+    """Pré-visualização do e-mail da recomendação (não envia nada)."""
+    from app.notify.email import render
+    return HTMLResponse(render(_rec(chave))[1])
+
+
+class EnvioEmail(BaseModel):
+    para: list[str]
+
+
+EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+@app.post("/api/recomendacoes/{chave:path}/email")
+def email_send(chave: str, corpo: EnvioEmail, x_admin_token: str | None = Header(default=None)):
+    """Envia a recomendação por e-mail (Brevo). Exige o cabeçalho X-Admin-Token = EMAIL_ADMIN_TOKEN."""
+    from app.notify.email import EmailError, render, send
+    token = os.environ.get("EMAIL_ADMIN_TOKEN", "")
+    if not token:
+        raise HTTPException(503, "envio de e-mail desligado (EMAIL_ADMIN_TOKEN não configurado)")
+    if not x_admin_token or not hmac.compare_digest(x_admin_token, token):
+        raise HTTPException(401, "token inválido")
+    para = [e.strip() for e in corpo.para if EMAIL_RE.match(e.strip())]
+    if not para or len(para) != len(corpo.para):
+        raise HTTPException(422, "lista de e-mails inválida")
+    subject, body, text = render(_rec(chave))
+    try:
+        msg_id = send(para, subject, body, text)
+    except EmailError as e:
+        raise HTTPException(502, str(e))
+    return {"enviado": True, "para": para, "assunto": subject, "message_id": msg_id}
+
+
+@app.get("/api/recomendacoes/{chave:path}")
+def recomendacao(chave: str):
+    return _rec(chave)
 
 
 @app.get("/api/figuras/{nome}")
