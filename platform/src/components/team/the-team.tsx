@@ -1,7 +1,11 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { TEAM } from "@/data/team";
 
 const TOP = TEAM.slice(0, 3);
 const BOTTOM = TEAM.slice(3);
+const SITE_URL = "https://www.climate-sentinel.hefestotech.com.br";
+const SITE_LABEL = "www.climate-sentinel.hefestotech.com.br";
 
 function Avatar({
   name,
@@ -104,6 +108,25 @@ export function TheTeam() {
               />
             ))}
           </ul>
+        </div>
+
+        <div className="mt-10 flex flex-col items-center gap-3 sm:mt-12">
+          <Button
+            asChild
+            size="lg"
+            variant="accent"
+            className="border-transparent bg-[#FFEA7F] text-[#220F08] shadow hover:bg-[#F5DE6E]"
+          >
+            <Link href="/about#partners">Become a partner</Link>
+          </Button>
+          <a
+            href={SITE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-muted-foreground transition-colors hover:text-olive"
+          >
+            {SITE_LABEL}
+          </a>
         </div>
       </div>
     </div>
