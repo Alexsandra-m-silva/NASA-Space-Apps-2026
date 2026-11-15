@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /*
+      Design System — NASA Space App Challenge
+      CLIMA / Terra e luz — neutrals warm · café/barro structure · sol accent · ocre support
+    */
+    --background: #fbf7ef;
+    --foreground: #220f08;
+    --card: #fffdf8;
+    --card-foreground: #220f08;
+    --popover: #fffdf8;
+    --popover-foreground: #220f08;
+    --primary: #220f08;
+    --primary-foreground: #fbf7ef;
+    --secondary: #f3ebd9;
+    --secondary-foreground: #220f08;
+    --muted: #f3ebd9;
+    --muted-foreground: #6b5545;
+    --accent: #ffea7f;
+    --accent-foreground: #220f08;
+    --destructive: #963b2f;
+    --destructive-foreground: #fffdf8;
+    --border: #ddd5ba;
+    --input: #927c60;
+    --ring: #435d6a;
+    --radius: 0.5rem;
+
+    /* Brand — Terra e luz */
+    --cafe: #220f08;
+    --barro: #642f07;
+    --sol: #ffea7f;
+    --ocre: #a2510f;
+    --mel: #daa849;
+
+    /* Legacy brand aliases → Terra e luz */
+    --floresta: #220f08;
+    --conexao: #642f07;
+    --broto: #ffea7f;
+    --terra: #a2510f;
+    --areia: #fbf7ef;
+
+    /* Legacy class aliases */
+    --sand-deep: #fbf7ef;
+    --olive-ink: #220f08;
+    --signal: #642f07;
+    --signal-soft: #f3ebd9;
+    --warn-earth: #a2510f;
+    --success: #52633d;
+    --warning: #b9500e;
+    --info: #435d6a;
+    --hover: #471c09;
+
+    /* Data: categorical A–E (cacau → ouro) */
+    --chart-1: #341c10;
+    --chart-2: #b67523;
+    --chart-3: #c4ae58;
+    --chart-4: #471c09;
+    --chart-5: #f3d867;
+
+    /* Sequential warm scale */
+    --seq-1: #ffea7f;
+    --seq-2: #daa849;
+    --seq-3: #b67523;
+    --seq-4: #642f07;
+    --seq-5: #341c10;
+
+    /* Divergent */
+    --div-low: #642f07;
+    --div-low-mid: #daa849;
+    --div-mid: #f3ebd9;
+    --div-high-mid: #c4ae58;
+    --div-high: #62602d;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(ellipse 90% 55% at 8% -8%, rgba(100, 47, 7, 0.08), transparent 55%),
+      radial-gradient(ellipse 70% 45% at 100% 0%, rgba(255, 234, 127, 0.18), transparent 50%),
+      linear-gradient(165deg, #fbf7ef 0%, #f3ebd9 55%, #fbf7ef 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--sol) 55%, white);
+    color: var(--cafe);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .grain {
+    position: relative;
+  }
+
+  .grain::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: multiply;
+  }
+
+  .animate-rise {
+    animation: rise 0.55s ease-out both;
+  }
+
+  .animate-rise-delay-1 {
+    animation: rise 0.55s ease-out 0.08s both;
+  }
+
+  .animate-rise-delay-2 {
+    animation: rise 0.55s ease-out 0.16s both;
+  }
+
+  .animate-rise-delay-3 {
+    animation: rise 0.55s ease-out 0.24s both;
+  }
+
+  .animate-draw {
+    animation: draw-line 0.8s ease-out both;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes draw-line {
+    from {
+      stroke-dashoffset: 120;
+      opacity: 0.2;
+    }
+    to {
+      stroke-dashoffset: 0;
+      opacity: 1;
+    }
+  }
+}
