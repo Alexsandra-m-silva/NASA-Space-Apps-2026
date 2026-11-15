@@ -6,6 +6,7 @@
     <title>Desertification susceptibility</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23f0c36a'/%3E%3C/svg%3E" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/chat.css" />
     <style>
       :root { --bg: #10140f; --panel: rgba(16, 20, 15, 0.94); --line: rgba(240, 195, 106, 0.45);
               --gold: #f0c36a; --text: #f4efe6; --muted: #cbbba6; --soft: #e7d7c3;
@@ -273,5 +274,6 @@
       }
       init().catch((e) => { el("detail").innerHTML = `<p>Could not load the results (${esc(e.message)}). Is the API up?</p>`; });
     </script>
+    <script src="/chat.js" defer></script>
   </body>
 </html>

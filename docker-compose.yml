@@ -52,6 +52,10 @@ services:
       DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8090}
       EMAIL_ADMIN_TOKEN: ${EMAIL_ADMIN_TOKEN:-}
+      # Chat com os dados da tela (Microsoft Foundry, API compatível com OpenAI)
+      FOUNDRY_ENDPOINT: ${FOUNDRY_ENDPOINT:-}
+      FOUNDRY_API_KEY: ${FOUNDRY_API_KEY:-}
+      FOUNDRY_MODEL: ${FOUNDRY_MODEL:-}
     volumes:
       - ./app/bundle:/srv/app/bundle:ro
     depends_on:

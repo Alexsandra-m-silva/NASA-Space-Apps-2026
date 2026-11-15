@@ -12,6 +12,19 @@ NASA Space Apps Challenge 2026. NISAR L-band is the core of the detection; GPM I
 
 Calm water / flood: very low HH backscatter. Change = pixels that cross the threshold (default −18 dB) between the before/after pair, preferably on the same track and frame (12-day cycle).
 
+## Chat com os dados da tela
+
+O botão de avatar abre o chat nas páginas do projeto. As perguntas incluem o texto e os valores dos controles exibidos na página atual. O navegador chama a API do projeto; a chave do Microsoft Foundry fica apenas no `.env` do servidor.
+
+Preencha `FOUNDRY_API_KEY` no `.env` local. O endpoint e o nome do deployment (`FOUNDRY_ENDPOINT` e `FOUNDRY_MODEL`) também ficam nesse arquivo; não cole a chave no código nem a envie ao navegador. O `.env` está excluído do Git. Depois, na pasta do projeto, reconstrua e inicie os serviços:
+
+```powershell
+docker compose up --build -d
+```
+
+Abra `http://localhost:8090` e clique no avatar no canto inferior direito.
+
+
 ## 1. See the images now
 
 ```bash
