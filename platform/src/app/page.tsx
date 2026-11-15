@@ -39,47 +39,27 @@ const TECH = [
 export default function HomePage() {
   return (
     <div>
-      {/* Hero — brand first, one composition, full-bleed atmosphere */}
+      {/* Hero — full-bleed video under copy/CTAs */}
       <section
         data-header-contrast="dark"
-        className="relative -mt-[3.75rem] min-h-[88vh] overflow-hidden border-b border-border pt-[3.75rem]"
+        className="relative -mt-[3.75rem] min-h-[88vh] overflow-hidden border-b border-border bg-[#220F08] pt-[3.75rem]"
       >
-        <div
-          aria-hidden
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `
-              radial-gradient(ellipse 75% 55% at 78% 12%, rgba(218,168,73,0.22), transparent 55%),
-              radial-gradient(ellipse 55% 45% at 8% 88%, rgba(162,81,15,0.28), transparent 50%),
-              linear-gradient(158deg, #220F08 0%, #341C10 34%, #642F07 68%, #471C09 100%)
-            `,
-          }}
-        />
-        <div
-          aria-hidden
-          className="absolute inset-0 opacity-[0.14]"
-          style={{
-            backgroundImage: `repeating-linear-gradient(
-              -18deg,
-              transparent,
-              transparent 16px,
-              rgba(251,247,239,0.07) 16px,
-              rgba(251,247,239,0.07) 17px
-            )`,
-          }}
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-[46%]"
-          style={{
-            background: `
-              linear-gradient(to top, rgba(34,15,8,0.75), transparent 70%),
-              radial-gradient(ellipse 100% 70% at 50% 100%, rgba(162,81,15,0.45) 0%, transparent 58%)
-            `,
-          }}
-        />
+        <div aria-hidden className="absolute inset-0">
+          <video
+            className="h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+          >
+            <source src="/hero/about-hero.mp4" type="video/mp4" />
+          </video>
+          {/* Black mask at 20% opacity over the video */}
+          <div className="pointer-events-none absolute inset-0 bg-black/20" />
+        </div>
 
-        <div className="relative mx-auto flex min-h-[88vh] max-w-6xl flex-col justify-end px-4 pb-16 pt-28 sm:px-6 sm:pb-20">
+        <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-6xl flex-col justify-end px-4 pb-16 pt-28 sm:px-6 sm:pb-20">
           <p className="animate-rise font-display text-5xl leading-none tracking-tight text-[#FBF7EF] sm:text-6xl md:text-7xl lg:text-8xl">
             {brand.name}
           </p>
