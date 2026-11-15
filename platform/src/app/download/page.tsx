@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export const metadata = {
   title: "Download",
-  description: "Download the Desert Sentinel project zip.",
+  description: "Download the Climate Sentinel project zip.",
 };
 
 export default function DownloadPage() {
@@ -16,7 +16,7 @@ export default function DownloadPage() {
         Project pack
       </p>
       <h1 className="mt-2 font-display text-3xl text-olive sm:text-4xl">
-        Download Desert Sentinel
+        Download Climate Sentinel
       </h1>
       <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
         Full prototype source for Explore and Newsletter (without{" "}
@@ -27,8 +27,8 @@ export default function DownloadPage() {
       <div className="mt-8 flex flex-wrap gap-3">
         <Button asChild size="lg">
           <a
-            href="/Desert-Sentinel-explore-newsletter.zip"
-            download="Desert-Sentinel-explore-newsletter.zip"
+            href="/Climate-Sentinel-explore-newsletter.zip"
+            download="Climate-Sentinel-explore-newsletter.zip"
           >
             Download ZIP
           </a>
@@ -41,10 +41,10 @@ export default function DownloadPage() {
         Direct file:{" "}
         <a
           className="underline underline-offset-2 hover:text-foreground"
-          href="/Desert-Sentinel-explore-newsletter.zip"
+          href="/Climate-Sentinel-explore-newsletter.zip"
           download
         >
-          /Desert-Sentinel-explore-newsletter.zip
+          /Climate-Sentinel-explore-newsletter.zip
         </a>
       </p>
     </div>
