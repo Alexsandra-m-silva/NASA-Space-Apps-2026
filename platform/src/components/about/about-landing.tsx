@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { AboutTeam } from "@/components/about/about-team";
 import { HeroVideo } from "@/components/about/hero-video";
 import { PartnerCta } from "@/components/about/partner-cta";
 import { Button } from "@/components/ui/button";
@@ -229,8 +228,6 @@ export function AboutLanding() {
           </div>
         </div>
       </section>
-
-      <AboutTeam />
 
       {/* Partners — companies only; soft Mel wash for quiet highlight */}
       <section
