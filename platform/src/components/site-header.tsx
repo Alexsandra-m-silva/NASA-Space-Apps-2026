@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Gamepad2 } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -138,7 +139,7 @@ export function SiteHeader() {
           <Link
             href="/about"
             className={cn(
-              "rounded-md px-2 py-1.5 transition-colors",
+              "hidden rounded-md px-2 py-1.5 transition-colors sm:inline-flex",
               onDark
                 ? "text-brand-areia/90 hover:bg-white/10 hover:text-brand-areia"
                 : "text-muted-foreground hover:bg-secondary hover:text-foreground",
@@ -151,7 +152,7 @@ export function SiteHeader() {
           <Link
             href="/explore"
             className={cn(
-              "rounded-md px-2 py-1.5 transition-colors",
+              "hidden rounded-md px-2 py-1.5 transition-colors sm:inline-flex",
               onDark
                 ? "text-brand-areia/90 hover:bg-white/10 hover:text-brand-areia"
                 : "text-muted-foreground hover:bg-secondary hover:text-foreground"
@@ -159,6 +160,24 @@ export function SiteHeader() {
           >
             Explore
           </Link>
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+            className={cn(
+              "border-transparent px-2 text-xs sm:px-3",
+              onDark
+                ? "bg-white/10 text-brand-areia hover:bg-white/20 hover:text-brand-areia"
+                : "bg-secondary text-foreground hover:bg-secondary/80",
+              pathname === "/learn-by-playing" && "ring-1 ring-current"
+            )}
+          >
+            <Link href="/learn-by-playing" aria-label="Learn by playing">
+              <Gamepad2 aria-hidden="true" />
+              <span className="hidden sm:inline">Learn by playing</span>
+              <span className="sm:hidden">Play</span>
+            </Link>
+          </Button>
           <Button
             asChild
             size="sm"
